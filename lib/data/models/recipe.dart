@@ -1,0 +1,209 @@
+/// Модель рецепта встроенной базы (assets/data/recipes.json, Шаг 2).
+///
+/// Чистый Dart без зависимости от Flutter — используется AI-слоем,
+/// DAO снимков планов и юнит-тестами. Схема JSON: recipes.v1
+/// (генератор — scripts/gen_recipes.py в корне внешнего проекта).
+library;
+
+import 'user_profile.dart';
+
+/// Приём пищи в плане меню.
+enum MealSlot {
+  breakfast('breakfast'),
+  snack('snack'),
+  lunch('lunch'),
+  dinner('dinner');
+
+  const MealSlot(this.key);
+  final String key;
+
+  static MealSlot fromKey(String key) => values.firstWhere(
+        (s) => s.key == key,
+        orElse: () => MealSlot.lunch,
+      );
+}
+
+/// Один ингредиент рецепта в конкретной массе на весь рецепт.
+class RecipeIngredient {
+  const RecipeIngredient({
+    required this.key,
+    required this.ru,
+    required this.en,
+    required this.grams,
+    required this.pantry,
+  });
+
+  /// Стабильный ключ продукта (алфавит совпадает с IngredientMatcher).
+  final String key;
+  final String ru;
+  final String en;
+
+  /// Грамм на весь рецепт (не на порцию).
+  final int grams;
+
+  /// Кладовый продукт (соль, масло, специи): считается всегда доступным,
+  /// не влияет на покрытие холодильника и список покупок.
+  final bool pantry;
+
+  static RecipeIngredient fromJson(Map<String, Object?> j) =>
+      RecipeIngredient(
+        key: j['key'] as String,
+        ru: j['ru'] as String,
+        en: j['en'] as String,
+        grams: (j['grams'] as num).toInt(),
+        pantry: (j['pantry'] as bool?) ?? false,
+      );
+
+  Map<String, Object?> toJson() => {
+        'key': key,
+        'ru': ru,
+        'en': en,
+        'grams': grams,
+        'pantry': pantry,
+      };
+
+  @override
+  String toString() => 'RecipeIngredient($key, ${grams}g)';
+}
+
+/// Рецепт из встроенной базы.
+class Recipe {
+  const Recipe({
+    required this.id,
+    required this.titleRu,
+    required this.titleEn,
+    required this.category,
+    required this.minutes,
+    required this.servings,
+    required this.kcal,
+    required this.protein,
+    required this.fat,
+    required this.carbs,
+    required this.vegetarian,
+    required this.vegan,
+    required this.glutenFree,
+    required this.lowCarb,
+    required this.hasMeat,
+    required this.hasFish,
+    required this.allergens,
+    required this.family,
+    required this.secondFamily,
+    required this.ingredients,
+    required this.stepsRu,
+    required this.stepsEn,
+  });
+
+  final String id;
+  final String titleRu;
+  final String titleEn;
+
+  /// breakfast | soup | main | salad | side | snack | dessert
+  final String category;
+  final int minutes;
+  final int servings;
+
+  /// КБЖУ на порцию (приблизительно, +-10%).
+  final int kcal;
+  final int protein;
+  final int fat;
+  final int carbs;
+
+  final bool vegetarian;
+  final bool vegan;
+  final bool glutenFree;
+  final bool lowCarb;
+  final bool hasMeat;
+  final bool hasFish;
+
+  /// Ключи аллергенов из [Allergen] — жёсткий фильтр планера.
+  final List<Allergen> allergens;
+
+  /// Главный ингредиент («семья блюда») — штраф за повторы в неделе.
+  final String family;
+
+  /// Второй по весу ингредиент (гарнир/основа) — мягкий штраф,
+  /// чтобы неделя не превратилась в «5 ужинов с пюре».
+  final String secondFamily;
+  final List<RecipeIngredient> ingredients;
+  final List<String> stepsRu;
+  final List<String> stepsEn;
+
+  String title(String localeTag) =>
+      localeTag.startsWith('ru') ? titleRu : titleEn;
+
+  List<String> steps(String localeTag) =>
+      localeTag.startsWith('ru') ? stepsRu : stepsEn;
+
+  /// Ингредиенты, влияющие на планирование (без кладовых).
+  List<RecipeIngredient> get cookingIngredients =>
+      ingredients.where((i) => !i.pantry).toList();
+
+  static Recipe fromJson(Map<String, Object?> j) {
+    final nutrition = j['nutrition'] as Map<String, Object?>;
+    final flags = j['flags'] as Map<String, Object?>;
+    final title = j['title'] as Map<String, Object?>;
+    final steps = j['steps'] as Map<String, Object?>;
+    return Recipe(
+      id: j['id'] as String,
+      titleRu: title['ru'] as String,
+      titleEn: title['en'] as String,
+      category: j['category'] as String,
+      minutes: (j['minutes'] as num).toInt(),
+      servings: (j['servings'] as num).toInt(),
+      kcal: (nutrition['kcal'] as num).toInt(),
+      protein: (nutrition['protein'] as num).toInt(),
+      fat: (nutrition['fat'] as num).toInt(),
+      carbs: (nutrition['carbs'] as num).toInt(),
+      vegetarian: (flags['vegetarian'] as bool?) ?? false,
+      vegan: (flags['vegan'] as bool?) ?? false,
+      glutenFree: (flags['gluten_free'] as bool?) ?? false,
+      lowCarb: (flags['low_carb'] as bool?) ?? false,
+      hasMeat: (flags['has_meat'] as bool?) ?? false,
+      hasFish: (flags['has_fish'] as bool?) ?? false,
+      allergens: (j['allergens'] as List<dynamic>? ?? const [])
+          .map((a) => Allergen.fromKey(a as String))
+          .toList(),
+      family: (j['family'] as String?) ?? '',
+      secondFamily: (j['second_family'] as String?) ?? '',
+      ingredients: (j['ingredients'] as List<dynamic>? ?? const [])
+          .map((e) => RecipeIngredient.fromJson(e as Map<String, Object?>))
+          .toList(),
+      stepsRu: (steps['ru'] as List<dynamic>? ?? const [])
+          .map((e) => e as String)
+          .toList(),
+      stepsEn: (steps['en'] as List<dynamic>? ?? const [])
+          .map((e) => e as String)
+          .toList(),
+    );
+  }
+
+  Map<String, Object?> toJson() => {
+        'id': id,
+        'title': {'ru': titleRu, 'en': titleEn},
+        'category': category,
+        'minutes': minutes,
+        'servings': servings,
+        'nutrition': {
+          'kcal': kcal,
+          'protein': protein,
+          'fat': fat,
+          'carbs': carbs,
+        },
+        'flags': {
+          'vegetarian': vegetarian,
+          'vegan': vegan,
+          'gluten_free': glutenFree,
+          'low_carb': lowCarb,
+          'has_meat': hasMeat,
+          'has_fish': hasFish,
+        },
+        'allergens': allergens.map((a) => a.key).toList(),
+        'family': family,
+        'second_family': secondFamily,
+        'ingredients': ingredients.map((i) => i.toJson()).toList(),
+        'steps': {'ru': stepsRu, 'en': stepsEn},
+      };
+
+  @override
+  String toString() => 'Recipe($id, $titleRu, $category, $kcal ккал)';
+}
