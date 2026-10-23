@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Зависимости
+        run: flutter pub get
+
+      - name: Локализация (gen-l10n)
+        run: flutter gen-l10n
+
+      - name: Анализ (ошибки + info)
+        run: flutter analyze --fatal-infos
+
+      - name: Юнит-тесты
+        run: flutter test --coverage
