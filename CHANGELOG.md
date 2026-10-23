@@ -92,6 +92,10 @@
   тесты → восстановление ключа из секретов → подписанный APK →
   автоматический GitHub Release. Секреты: `KEYSTORE_BASE64`,
   `KEYSTORE_PASSWORD`, `KEYSTORE_KEY_ALIAS`, `KEYSTORE_KEY_PASSWORD`.
+- Android-сборка: включён core library desugaring (требование
+  `flutter_local_notifications`) — `coreLibraryDesugaringEnabled`,
+  `multiDexEnabled` и зависимость `desugar_jdk_libs:2.1.4`; поймано
+  первой CI-сборкой релиза.
 
 ## [0.2.0] — 2026-10-24
 

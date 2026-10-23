@@ -34,6 +34,8 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        // Требование flutter_local_notifications: core library desugaring
+        coreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -45,6 +47,8 @@ android {
         // Использует versionCode из pubspec.yaml.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Рекомендация flutter_local_notifications
+        multiDexEnabled = true
     }
 
     signingConfigs {
@@ -89,4 +93,9 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Десугаринг java.time и др. для старых API (flutter_local_notifications)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
