@@ -131,6 +131,13 @@ class PlanDao {
         whereArgs: [planId, ingKey],
       );
 
+  /// Удаляет купленные (отмеченные) позиции из списка покупок плана.
+  Future<int> deleteCheckedShopping(String planId) => db.delete(
+        'shopping_items',
+        where: 'plan_id = ? AND checked = 1',
+        whereArgs: [planId],
+      );
+
   /// Количество сохранённых планов (тесты/статистика).
   Future<int> countPlans() async {
     final rows = await db.rawQuery('SELECT COUNT(*) AS c FROM meal_plans');

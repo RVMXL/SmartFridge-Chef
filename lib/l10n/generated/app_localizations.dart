@@ -131,13 +131,13 @@ abstract class AppLocalizations {
   /// No description provided for @fridgePlaceholderTitle.
   ///
   /// In en, this message translates to:
-  /// **'Screen at Step 3'**
+  /// **'Screen — Step 3'**
   String get fridgePlaceholderTitle;
 
   /// No description provided for @fridgePlaceholderBody.
   ///
   /// In en, this message translates to:
-  /// **'The product list with colour-coded freshness will appear at Step 3. The data layer (Step 1) is already live — below is the real state of the local SQLite database.'**
+  /// **'The product list with freshness color coding will appear in Step 3. The data layer (Step 1) already works — below is the real state of the local SQLite database.'**
   String get fridgePlaceholderBody;
 
   /// No description provided for @fridgeEmpty.
@@ -155,13 +155,13 @@ abstract class AppLocalizations {
   /// No description provided for @statExpiring.
   ///
   /// In en, this message translates to:
-  /// **'Expiring soon (≤ {days} days)'**
+  /// **'Expiring (≤ {days} d.)'**
   String statExpiring(int days);
 
   /// No description provided for @statExpired.
   ///
   /// In en, this message translates to:
-  /// **'Already expired'**
+  /// **'Expired'**
   String get statExpired;
 
   /// No description provided for @plannerTitle.
@@ -179,7 +179,7 @@ abstract class AppLocalizations {
   /// No description provided for @plannerPlaceholderBody.
   ///
   /// In en, this message translates to:
-  /// **'A weekly menu generated on-device from the fridge contents, your nutrition profile and regional seasonality. Implemented after Step 1 is confirmed.'**
+  /// **'A week menu generated on the device from the fridge contents, your nutrition profile and regional seasonality. Implemented after Step 1 is confirmed.'**
   String get plannerPlaceholderBody;
 
   /// No description provided for @settingsTitle.
@@ -257,13 +257,13 @@ abstract class AppLocalizations {
   /// No description provided for @stageCurrent.
   ///
   /// In en, this message translates to:
-  /// **'Step 1 of 3 — local database and data layer'**
+  /// **'Done: offline planner, scanner, expiry notifications (v0.3.0)'**
   String get stageCurrent;
 
   /// No description provided for @settingsOffline.
   ///
   /// In en, this message translates to:
-  /// **'Offline-first: all data stays on this device. No analytics, no servers, no accounts.'**
+  /// **'Offline-first: all data stays on the device. No analytics, servers or accounts.'**
   String get settingsOffline;
 
   /// No description provided for @dbOpenError.
@@ -287,7 +287,7 @@ abstract class AppLocalizations {
   /// No description provided for @freshnessExpiring.
   ///
   /// In en, this message translates to:
-  /// **'Expiring soon'**
+  /// **'Expiring'**
   String get freshnessExpiring;
 
   /// No description provided for @freshnessExpired.
@@ -295,6 +295,1014 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expired'**
   String get freshnessExpired;
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
+
+  /// No description provided for @commonSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get commonSave;
+
+  /// No description provided for @commonDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get commonDelete;
+
+  /// No description provided for @commonAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get commonAdd;
+
+  /// No description provided for @commonDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get commonDone;
+
+  /// No description provided for @commonClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get commonClose;
+
+  /// No description provided for @commonError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get commonError;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name'**
+  String get searchHint;
+
+  /// No description provided for @sortTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get sortTooltip;
+
+  /// No description provided for @sortExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'By expiry date'**
+  String get sortExpiry;
+
+  /// No description provided for @sortName.
+  ///
+  /// In en, this message translates to:
+  /// **'By name'**
+  String get sortName;
+
+  /// No description provided for @sortCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'By category'**
+  String get sortCategory;
+
+  /// No description provided for @emptySearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found'**
+  String get emptySearchTitle;
+
+  /// No description provided for @emptySearchBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a different query — the fridge list is empty.'**
+  String get emptySearchBody;
+
+  /// No description provided for @fridgeAddTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add products'**
+  String get fridgeAddTooltip;
+
+  /// No description provided for @fridgeEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The fridge is empty'**
+  String get fridgeEmptyTitle;
+
+  /// No description provided for @fridgeEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first product: scan a barcode, photograph a receipt or type it manually.'**
+  String get fridgeEmptyBody;
+
+  /// No description provided for @fridgeAddBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan barcode'**
+  String get fridgeAddBarcode;
+
+  /// No description provided for @fridgeAddReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt photo (OCR)'**
+  String get fridgeAddReceipt;
+
+  /// No description provided for @fridgeAddManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter manually'**
+  String get fridgeAddManual;
+
+  /// No description provided for @fridgeLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Freshness legend'**
+  String get fridgeLegend;
+
+  /// No description provided for @swipeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe a card to mark it as eaten or discarded.'**
+  String get swipeHint;
+
+  /// No description provided for @daysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{expires today} =1{1 day left} other{{days} days left}}'**
+  String daysLeft(int days);
+
+  /// No description provided for @expiryOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry: {date}'**
+  String expiryOn(String date);
+
+  /// No description provided for @actionAte.
+  ///
+  /// In en, this message translates to:
+  /// **'Ate it'**
+  String get actionAte;
+
+  /// No description provided for @actionDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get actionDiscard;
+
+  /// No description provided for @actionDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get actionDeleted;
+
+  /// No description provided for @snackbarUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get snackbarUndo;
+
+  /// No description provided for @confirmDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete product?'**
+  String get confirmDeleteTitle;
+
+  /// No description provided for @confirmDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” will disappear from the fridge without a trace in the history.'**
+  String confirmDeleteBody(String name);
+
+  /// No description provided for @duplicateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Already in the fridge'**
+  String get duplicateTitle;
+
+  /// No description provided for @duplicateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” is already on the shelf (until {date}). Add another one — we will increase the quantity.'**
+  String duplicateBody(String name, String date);
+
+  /// No description provided for @duplicateAddOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Add +1'**
+  String get duplicateAddOne;
+
+  /// No description provided for @duplicateOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get duplicateOpen;
+
+  /// No description provided for @productNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New product'**
+  String get productNew;
+
+  /// No description provided for @productEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit product'**
+  String get productEditTitle;
+
+  /// No description provided for @productFieldName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get productFieldName;
+
+  /// No description provided for @productNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, Milk 3.2%'**
+  String get productNameHint;
+
+  /// No description provided for @productFieldCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get productFieldCategory;
+
+  /// No description provided for @productFieldQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get productFieldQuantity;
+
+  /// No description provided for @productFieldExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry date'**
+  String get productFieldExpiry;
+
+  /// No description provided for @productExpiryPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a date'**
+  String get productExpiryPick;
+
+  /// No description provided for @productQuickPlus2.
+  ///
+  /// In en, this message translates to:
+  /// **'+2 days'**
+  String get productQuickPlus2;
+
+  /// No description provided for @productQuickPlus7.
+  ///
+  /// In en, this message translates to:
+  /// **'+7 days'**
+  String get productQuickPlus7;
+
+  /// No description provided for @productDefaultShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'Typical shelf life: {days} days'**
+  String productDefaultShelf(int days);
+
+  /// No description provided for @productFieldBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode'**
+  String get productFieldBarcode;
+
+  /// No description provided for @productBarcodeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get productBarcodeEmpty;
+
+  /// No description provided for @productFieldNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get productFieldNotes;
+
+  /// No description provided for @productNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get productNameRequired;
+
+  /// No description provided for @productSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save the product'**
+  String get productSaveError;
+
+  /// No description provided for @scanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode scanner'**
+  String get scanTitle;
+
+  /// No description provided for @scanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the product barcode'**
+  String get scanHint;
+
+  /// No description provided for @scanManualEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code manually'**
+  String get scanManualEntry;
+
+  /// No description provided for @scanManualHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Barcode'**
+  String get scanManualHint;
+
+  /// No description provided for @scanInvalidCode.
+  ///
+  /// In en, this message translates to:
+  /// **'The code was not recognized'**
+  String get scanInvalidCode;
+
+  /// No description provided for @scanCameraError.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera unavailable. Check the permission or enter the code manually.'**
+  String get scanCameraError;
+
+  /// No description provided for @receiptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Products from the receipt'**
+  String get receiptTitle;
+
+  /// No description provided for @receiptPickCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Photograph the receipt'**
+  String get receiptPickCamera;
+
+  /// No description provided for @receiptPickGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a photo from the gallery'**
+  String get receiptPickGallery;
+
+  /// No description provided for @receiptRecognizing.
+  ///
+  /// In en, this message translates to:
+  /// **'Recognizing text…'**
+  String get receiptRecognizing;
+
+  /// No description provided for @receiptFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Items found: {count}'**
+  String receiptFound(int count);
+
+  /// No description provided for @receiptNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not recognize any items. Try a sharper photo or add products manually.'**
+  String get receiptNotFound;
+
+  /// No description provided for @receiptEditHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the names — OCR can be wrong. Uncheck the lines you do not need.'**
+  String get receiptEditHint;
+
+  /// No description provided for @receiptAddSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Add selected ({count})'**
+  String receiptAddSelected(int count);
+
+  /// No description provided for @receiptAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Items added: {count}'**
+  String receiptAdded(int count);
+
+  /// No description provided for @menuGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Superplanner: weekly menu'**
+  String get menuGenerate;
+
+  /// No description provided for @menuGenerateShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate menu'**
+  String get menuGenerateShort;
+
+  /// No description provided for @menuGenerating.
+  ///
+  /// In en, this message translates to:
+  /// **'Assembling the menu…'**
+  String get menuGenerating;
+
+  /// No description provided for @menuRegenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Another option'**
+  String get menuRegenerate;
+
+  /// No description provided for @menuSavePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Save plan'**
+  String get menuSavePlan;
+
+  /// No description provided for @menuSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan saved'**
+  String get menuSaved;
+
+  /// No description provided for @menuShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping list'**
+  String get menuShopping;
+
+  /// No description provided for @menuHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan history'**
+  String get menuHistory;
+
+  /// No description provided for @menuKcalPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'~{kcal} kcal/day'**
+  String menuKcalPerDay(int kcal);
+
+  /// No description provided for @menuTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Target: {kcal} kcal'**
+  String menuTarget(int kcal);
+
+  /// No description provided for @menuUsesExpiring.
+  ///
+  /// In en, this message translates to:
+  /// **'Eat first: {items}'**
+  String menuUsesExpiring(String items);
+
+  /// No description provided for @menuEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The menu is not assembled yet'**
+  String get menuEmptyTitle;
+
+  /// No description provided for @menuEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The Superplanner looks into your fridge, takes calories, diet, allergies and seasonality into account — and assembles a 7-day menu right on the device.'**
+  String get menuEmptyBody;
+
+  /// No description provided for @menuPlanError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to assemble the menu'**
+  String get menuPlanError;
+
+  /// No description provided for @menuDraftBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get menuDraftBadge;
+
+  /// No description provided for @menuSavedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get menuSavedBadge;
+
+  /// No description provided for @menuHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved plans yet'**
+  String get menuHistoryEmpty;
+
+  /// No description provided for @menuDeletePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete plan'**
+  String get menuDeletePlan;
+
+  /// No description provided for @menuCookMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String menuCookMinutes(int minutes);
+
+  /// No description provided for @menuServings.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} servings'**
+  String menuServings(int count);
+
+  /// No description provided for @menuIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredients'**
+  String get menuIngredients;
+
+  /// No description provided for @menuSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Cooking'**
+  String get menuSteps;
+
+  /// No description provided for @menuWeekOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Week of {date}'**
+  String menuWeekOf(String date);
+
+  /// No description provided for @shoppingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping list'**
+  String get shoppingTitle;
+
+  /// No description provided for @shoppingFromPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'From the weekly menu plan'**
+  String get shoppingFromPlan;
+
+  /// No description provided for @shoppingEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything you need is already in the fridge — nothing to buy.'**
+  String get shoppingEmpty;
+
+  /// No description provided for @shoppingChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Bought: {done} of {total}'**
+  String shoppingChecked(int done, int total);
+
+  /// No description provided for @shoppingClearChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove bought'**
+  String get shoppingClearChecked;
+
+  /// No description provided for @shoppingNoPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Assemble the menu first — the missing-ingredients list will appear here.'**
+  String get shoppingNoPlan;
+
+  /// No description provided for @settingsProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutrition profile'**
+  String get settingsProfile;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutrition profile'**
+  String get profileTitle;
+
+  /// No description provided for @profileCalories.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily calories, kcal'**
+  String get profileCalories;
+
+  /// No description provided for @profileBju.
+  ///
+  /// In en, this message translates to:
+  /// **'Macros, g/day'**
+  String get profileBju;
+
+  /// No description provided for @profileProtein.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein'**
+  String get profileProtein;
+
+  /// No description provided for @profileFat.
+  ///
+  /// In en, this message translates to:
+  /// **'Fat'**
+  String get profileFat;
+
+  /// No description provided for @profileCarbs.
+  ///
+  /// In en, this message translates to:
+  /// **'Carbs'**
+  String get profileCarbs;
+
+  /// No description provided for @profileAutoBju.
+  ///
+  /// In en, this message translates to:
+  /// **'Recalculate 30/30/40'**
+  String get profileAutoBju;
+
+  /// No description provided for @profileDiet.
+  ///
+  /// In en, this message translates to:
+  /// **'Diet'**
+  String get profileDiet;
+
+  /// No description provided for @profileAllergies.
+  ///
+  /// In en, this message translates to:
+  /// **'Allergies and intolerances'**
+  String get profileAllergies;
+
+  /// No description provided for @profileMealsPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Meals per day'**
+  String get profileMealsPerDay;
+
+  /// No description provided for @profileRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'Region (for seasonality)'**
+  String get profileRegion;
+
+  /// No description provided for @profileRegionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, Moscow region'**
+  String get profileRegionHint;
+
+  /// No description provided for @profileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile saved'**
+  String get profileSaved;
+
+  /// No description provided for @profileOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get profileOpen;
+
+  /// No description provided for @profileNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get profileNone;
+
+  /// No description provided for @settingsNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry reminders'**
+  String get settingsNotifications;
+
+  /// No description provided for @notifEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Send notifications'**
+  String get notifEnable;
+
+  /// No description provided for @notifDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Warn in advance'**
+  String get notifDays;
+
+  /// No description provided for @notifDaysOpt2.
+  ///
+  /// In en, this message translates to:
+  /// **'2 days ahead'**
+  String get notifDaysOpt2;
+
+  /// No description provided for @notifDaysOpt1.
+  ///
+  /// In en, this message translates to:
+  /// **'1 day ahead'**
+  String get notifDaysOpt1;
+
+  /// No description provided for @notifHour.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder time'**
+  String get notifHour;
+
+  /// No description provided for @notifHourAt.
+  ///
+  /// In en, this message translates to:
+  /// **'At {hour}:00'**
+  String notifHourAt(int hour);
+
+  /// No description provided for @notifPermissionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If notifications do not arrive — check the system permissions and battery optimization settings.'**
+  String get notifPermissionHint;
+
+  /// No description provided for @onbWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Fridge\n& Chef Planner'**
+  String get onbWelcomeTitle;
+
+  /// No description provided for @onbWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We track expiry dates and assemble a weekly menu from what is already in your fridge. Everything offline.'**
+  String get onbWelcomeBody;
+
+  /// No description provided for @onbStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start setup'**
+  String get onbStart;
+
+  /// No description provided for @onbStep1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'How much do you eat per day?'**
+  String get onbStep1Title;
+
+  /// No description provided for @onbStep2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Diet and allergies'**
+  String get onbStep2Title;
+
+  /// No description provided for @onbStep2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'The planner will exclude unsuitable recipes.'**
+  String get onbStep2Body;
+
+  /// No description provided for @onbStep3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Routine and reminders'**
+  String get onbStep3Title;
+
+  /// No description provided for @onbStep3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications arrive 1–2 days before the expiry date.'**
+  String get onbStep3Body;
+
+  /// No description provided for @onbFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Done — to the fridge!'**
+  String get onbFinish;
+
+  /// No description provided for @onbSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onbSkip;
+
+  /// No description provided for @onbNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onbNext;
+
+  /// No description provided for @dietNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No restrictions'**
+  String get dietNone;
+
+  /// No description provided for @dietVegetarian.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegetarian'**
+  String get dietVegetarian;
+
+  /// No description provided for @dietVegan.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegan'**
+  String get dietVegan;
+
+  /// No description provided for @dietLent.
+  ///
+  /// In en, this message translates to:
+  /// **'Fasting'**
+  String get dietLent;
+
+  /// No description provided for @dietPescatarian.
+  ///
+  /// In en, this message translates to:
+  /// **'Pescatarian'**
+  String get dietPescatarian;
+
+  /// No description provided for @dietLowCarb.
+  ///
+  /// In en, this message translates to:
+  /// **'Low-carb'**
+  String get dietLowCarb;
+
+  /// No description provided for @allergenMilk.
+  ///
+  /// In en, this message translates to:
+  /// **'Milk'**
+  String get allergenMilk;
+
+  /// No description provided for @allergenEggs.
+  ///
+  /// In en, this message translates to:
+  /// **'Eggs'**
+  String get allergenEggs;
+
+  /// No description provided for @allergenFish.
+  ///
+  /// In en, this message translates to:
+  /// **'Fish'**
+  String get allergenFish;
+
+  /// No description provided for @allergenShellfish.
+  ///
+  /// In en, this message translates to:
+  /// **'Shellfish'**
+  String get allergenShellfish;
+
+  /// No description provided for @allergenNuts.
+  ///
+  /// In en, this message translates to:
+  /// **'Nuts'**
+  String get allergenNuts;
+
+  /// No description provided for @allergenPeanuts.
+  ///
+  /// In en, this message translates to:
+  /// **'Peanuts'**
+  String get allergenPeanuts;
+
+  /// No description provided for @allergenSoy.
+  ///
+  /// In en, this message translates to:
+  /// **'Soy'**
+  String get allergenSoy;
+
+  /// No description provided for @allergenWheat.
+  ///
+  /// In en, this message translates to:
+  /// **'Wheat / gluten'**
+  String get allergenWheat;
+
+  /// No description provided for @allergenSesame.
+  ///
+  /// In en, this message translates to:
+  /// **'Sesame'**
+  String get allergenSesame;
+
+  /// No description provided for @catDairy.
+  ///
+  /// In en, this message translates to:
+  /// **'Dairy'**
+  String get catDairy;
+
+  /// No description provided for @catMeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Meat'**
+  String get catMeat;
+
+  /// No description provided for @catFish.
+  ///
+  /// In en, this message translates to:
+  /// **'Fish'**
+  String get catFish;
+
+  /// No description provided for @catVegetables.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegetables'**
+  String get catVegetables;
+
+  /// No description provided for @catFruits.
+  ///
+  /// In en, this message translates to:
+  /// **'Fruits'**
+  String get catFruits;
+
+  /// No description provided for @catBakery.
+  ///
+  /// In en, this message translates to:
+  /// **'Bakery'**
+  String get catBakery;
+
+  /// No description provided for @catGrains.
+  ///
+  /// In en, this message translates to:
+  /// **'Grains'**
+  String get catGrains;
+
+  /// No description provided for @catFrozen.
+  ///
+  /// In en, this message translates to:
+  /// **'Frozen'**
+  String get catFrozen;
+
+  /// No description provided for @catBeverages.
+  ///
+  /// In en, this message translates to:
+  /// **'Beverages'**
+  String get catBeverages;
+
+  /// No description provided for @catSweets.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweets'**
+  String get catSweets;
+
+  /// No description provided for @catCondiments.
+  ///
+  /// In en, this message translates to:
+  /// **'Condiments'**
+  String get catCondiments;
+
+  /// No description provided for @catOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get catOther;
+
+  /// No description provided for @unitPcs.
+  ///
+  /// In en, this message translates to:
+  /// **'pcs'**
+  String get unitPcs;
+
+  /// No description provided for @unitGram.
+  ///
+  /// In en, this message translates to:
+  /// **'g'**
+  String get unitGram;
+
+  /// No description provided for @unitKilogram.
+  ///
+  /// In en, this message translates to:
+  /// **'kg'**
+  String get unitKilogram;
+
+  /// No description provided for @unitMilliliter.
+  ///
+  /// In en, this message translates to:
+  /// **'ml'**
+  String get unitMilliliter;
+
+  /// No description provided for @unitLiter.
+  ///
+  /// In en, this message translates to:
+  /// **'l'**
+  String get unitLiter;
+
+  /// No description provided for @unitPack.
+  ///
+  /// In en, this message translates to:
+  /// **'pack'**
+  String get unitPack;
+
+  /// No description provided for @slotBreakfast.
+  ///
+  /// In en, this message translates to:
+  /// **'Breakfast'**
+  String get slotBreakfast;
+
+  /// No description provided for @slotSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Snack'**
+  String get slotSnack;
+
+  /// No description provided for @slotLunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Lunch'**
+  String get slotLunch;
+
+  /// No description provided for @slotDinner.
+  ///
+  /// In en, this message translates to:
+  /// **'Dinner'**
+  String get slotDinner;
+
+  /// No description provided for @notifTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your fridge'**
+  String get notifTitle;
+
+  /// No description provided for @notifBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: expiry {date}. {days, plural, =0{The term expires today} =1{1 day left} other{{days} days left}}'**
+  String notifBody(String name, String date, int days);
 }
 
 class _AppLocalizationsDelegate
