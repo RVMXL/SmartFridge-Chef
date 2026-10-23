@@ -79,6 +79,20 @@
   синхронизация пушей с фейковым планировщиком), настройки напоминаний,
   список покупок.
 
+### Инфраструктура релизов
+
+- `.gitignore` усилен: ключи подписи Android (`*.jks`, `*.keystore`,
+  `.p12`, `key.properties`, `.gradle/`, `local.properties`) и служебные
+  файлы Flutter/iOS гарантированно не попадают в репозиторий.
+- Release-подпись в `android/app/build.gradle.kts`: приоритет —
+  переменные окружения (GitHub Secrets), затем локальный
+  `android/key.properties`; без ключа — откат на debug-подпись, чтобы
+  `flutter run --release` работал у всех.
+- Новый workflow `release.yml`: пуш тега `v*` → gen-l10n + analyze +
+  тесты → восстановление ключа из секретов → подписанный APK →
+  автоматический GitHub Release. Секреты: `KEYSTORE_BASE64`,
+  `KEYSTORE_PASSWORD`, `KEYSTORE_KEY_ALIAS`, `KEYSTORE_KEY_PASSWORD`.
+
 ## [0.2.0] — 2026-10-24
 
 ### Добавлено (Шаг 2: AI-слой — «Суперпланер»)
