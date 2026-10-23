@@ -1,8 +1,13 @@
-/// Открытие и миграции локальной базы SQLite (Шаг 1 ТЗ).
+/// Открытие и миграции локальной базы SQLite (Шаги 1–2 ТЗ).
 ///
 /// Offline-first: база целиком живёт в приватной папке приложения,
 /// наружу не передаётся ничего. Схема и политика миграций описаны
 /// в docs/DATABASE.md.
+///
+/// v1 — `products`, `user_profile` (Шаг 1).
+/// v2 — `meal_plans`, `planned_meals`, `shopping_items` (Шаг 2):
+/// планы меню хранятся снимками рецептов, поэтому не ломаются
+/// при обновлении встроенной базы.
 library;
 
 import 'package:path/path.dart' as p;
@@ -12,7 +17,7 @@ class AppDatabase {
   AppDatabase._();
 
   static const String dbName = 'smart_fridge.db';
-  static const int dbVersion = 1;
+  static const int dbVersion = 2;
 
   /// Открывает базу.
   ///
@@ -30,11 +35,38 @@ class AppDatabase {
     );
   }
 
-  /// Схема версии 1: `products` и `user_profile` — ровно Шаг 1 ТЗ.
-  /// Таблицы плана меню/рецептов/покупок добавятся миграцией v2 (Шаги 2–3),
-  /// чтобы каждая стадия разработки соответствовала честной версии схемы.
+  /// Полная схема (v1 + v2) для новой базы.
   static Future<void> _onCreate(Database db, int version) async {
     final batch = db.batch();
+    createV1Tables(batch);
+    createV2Tables(batch);
+    await batch.commit(noResult: true);
+  }
+
+  /// Политика миграций: последовательное накатывание со старой версии.
+  static Future<void> _onUpgrade(
+    Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {
+    switch (oldVersion) {
+      case 1:
+        // v1 -> v2: таблицы планов меню (Шаг 2). Данные продуктов и
+        // профиля не трогаются — миграция только добавляет таблицы.
+        final batch = db.batch();
+        createV2Tables(batch);
+        await batch.commit(noResult: true);
+        break;
+      default:
+        assert(newVersion == dbVersion, 'Неизвестная версия: $newVersion');
+    }
+  }
+
+  // ------------------------------------------------------------- схема v1
+
+  /// Таблицы версии 1: продукты и профиль (Шаг 1, не менять по полям —
+  /// ключи стабильны в базах пользователей).
+  static void createV1Tables(Batch batch) {
     batch.execute('''
       CREATE TABLE products (
         id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -59,7 +91,6 @@ class AppDatabase {
       'CREATE UNIQUE INDEX idx_products_barcode ON products(barcode) '
       'WHERE barcode IS NOT NULL',
     );
-    // Главный запрос холодильника: активные по возрастанию срока.
     batch.execute(
       'CREATE INDEX idx_products_status_expiry ON products(status, expiry_date)',
     );
@@ -84,22 +115,60 @@ class AppDatabase {
         updated_at     TEXT    NOT NULL
       )
     ''');
-    await batch.commit(noResult: true);
   }
 
-  /// Политика миграций: каждая версия схемы — отдельный шаг в switch,
-  /// последовательное накатывание со старой версии до текущей.
-  static Future<void> _onUpgrade(
-    Database db,
-    int oldVersion,
-    int newVersion,
-  ) async {
-    // Пример будущей миграции v2 (Шаг 2): таблицы recipes/meal_plan.
-    // switch (oldVersion) {
-    //   case 1:
-    //     await db.execute('CREATE TABLE recipes (...)');
-    //     // fallthrough
-    // }
-    assert(newVersion == dbVersion, 'Неизвестная версия схемы: $newVersion');
+  // ------------------------------------------------------------- схема v2
+
+  /// Таблицы версии 2: сохранённые планы меню (Шаг 2).
+  ///
+  /// Рецепты хранятся JSON-снимками в planned_meals.recipe_json:
+  /// план самодостаточен и переживает обновления базы рецептов.
+  static void createV2Tables(Batch batch) {
+    batch.execute('''
+      CREATE TABLE meal_plans (
+        id          TEXT    PRIMARY KEY,
+        created_at  TEXT    NOT NULL,
+        start_date  TEXT    NOT NULL,
+        days_count  INTEGER NOT NULL,
+        kcal_target INTEGER NOT NULL,
+        seed        INTEGER NOT NULL,
+        source      TEXT    NOT NULL DEFAULT 'rule_based',
+        warnings    TEXT    NOT NULL DEFAULT '[]'
+      )
+    ''');
+    batch.execute('''
+      CREATE TABLE planned_meals (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        plan_id       TEXT    NOT NULL REFERENCES meal_plans(id)
+                              ON DELETE CASCADE,
+        day_index     INTEGER NOT NULL,
+        slot          TEXT    NOT NULL,
+        slot_order    INTEGER NOT NULL DEFAULT 0,
+        recipe_id     TEXT    NOT NULL,
+        recipe_json   TEXT    NOT NULL,
+        kcal          REAL    NOT NULL,
+        uses_expiring TEXT    NOT NULL DEFAULT '[]',
+        coverage      REAL    NOT NULL DEFAULT 0
+      )
+    ''');
+    // Чтение плана: все приёмы дня по порядку слотов.
+    batch.execute(
+      'CREATE INDEX idx_planned_meals_plan '
+      'ON planned_meals(plan_id, day_index, slot_order)',
+    );
+    batch.execute('''
+      CREATE TABLE shopping_items (
+        id       INTEGER PRIMARY KEY AUTOINCREMENT,
+        plan_id  TEXT    NOT NULL REFERENCES meal_plans(id)
+                         ON DELETE CASCADE,
+        ing_key  TEXT    NOT NULL,
+        name     TEXT    NOT NULL,
+        checked  INTEGER NOT NULL DEFAULT 0
+      )
+    ''');
+    batch.execute(
+      'CREATE INDEX idx_shopping_items_plan '
+      'ON shopping_items(plan_id, checked)',
+    );
   }
 }

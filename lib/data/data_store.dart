@@ -6,6 +6,7 @@ library;
 
 import 'package:sqflite/sqflite.dart';
 
+import 'dao/plan_dao.dart';
 import 'dao/product_dao.dart';
 import 'dao/profile_dao.dart';
 import 'database.dart';
@@ -25,6 +26,8 @@ class AppDataStore {
   Future<ProductDao> productDao() async => ProductDao(await database());
 
   Future<ProfileDao> profileDao() async => ProfileDao(await database());
+
+  Future<PlanDao> planDao() async => PlanDao(await database());
 
   /// Закрыть базу (для тестов инфраструктуры).
   Future<void> close() async {
