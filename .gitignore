@@ -46,3 +46,29 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# ============================================================
+# Подпись Android — ключи НИКОГДА не попадают в репозиторий.
+# Ключ живёт в GitHub Secrets (KEYSTORE_BASE64 + пароли) и в
+# локальных бэкапах владельца; см. «Подпись и релизы» в README.
+# ============================================================
+**/android/.gradle/
+**/android/local.properties
+**/android/key.properties
+*.jks
+*.keystore
+*.p12
+
+# Вспомогательные файлы Flutter/iOS, не покрытые шаблоном
+.flutter-plugins
+.packages
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/**/*.mode1v3
+**/ios/**/*.pbxuser
+**/ios/**/xcuserdata/
+
+# Покрытие тестов
+*.lcov

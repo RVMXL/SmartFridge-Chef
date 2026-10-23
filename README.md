@@ -81,6 +81,7 @@
 | `docs/DATABASE.md` | Схема БД v2: таблицы, индексы, даты, миграции |
 | `test/` | 169 тестов: данные, планировщик, напоминания, парсер чеков, контроллеры (реальная SQLite через sqflite_common_ffi) |
 | `.github/workflows/ci.yml` | CI: analyze --fatal-infos + test --coverage |
+| `.github/workflows/release.yml` | Релиз по тегу `v*`: analyze + тесты → подписанный APK → GitHub Release |
 
 ## Сборка из исходников
 
@@ -88,8 +89,8 @@
 
 ```bash
 # 1. Клонировать
-git clone https://github.com/rvmxl/smart-fridge-chef.git
-cd smart-fridge-chef
+git clone https://github.com/RVMXL/SmartFridge-Chef.git
+cd SmartFridge-Chef
 
 # 2. Зависимости и локализация
 flutter pub get
@@ -110,6 +111,38 @@ recognition). Разрешения запрашиваются по мере по
 шагов: `CAMERA` — сканер и фото чеков, `POST_NOTIFICATIONS` — напоминания
 о сроках (Android 13+), точные будильники — с честным фолбэком на
 неточные.
+
+## Подпись и релизы (Android)
+
+Обновления APK «поверх» установленного приложения работают только при
+совпадении подписи, поэтому ключ подписи — самый ценный артефакт
+проекта. В репозитории ключа **нет и не будет** (`.gitignore`):
+он хранится в локальном бэкапе владельца и в секретах GitHub,
+а подписанная сборка делается автоматически.
+
+| Секрет GitHub | Содержимое |
+| --- | --- |
+| `KEYSTORE_BASE64` | Ключ `upload-keystore.jks` в base64 |
+| `KEYSTORE_PASSWORD` | Пароль хранилища |
+| `KEYSTORE_KEY_ALIAS` | Алиас ключа (`upload`) |
+| `KEYSTORE_KEY_PASSWORD` | Пароль ключа |
+
+Порядок выпуска новой версии:
+
+```bash
+# поднять версию в pubspec.yaml → коммит → тег
+# релиз соберётся и опубликуется автоматически (Actions → Release)
+git tag v0.4.0
+git push origin v0.4.0
+```
+
+Workflow [release.yml](.github/workflows/release.yml) прогоняет
+`analyze --fatal-infos` и тесты, восстанавливает ключ из секретов,
+собирает `app-release.apk` и публикует GitHub Release с заметками.
+Локальная подпись — файлом `android/key.properties` (формат:
+`storeFile`, `storePassword`, `keyAlias`, `keyPassword`; ключ — в
+`android/app/`); при отсутствии обоих источников сборка подписывается
+debug-ключом (только для разработки).
 
 ## Приватность и разрешения
 
