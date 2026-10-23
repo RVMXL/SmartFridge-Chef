@@ -1,0 +1,23 @@
+Smart Fridge & Chef Planner (Умный Холодильник & Шеф-Планер)
+Copyright 2026 RVMXL
+
+Этот продукт лицензируется по Apache License 2.0 (см. LICENSE).
+
+Сторонние компоненты (runtime):
+- Flutter SDK и пакеты: flutter_localizations, intl — BSD-3-Clause (Google LLC)
+- sqflite, sqflite_common_ffi — MIT (AlexTekartik / Foundation)
+- provider — MIT (Remi Rousselet)
+- shared_preferences — BSD-3-Clause (Flutter team)
+- path — BSD-3-Clause (Flutter team)
+
+На последующих шагах добавятся (будут внесены сюда):
+- mobile_scanner (Шаг 3, сканер штрих-кодов)
+- google_mlkit_text_recognition (Шаг 3, OCR чеков) — Apache 2.0 + условия
+  ML Kit (on-device, без отправки изображений)
+- flutter_gemma / MediaPipe LLM Inference (Шаг 2, локальная AI-модель) —
+  использование модели Gemma подчиняется условиям Google Gemma Terms of Use;
+  модель не распространяется в составе репозитория, скачивается отдельно.
+
+Данные о продуктах (Шаг 3): Open Food Facts — база под Open Database
+License (ODbL); приложение не аффилировано с Open Food Facts.
+Товарные знаки Android, iOS и Google принадлежат их правообладателям.
