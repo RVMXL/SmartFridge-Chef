@@ -53,8 +53,7 @@ class PlanController extends ChangeNotifier {
   List<PlanSummary> history = const [];
   String? error;
 
-  /// Доступ к репозиторию рецептов для UI Шага 3.
-  // ignore: unused_element
+  /// Доступ к репозиторию рецептов для UI (детали блюда, счётчики).
   RecipeRepository get repository => _repo;
 
   /// Последний использованный seed (для «перегенерировать»).
@@ -184,9 +183,28 @@ class PlanController extends ChangeNotifier {
     }
   }
 
-  /// Дефолтный профиль, если онбординг ещё не проходили.
-  /// TODO(Шаг 3): экран онбординга запишет настоящий профиль,
-  /// и планер станет персональным.
+  /// Убирает купленные позиции из списка покупок текущего плана.
+  Future<int> clearCheckedShopping() async {
+    final current = plan;
+    if (current == null) return 0;
+    try {
+      final dao = PlanDao(await _openDb());
+      final removed = await dao.deleteCheckedShopping(current.id);
+      final updated = await dao.getPlan(current.id);
+      if (updated != null) {
+        plan = updated;
+        notifyListeners();
+      }
+      return removed;
+    } catch (e) {
+      error = 'Не удалось обновить список покупок: $e';
+      notifyListeners();
+      return 0;
+    }
+  }
+
+  /// Дефолтный профиль, если онбординг ещё не проходили
+  /// (онбординг Шага 3 запишет настоящий профиль).
   static UserProfile get defaultProfile {
     final now = DateTime.now();
     return UserProfile(createdAt: now, updatedAt: now);

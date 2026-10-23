@@ -122,6 +122,7 @@ class UserProfile {
     double? latitude,
     double? longitude,
     bool? onboarded,
+    DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return UserProfile(
@@ -137,7 +138,7 @@ class UserProfile {
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       onboarded: onboarded ?? this.onboarded,
-      createdAt: createdAt,
+      createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }

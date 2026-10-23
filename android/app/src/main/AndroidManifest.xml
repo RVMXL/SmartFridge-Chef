@@ -1,4 +1,18 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- Шаг 3: сканер штрих-кодов и фото чеков. Камера необязательна —
+         без неё работают ручной ввод и импорт чека из галереи. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <!-- Шаг 3: локальные push-уведомления о сроках годности. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Точные будильники для напоминаний; на Android 12- запрашиваем SCHEDULE_EXACT_ALARM,
+         с 13- политика разрешает USE_EXACT_ALARM для приложений-будильников. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <application
         android:label="smart_fridge_chef"
         android:name="${applicationName}"
@@ -31,6 +45,22 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Шаг 3: приёмники flutter_local_notifications (напоминания о сроках
+             годности живут после перезагрузки устройства). -->
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
+            tools:replace="android:exported" />
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+            tools:replace="android:exported">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
