@@ -81,6 +81,11 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
+            // Правила R8 (dontwarn для необязательных ML Kit-распознавателей)
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }
