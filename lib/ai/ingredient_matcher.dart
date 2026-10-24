@@ -346,6 +346,137 @@ class IngredientMatcher {
     return result;
   }
 
+  /// Категория приложения для названия товара (автопоиск по штрих-коду).
+  ///
+  /// Сначала — ключ из словаря синонимов; для товаров, которых в рецептах
+  /// нет (колбасы, пельмени, соки…), — отдельный список категорийных
+  /// стемов. Нужно для подстановки типового срока хранения, когда
+  /// Open Food Facts не отдал категорию.
+  ProductCategory? categoryFor(String productName) {
+    final key = matchProduct(productName);
+    if (key != null && _categoryByKey.containsKey(key)) {
+      return _categoryByKey[key];
+    }
+    final norm = normalize(productName);
+    if (norm.isEmpty) return null;
+    final tokens = norm.split(' ');
+    for (final entry in _extraCategoryStems.entries) {
+      for (final stem in entry.value) {
+        // Префикс токена, а не подстрока: «морс» не должен ловиться
+        // внутри «морская капуста», «квас» — внутри «квашеная».
+        if (tokens.any((t) => t.startsWith(stem))) return entry.key;
+      }
+    }
+    return null;
+  }
+
+  /// Канонический ключ → категория приложения.
+  static const Map<String, ProductCategory> _categoryByKey = {
+    // Молочное и яйца.
+    'milk': ProductCategory.dairy, 'kefir': ProductCategory.dairy,
+    'yogurt': ProductCategory.dairy, 'sour_cream': ProductCategory.dairy,
+    'cottage_cheese': ProductCategory.dairy, 'cheese': ProductCategory.dairy,
+    'butter': ProductCategory.dairy, 'cream': ProductCategory.dairy,
+    'egg': ProductCategory.dairy,
+    // Мясо и рыба.
+    'chicken_breast': ProductCategory.meat, 'chicken_thigh': ProductCategory.meat,
+    'turkey': ProductCategory.meat, 'beef': ProductCategory.meat,
+    'pork': ProductCategory.meat, 'minced_beef': ProductCategory.meat,
+    'minced_chicken': ProductCategory.meat, 'minced_turkey': ProductCategory.meat,
+    'chicken_liver': ProductCategory.meat,
+    'salmon': ProductCategory.fish, 'cod': ProductCategory.fish,
+    'pollock': ProductCategory.fish, 'herring': ProductCategory.fish,
+    'tuna_can': ProductCategory.fish, 'minced_fish': ProductCategory.fish,
+    'shrimp': ProductCategory.fish, 'squid': ProductCategory.fish,
+    // Овощи и фрукты.
+    'potato': ProductCategory.vegetables, 'carrot': ProductCategory.vegetables,
+    'onion': ProductCategory.vegetables, 'garlic': ProductCategory.vegetables,
+    'cabbage': ProductCategory.vegetables,
+    'cauliflower': ProductCategory.vegetables,
+    'broccoli': ProductCategory.vegetables,
+    'zucchini': ProductCategory.vegetables,
+    'eggplant': ProductCategory.vegetables,
+    'tomato': ProductCategory.vegetables,
+    'cucumber': ProductCategory.vegetables,
+    'bell_pepper': ProductCategory.vegetables,
+    'beetroot': ProductCategory.vegetables,
+    'pumpkin': ProductCategory.vegetables,
+    'green_peas': ProductCategory.vegetables,
+    'corn': ProductCategory.vegetables,
+    'mushroom': ProductCategory.vegetables,
+    'spinach': ProductCategory.vegetables,
+    'lettuce': ProductCategory.vegetables,
+    'radish': ProductCategory.vegetables,
+    'greens': ProductCategory.vegetables,
+    'celery': ProductCategory.vegetables,
+    'pickles': ProductCategory.vegetables,
+    'apple': ProductCategory.fruits, 'banana': ProductCategory.fruits,
+    'pear': ProductCategory.fruits, 'orange': ProductCategory.fruits,
+    'lemon': ProductCategory.fruits, 'berries': ProductCategory.fruits,
+    'strawberry': ProductCategory.fruits,
+    'raspberry': ProductCategory.fruits, 'cherry': ProductCategory.fruits,
+    'plum': ProductCategory.fruits, 'raisins': ProductCategory.fruits,
+    'avocado': ProductCategory.fruits,
+    // Хлеб и крупы.
+    'bread': ProductCategory.bakery, 'bread_rye': ProductCategory.bakery,
+    'rice': ProductCategory.grains, 'buckwheat': ProductCategory.grains,
+    'millet': ProductCategory.grains, 'pearl_barley': ProductCategory.grains,
+    'lentils': ProductCategory.grains, 'chickpeas': ProductCategory.grains,
+    'split_peas': ProductCategory.grains, 'beans': ProductCategory.grains,
+    'pasta': ProductCategory.grains, 'bulgur_cooked': ProductCategory.grains,
+    'couscous_cooked': ProductCategory.grains,
+    'barley_cooked': ProductCategory.grains,
+    'oat_flakes': ProductCategory.grains, 'semolina': ProductCategory.grains,
+    'flour': ProductCategory.grains,
+    // Прочее.
+    'water': ProductCategory.beverages, 'chocolate': ProductCategory.sweets,
+    'honey': ProductCategory.sweets, 'jam': ProductCategory.sweets,
+    'peanut_butter': ProductCategory.sweets,
+    'vegetable_oil': ProductCategory.condiments,
+    'olive_oil': ProductCategory.condiments,
+    'tomato_paste': ProductCategory.condiments,
+    'soy_sauce': ProductCategory.condiments,
+    'mayo': ProductCategory.condiments, 'mustard': ProductCategory.condiments,
+    'sugar': ProductCategory.condiments, 'salt': ProductCategory.condiments,
+    'pepper': ProductCategory.condiments, 'spices': ProductCategory.condiments,
+    'cinnamon': ProductCategory.condiments,
+    'vanilla': ProductCategory.condiments,
+    'baking_powder': ProductCategory.condiments,
+    'bay_leaf': ProductCategory.condiments,
+    'vinegar': ProductCategory.condiments,
+    'herbs_dried': ProductCategory.condiments,
+    'walnut': ProductCategory.other, 'almond': ProductCategory.other,
+    'olives': ProductCategory.other, 'tofu': ProductCategory.other,
+  };
+
+  /// Категорийные стемы для товаров, которых нет в ключах рецептов:
+  /// колбасные изделия, заморозка, напитки, кондитерка. Порядок важен:
+  /// более специфичные группы перечислены раньше («Молочные сосиски» —
+  /// это мясо, а не молочка). Стемы матчатся как префиксы токенов;
+  /// рискованные короткие стемы («морс» в «морская», «круп» в «крупный»)
+  /// в список не включены.
+  static const Map<ProductCategory, List<String>> _extraCategoryStems = {
+    ProductCategory.meat: [
+      'сосиск', 'колбас', 'сардельк', 'ветчин', 'бекон', 'буженин',
+      'карбонад', 'тушенк', 'котлет',
+    ],
+    ProductCategory.fish: [
+      'икра', 'крабов', 'шпрот', 'сардин', 'скумбри', 'мойв', 'кильк',
+    ],
+    ProductCategory.frozen: [
+      'пельмен', 'вареник', 'морожен', 'заморож', 'наггетс', 'хинкал',
+    ],
+    ProductCategory.beverages: [
+      'сок', 'лимонад', 'нектар', 'компот', 'квас', 'газирован',
+    ],
+    ProductCategory.sweets: [
+      'конфет', 'вафл', 'пряник', 'зефир', 'мармелад', 'халв', 'печенье',
+      'сухар', 'козинак', 'грильяж',
+    ],
+    ProductCategory.condiments: ['кетчуп', 'соус'],
+    ProductCategory.bakery: ['баранк', 'соломк'],
+  };
+
   static int _daysLeft(DateTime expiry, DateTime today) {
     final t = DateTime(today.year, today.month, today.day);
     final e = DateTime(expiry.year, expiry.month, expiry.day);

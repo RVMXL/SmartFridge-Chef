@@ -185,6 +185,23 @@ void main() {
         ProductCategory.dairy,
       );
     });
+
+    test('фолбэк: без тегов категория угадывается по названию', () {
+      // Типовой срок в форме ставится от категории: колбасы — это мясо
+      // (+3 дня), а не «другое» (+14), даже если OFF не дал тегов.
+      ProductCategory? guess(String nameRu) => parseOpenFoodFactsJson(
+            offResponse(nameRu: nameRu),
+            langCode: 'ru',
+          )?.category;
+      expect(guess('Сосиски Молочные Вязанка'), ProductCategory.meat);
+      expect(guess('Пельмени Сибирская коллекция'), ProductCategory.frozen);
+      expect(guess('Сок апельсиновый 100%'), ProductCategory.beverages);
+      expect(guess('Молоко 3,2%'), ProductCategory.dairy);
+      expect(guess('Печенье овсяное'), ProductCategory.sweets);
+      // Незнакомые названия остаются без категории — форма возьмёт other.
+      expect(guess('Coca-Cola 0,5 л'), isNull);
+      expect(guess('Нечто невообразимое'), isNull);
+    });
   });
 
   group('BarcodeLookupService — кэш и офлайн', () {

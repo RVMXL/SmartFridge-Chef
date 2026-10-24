@@ -13,6 +13,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 
+import '../ai/ingredient_matcher.dart';
 import '../data/dao/barcode_cache_dao.dart';
 import '../data/data_store.dart';
 import '../data/models/product.dart';
@@ -176,7 +177,11 @@ BarcodeLookupResult? parseOpenFoodFactsJson(
 
   return BarcodeLookupResult(
     name: name,
-    category: _categoryFromTags(product['categories_tags']),
+    // Категория из тегов OFF; если их нет/не распознали — угадываем
+    // по названию через словарь матчера: без этого форма ставила бы
+    // generic «другое» (+14 дней) вместо типового срока категории.
+    category: _categoryFromTags(product['categories_tags']) ??
+        const IngredientMatcher().categoryFor(name),
     fromCache: false,
   );
 }

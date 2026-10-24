@@ -139,6 +139,44 @@ void main() {
     });
   });
 
+  group('categoryFor: категория по названию (типовой срок)', () {
+    final cases = <String, ProductCategory>{
+      'Молоко 3,2%': ProductCategory.dairy,
+      'Творог обезжиренный': ProductCategory.dairy,
+      'Яйца куриные С1': ProductCategory.dairy,
+      'Куриное филе': ProductCategory.meat,
+      'Докторская колбаса ГОСТ': ProductCategory.meat,
+      'Сосиски Молочные Вязанка': ProductCategory.meat,
+      'Сёмга слабосолёная': ProductCategory.fish,
+      'Икра красная': ProductCategory.fish,
+      'Помидоры черри': ProductCategory.vegetables,
+      'Морковь': ProductCategory.vegetables,
+      'Яблоки Гала': ProductCategory.fruits,
+      'Хлеб Бородинский': ProductCategory.bakery,
+      'Макароны Barilla': ProductCategory.grains,
+      'Пельмени Сибирская коллекция': ProductCategory.frozen,
+      'Мороженое эскимо': ProductCategory.frozen,
+      'Сок апельсиновый 100%': ProductCategory.beverages,
+      'Печенье овсяное': ProductCategory.sweets,
+      'Шоколад тёмный 70%': ProductCategory.sweets,
+      'Майонез Провансаль': ProductCategory.condiments,
+      'Кетчуп томатный': ProductCategory.condiments,
+    };
+    for (final entry in cases.entries) {
+      test('"${entry.key}" -> ${entry.value.key}', () {
+        expect(matcher.categoryFor(entry.key), entry.value);
+      });
+    }
+
+    test('незнакомые названия без категории', () {
+      expect(matcher.categoryFor('Coca-Cola'), isNull);
+      expect(matcher.categoryFor('Нечто невообразимое'), isNull);
+      expect(matcher.categoryFor(''), isNull);
+      // Морская капуста — стоп-фраза не даёт ложную «овощи».
+      expect(matcher.categoryFor('Морская капуста'), isNull);
+    });
+  });
+
   group('indexProducts', () {
     test('активные проецируются на ключи, неактивные пропускаются', () {
       final fridge = matcher.indexProducts([
