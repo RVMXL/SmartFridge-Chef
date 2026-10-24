@@ -11,6 +11,7 @@ import '../../core/constants.dart';
 import '../../core/freshness.dart';
 import '../../data/models/product.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../scan/barcode_lookup.dart';
 import '../../state/product_controller.dart';
 import '../scan/receipt_screen.dart';
 import '../scan/scanner_screen.dart';
@@ -137,7 +138,34 @@ class _FridgeScreenState extends State<FridgeScreen> {
       return;
     }
 
-    await showProductEditSheet(context, initialBarcode: barcode);
+    // Новый код: автопоиск — локальный кэш, затем открытая база
+    // Open Food Facts. Нашлось — форма уже заполнена именем и категорией
+    // (а категория задаёт типовой срок); не нашлось/нет сети — прежний
+    // ручной путь с пояснением.
+    final lookup = context.read<BarcodeLookupService>();
+    final langCode = Localizations.localeOf(context).languageCode;
+    // Запрос стартует до диалога, чтобы кэш-попадание почти не мигало.
+    final lookupFuture = lookup.lookup(barcode, langCode: langCode);
+    final found = await showDialog<BarcodeLookupResult>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => _BarcodeLookupDialog(future: lookupFuture),
+    );
+    if (!mounted) return;
+
+    if (found == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.scanLookupMiss)),
+      );
+      await showProductEditSheet(context, initialBarcode: barcode);
+      return;
+    }
+    await showProductEditSheet(
+      context,
+      initialBarcode: barcode,
+      initialName: found.name,
+      initialCategory: found.category,
+    );
   }
 
   @override
@@ -470,6 +498,44 @@ class _ProductCard extends StatelessWidget {
             color: theme.colorScheme.onErrorContainer),
       ),
       child: card,
+    );
+  }
+}
+
+/// Диалог ожидания автопоиска штрих-кода: крутилка, пока выполняется
+/// запрос; когда будущий результат завершился (найдено/не найдено/ошибка
+/// сети) — сам закрывается и возвращает результат в [showDialog].
+class _BarcodeLookupDialog extends StatelessWidget {
+  const _BarcodeLookupDialog({required this.future});
+
+  final Future<BarcodeLookupResult?> future;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return FutureBuilder<BarcodeLookupResult?>(
+      future: future,
+      builder: (context, snap) {
+        if (snap.connectionState != ConnectionState.waiting) {
+          // Завершено: закрываем диалог после отрисовки кадра.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (context.mounted) {
+              Navigator.of(context).pop(
+                snap.hasError ? null : snap.data,
+              );
+            }
+          });
+        }
+        return AlertDialog(
+          content: Row(
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: 20),
+              Expanded(child: Text(l.scanLookupWaiting)),
+            ],
+          ),
+        );
+      },
     );
   }
 }

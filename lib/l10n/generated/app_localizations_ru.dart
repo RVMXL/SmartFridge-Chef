@@ -87,7 +87,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get stageCurrent =>
-      'Готово: офлайн-планер, сканер, пуши о сроках (v0.3.0)';
+      'Готово: автопоиск штрих-кодов, офлайн-планер, сканер, пуши о сроках (v0.4.0)';
 
   @override
   String get settingsOffline =>
@@ -298,6 +298,12 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get scanCameraError =>
       'Камера недоступна. Проверьте разрешение или введите код вручную.';
+
+  @override
+  String get scanLookupWaiting => 'Ищем в открытой базе продуктов…';
+
+  @override
+  String get scanLookupMiss => 'Не найдено в открытой базе — заполните вручную';
 
   @override
   String get receiptTitle => 'Продукты из чека';

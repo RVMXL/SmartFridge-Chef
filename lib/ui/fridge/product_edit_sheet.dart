@@ -1,9 +1,9 @@
 /// Форма добавления/редактирования продукта (Шаг 3).
 ///
 /// Открывается модальным листом из холодильника, сканера и чека.
-/// [initialBarcode] и [initialName] приходят из сканера/OCR — пользователь
-/// дозаполняет остальное. Дата по умолчанию — типовой срок категории
-/// одним тапом.
+/// [initialBarcode], [initialName] и [initialCategory] приходят из
+/// сканера/автопоиска/OCR — пользователь дозаполняет остальное.
+/// Дата по умолчанию — типовой срок категории одним тапом.
 library;
 
 import 'package:flutter/material.dart';
@@ -19,6 +19,7 @@ Future<void> showProductEditSheet(
   Product? existing,
   String? initialBarcode,
   String? initialName,
+  ProductCategory? initialCategory,
 }) {
   return showModalBottomSheet(
     context: context,
@@ -28,6 +29,7 @@ Future<void> showProductEditSheet(
       existing: existing,
       initialBarcode: initialBarcode,
       initialName: initialName,
+      initialCategory: initialCategory,
     ),
   );
 }
@@ -38,11 +40,13 @@ class ProductEditSheet extends StatefulWidget {
     this.existing,
     this.initialBarcode,
     this.initialName,
+    this.initialCategory,
   });
 
   final Product? existing;
   final String? initialBarcode;
   final String? initialName;
+  final ProductCategory? initialCategory;
 
   @override
   State<ProductEditSheet> createState() => _ProductEditSheetState();
@@ -68,7 +72,8 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
     _barcode =
         TextEditingController(text: p?.barcode ?? widget.initialBarcode ?? '');
     _notes = TextEditingController(text: p?.notes ?? '');
-    _category = p?.category ?? ProductCategory.other;
+    _category =
+        p?.category ?? widget.initialCategory ?? ProductCategory.other;
     _unit = p?.unit ?? ProductUnit.pcs;
     _expiry = p?.expiryDate ??
         DateTime.now().add(Duration(days: _category.defaultShelfLifeDays));

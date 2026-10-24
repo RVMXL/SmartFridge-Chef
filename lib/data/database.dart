@@ -8,6 +8,8 @@
 /// v2 — `meal_plans`, `planned_meals`, `shopping_items` (Шаг 2):
 /// планы меню хранятся снимками рецептов, поэтому не ломаются
 /// при обновлении встроенной базы.
+/// v3 — `barcode_cache` (Шаг 3.1): локальный кэш автопоиска штрих-кодов —
+/// найденное один раз остаётся доступным офлайн навсегда.
 library;
 
 import 'package:path/path.dart' as p;
@@ -17,7 +19,7 @@ class AppDatabase {
   AppDatabase._();
 
   static const String dbName = 'smart_fridge.db';
-  static const int dbVersion = 2;
+  static const int dbVersion = 3;
 
   /// Открывает базу.
   ///
@@ -35,11 +37,12 @@ class AppDatabase {
     );
   }
 
-  /// Полная схема (v1 + v2) для новой базы.
+  /// Полная схема (v1 + v2 + v3) для новой базы.
   static Future<void> _onCreate(Database db, int version) async {
     final batch = db.batch();
     createV1Tables(batch);
     createV2Tables(batch);
+    createV3Tables(batch);
     await batch.commit(noResult: true);
   }
 
@@ -49,17 +52,23 @@ class AppDatabase {
     int oldVersion,
     int newVersion,
   ) async {
-    switch (oldVersion) {
-      case 1:
-        // v1 -> v2: таблицы планов меню (Шаг 2). Данные продуктов и
-        // профиля не трогаются — миграция только добавляет таблицы.
-        final batch = db.batch();
-        createV2Tables(batch);
-        await batch.commit(noResult: true);
-        break;
-      default:
-        assert(newVersion == dbVersion, 'Неизвестная версия: $newVersion');
+    // Последовательное накатывание: от oldVersion к dbVersion через все
+    // промежуточные шаги. Каждая ступень — только добавление таблиц/индексов,
+    // данные пользователей не трогаются.
+    if (oldVersion < 2) {
+      // v1 -> v2: таблицы планов меню (Шаг 2).
+      final batch = db.batch();
+      createV2Tables(batch);
+      await batch.commit(noResult: true);
     }
+    if (oldVersion < 3) {
+      // v2 -> v3: кэш автопоиска штрих-кодов (Шаг 3.1).
+      final batch = db.batch();
+      createV3Tables(batch);
+      await batch.commit(noResult: true);
+    }
+    assert(oldVersion >= 1 && newVersion == dbVersion,
+        'Неизвестная версия: $oldVersion -> $newVersion');
   }
 
   // ------------------------------------------------------------- схема v1
@@ -170,5 +179,25 @@ class AppDatabase {
       'CREATE INDEX idx_shopping_items_plan '
       'ON shopping_items(plan_id, checked)',
     );
+  }
+
+  // ------------------------------------------------------------- схема v3
+
+  /// Таблица версии 3: кэш автопоиска штрих-кодов (Шаг 3.1).
+  ///
+  /// Результат запроса к открытой базе Open Food Facts сохраняется на
+  /// устройстве: повторное сканирование того же кода работает офлайн.
+  /// Отрицательные результаты (товара нет в базе) не кэшируются —
+  /// база постоянно пополняется, стоит пробовать снова.
+  static void createV3Tables(Batch batch) {
+    batch.execute('''
+      CREATE TABLE barcode_cache (
+        code          TEXT    PRIMARY KEY,
+        name          TEXT    NOT NULL,
+        category_key  TEXT,
+        source        TEXT    NOT NULL DEFAULT 'openfoodfacts',
+        fetched_at    TEXT    NOT NULL
+      )
+    ''');
   }
 }

@@ -14,6 +14,7 @@ import 'data/data_store.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'notifications/reminder_scheduler.dart';
 import 'notifications/reminder_sync.dart';
+import 'scan/barcode_lookup.dart';
 import 'state/plan_controller.dart';
 import 'state/product_controller.dart';
 import 'state/profile_controller.dart';
@@ -57,6 +58,11 @@ void main() async {
   await productController.refresh();
   await profileController.load();
 
+  // Автопоиск по штрих-коду: кэш + открытая база Open Food Facts.
+  final barcodeLookup = BarcodeLookupService(
+    openDb: AppDataStore.instance.database,
+  );
+
   runApp(SmartFridgeApp(
     settings: settings,
     recipeRepository: recipeRepository,
@@ -64,6 +70,7 @@ void main() async {
     productController: productController,
     profileController: profileController,
     scheduler: scheduler,
+    barcodeLookup: barcodeLookup,
   ));
 }
 
@@ -76,6 +83,7 @@ class SmartFridgeApp extends StatelessWidget {
     required this.productController,
     required this.profileController,
     required this.scheduler,
+    required this.barcodeLookup,
   });
 
   final SettingsController settings;
@@ -84,6 +92,7 @@ class SmartFridgeApp extends StatelessWidget {
   final ProductController productController;
   final ProfileController profileController;
   final LocalReminderScheduler scheduler;
+  final BarcodeLookupService barcodeLookup;
 
   /// Семенной цвет обеих тем — зелёный «свежести» (#2E7D32).
   static const Color seedColor = Color(0xFF2E7D32);
@@ -98,6 +107,7 @@ class SmartFridgeApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: productController),
         ChangeNotifierProvider.value(value: profileController),
         Provider<ReminderScheduler>.value(value: scheduler),
+        Provider<BarcodeLookupService>.value(value: barcodeLookup),
       ],
       child: Consumer<SettingsController>(
         builder: (context, s, _) => MaterialApp(

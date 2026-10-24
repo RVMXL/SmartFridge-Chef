@@ -6,6 +6,7 @@ library;
 
 import 'package:sqflite/sqflite.dart';
 
+import 'dao/barcode_cache_dao.dart';
 import 'dao/plan_dao.dart';
 import 'dao/product_dao.dart';
 import 'dao/profile_dao.dart';
@@ -28,6 +29,9 @@ class AppDataStore {
   Future<ProfileDao> profileDao() async => ProfileDao(await database());
 
   Future<PlanDao> planDao() async => PlanDao(await database());
+
+  Future<BarcodeCacheDao> barcodeCacheDao() async =>
+      BarcodeCacheDao(await database());
 
   /// Закрыть базу (для тестов инфраструктуры).
   Future<void> close() async {

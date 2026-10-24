@@ -87,7 +87,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stageCurrent =>
-      'Done: offline planner, scanner, expiry notifications (v0.3.0)';
+      'Done: barcode auto-lookup, offline planner, scanner, expiry notifications (v0.4.0)';
 
   @override
   String get settingsOffline =>
@@ -295,6 +295,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get scanCameraError =>
       'Camera unavailable. Check the permission or enter the code manually.';
+
+  @override
+  String get scanLookupWaiting => 'Searching the open product database…';
+
+  @override
+  String get scanLookupMiss =>
+      'Not found in the open database — fill in manually';
 
   @override
   String get receiptTitle => 'Products from the receipt';

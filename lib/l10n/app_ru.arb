@@ -24,15 +24,13 @@
   "settingsAbout": "О приложении",
   "settingsVersion": "Версия",
   "settingsStage": "Стадия разработки",
-  "stageCurrent": "Готово: офлайн-планер, сканер, пуши о сроках (v0.3.0)",
+  "stageCurrent": "Готово: автопоиск штрих-кодов, офлайн-планер, сканер, пуши о сроках (v0.4.0)",
   "settingsOffline": "Offline-first: все данные остаются на устройстве. Без аналитики, серверов и аккаунтов.",
-
   "dbOpenError": "Не удалось открыть локальную базу данных",
   "retry": "Повторить",
   "freshnessFresh": "Свежий",
   "freshnessExpiring": "Истекает",
   "freshnessExpired": "Просрочен",
-
   "commonCancel": "Отмена",
   "commonSave": "Сохранить",
   "commonDelete": "Удалить",
@@ -47,7 +45,6 @@
   "sortCategory": "По категории",
   "emptySearchTitle": "Ничего не найдено",
   "emptySearchBody": "Попробуйте другой запрос — в холодильнике такого нет.",
-
   "fridgeAddTooltip": "Добавить продукты",
   "fridgeEmptyTitle": "Холодильник пуст",
   "fridgeEmptyBody": "Добавьте первый продукт: сканируйте штрих-код, сфотографируйте чек или введите вручную.",
@@ -68,7 +65,6 @@
   "duplicateBody": "«{name}» уже лежит на полке (до {date}). Добавить ещё один — увеличим количество.",
   "duplicateAddOne": "Добавить +1",
   "duplicateOpen": "Изменить",
-
   "productNew": "Новый продукт",
   "productEditTitle": "Редактировать продукт",
   "productFieldName": "Название",
@@ -85,14 +81,14 @@
   "productFieldNotes": "Заметка",
   "productNameRequired": "Введите название",
   "productSaveError": "Не удалось сохранить продукт",
-
   "scanTitle": "Сканер штрих-кода",
   "scanHint": "Наведите камеру на штрих-код товара",
   "scanManualEntry": "Ввести код вручную",
   "scanManualHint": "Штрих-код",
   "scanInvalidCode": "Код не распознан",
   "scanCameraError": "Камера недоступна. Проверьте разрешение или введите код вручную.",
-
+  "scanLookupWaiting": "Ищем в открытой базе продуктов…",
+  "scanLookupMiss": "Не найдено в открытой базе — заполните вручную",
   "receiptTitle": "Продукты из чека",
   "receiptPickCamera": "Сфотографировать чек",
   "receiptPickGallery": "Выбрать фото из галереи",
@@ -102,7 +98,6 @@
   "receiptEditHint": "Проверьте названия — OCR может ошибаться. Снимите выделение с лишних строк.",
   "receiptAddSelected": "Добавить выбранные ({count})",
   "receiptAdded": "Добавлено позиций: {count}",
-
   "menuGenerate": "Суперпланер: меню на неделю",
   "menuGenerateShort": "Сгенерировать меню",
   "menuGenerating": "Собираем меню…",
@@ -126,14 +121,12 @@
   "menuIngredients": "Ингредиенты",
   "menuSteps": "Приготовление",
   "menuWeekOf": "Неделя с {date}",
-
   "shoppingTitle": "Список покупок",
   "shoppingFromPlan": "Из плана «меню на неделю»",
   "shoppingEmpty": "Всё нужное уже в холодильнике — докупать нечего.",
   "shoppingChecked": "Куплено: {done} из {total}",
   "shoppingClearChecked": "Убрать купленные",
   "shoppingNoPlan": "Сначала соберите меню — список недостающего появится здесь.",
-
   "settingsProfile": "Профиль питания",
   "profileTitle": "Профиль питания",
   "profileCalories": "Суточный калораж, ккал",
@@ -148,7 +141,6 @@
   "profileSaved": "Профиль сохранён",
   "profileOpen": "Изменить",
   "profileNone": "Не указан",
-
   "settingsNotifications": "Напоминания о сроках",
   "notifEnable": "Присылать пуши",
   "notifDays": "Предупреждать заранее",
@@ -157,7 +149,6 @@
   "notifHour": "Время напоминания",
   "notifHourAt": "В {hour}:00",
   "notifPermissionHint": "Если пуши не приходят — проверьте разрешения системы и запрет оптимизации батареи.",
-
   "onbWelcomeTitle": "Умный Холодильник\n& Шеф-Планер",
   "onbWelcomeBody": "Следим за сроками годности и собираем меню на неделю из того, что уже лежит в холодильнике. Всё офлайн.",
   "onbStart": "Начать настройку",
@@ -169,7 +160,6 @@
   "onbFinish": "Готово — в холодильник!",
   "onbSkip": "Пропустить",
   "onbNext": "Дальше",
-
   "dietNone": "Без ограничений",
   "dietVegetarian": "Вегетарианская",
   "dietVegan": "Веганская",
@@ -185,7 +175,6 @@
   "allergenSoy": "Соя",
   "allergenWheat": "Пшеница / глютен",
   "allergenSesame": "Кунжут",
-
   "catDairy": "Молочные",
   "catMeat": "Мясо",
   "catFish": "Рыба",
@@ -198,19 +187,16 @@
   "catSweets": "Сладкое",
   "catCondiments": "Соусы",
   "catOther": "Другое",
-
   "unitPcs": "шт",
   "unitGram": "г",
   "unitKilogram": "кг",
   "unitMilliliter": "мл",
   "unitLiter": "л",
   "unitPack": "упак",
-
   "slotBreakfast": "Завтрак",
   "slotSnack": "Перекус",
   "slotLunch": "Обед",
   "slotDinner": "Ужин",
-
   "notifTitle": "Проверьте холодильник",
   "notifBody": "{name}: срок годности до {date}. {days, plural, =0{Срок истекает сегодня} =1{Остался 1 день} few{Осталось {days} дня} many{Осталось {days} дней} other{Осталось {days} дня}}"
 }

@@ -245,7 +245,7 @@ abstract class AppLocalizations {
   /// No description provided for @stageCurrent.
   ///
   /// In en, this message translates to:
-  /// **'Done: offline planner, scanner, expiry notifications (v0.3.0)'**
+  /// **'Done: barcode auto-lookup, offline planner, scanner, expiry notifications (v0.4.0)'**
   String get stageCurrent;
 
   /// No description provided for @settingsOffline.
@@ -619,6 +619,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Camera unavailable. Check the permission or enter the code manually.'**
   String get scanCameraError;
+
+  /// No description provided for @scanLookupWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching the open product database…'**
+  String get scanLookupWaiting;
+
+  /// No description provided for @scanLookupMiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found in the open database — fill in manually'**
+  String get scanLookupMiss;
 
   /// No description provided for @receiptTitle.
   ///

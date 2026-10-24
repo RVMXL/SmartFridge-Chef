@@ -10,7 +10,13 @@
   "fridgeEmpty": "The fridge is empty. Products will be added by barcode scanning or quick manual input.",
   "statActive": "In the fridge",
   "statExpiring": "Expiring (≤ {days} d.)",
-  "@statExpiring": { "placeholders": { "days": { "type": "int" } } },
+  "@statExpiring": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "statExpired": "Expired",
   "plannerTitle": "My Menu",
   "settingsTitle": "Settings",
@@ -25,15 +31,13 @@
   "settingsAbout": "About",
   "settingsVersion": "Version",
   "settingsStage": "Development stage",
-  "stageCurrent": "Done: offline planner, scanner, expiry notifications (v0.3.0)",
+  "stageCurrent": "Done: barcode auto-lookup, offline planner, scanner, expiry notifications (v0.4.0)",
   "settingsOffline": "Offline-first: all data stays on the device. No analytics, servers or accounts.",
-
   "dbOpenError": "Failed to open the local database",
   "retry": "Retry",
   "freshnessFresh": "Fresh",
   "freshnessExpiring": "Expiring",
   "freshnessExpired": "Expired",
-
   "commonCancel": "Cancel",
   "commonSave": "Save",
   "commonDelete": "Delete",
@@ -48,7 +52,6 @@
   "sortCategory": "By category",
   "emptySearchTitle": "Nothing found",
   "emptySearchBody": "Try a different query — the fridge list is empty.",
-
   "fridgeAddTooltip": "Add products",
   "fridgeEmptyTitle": "The fridge is empty",
   "fridgeEmptyBody": "Add your first product: scan a barcode, photograph a receipt or type it manually.",
@@ -58,22 +61,48 @@
   "fridgeLegend": "Freshness legend",
   "swipeHint": "Swipe a card to mark it as eaten or discarded.",
   "daysLeft": "{days, plural, =0{expires today} =1{1 day left} other{{days} days left}}",
-  "@daysLeft": { "placeholders": { "days": { "type": "int" } } },
+  "@daysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "expiryOn": "Expiry: {date}",
-  "@expiryOn": { "placeholders": { "date": { "type": "String" } } },
+  "@expiryOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "actionAte": "Ate it",
   "actionDiscard": "Discard",
   "actionDeleted": "Deleted",
   "snackbarUndo": "Undo",
   "confirmDeleteTitle": "Delete product?",
   "confirmDeleteBody": "“{name}” will disappear from the fridge without a trace in the history.",
-  "@confirmDeleteBody": { "placeholders": { "name": { "type": "String" } } },
+  "@confirmDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "duplicateTitle": "Already in the fridge",
   "duplicateBody": "“{name}” is already on the shelf (until {date}). Add another one — we will increase the quantity.",
-  "@duplicateBody": { "placeholders": { "name": { "type": "String" }, "date": { "type": "String" } } },
+  "@duplicateBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "duplicateAddOne": "Add +1",
   "duplicateOpen": "Edit",
-
   "productNew": "New product",
   "productEditTitle": "Edit product",
   "productFieldName": "Name",
@@ -85,33 +114,56 @@
   "productQuickPlus2": "+2 days",
   "productQuickPlus7": "+7 days",
   "productDefaultShelf": "Typical shelf life: {days} days",
-  "@productDefaultShelf": { "placeholders": { "days": { "type": "int" } } },
+  "@productDefaultShelf": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "productFieldBarcode": "Barcode",
   "productBarcodeEmpty": "Not set",
   "productFieldNotes": "Note",
   "productNameRequired": "Enter a name",
   "productSaveError": "Failed to save the product",
-
   "scanTitle": "Barcode scanner",
   "scanHint": "Point the camera at the product barcode",
   "scanManualEntry": "Enter the code manually",
   "scanManualHint": "Barcode",
   "scanInvalidCode": "The code was not recognized",
   "scanCameraError": "Camera unavailable. Check the permission or enter the code manually.",
-
+  "scanLookupWaiting": "Searching the open product database…",
+  "scanLookupMiss": "Not found in the open database — fill in manually",
   "receiptTitle": "Products from the receipt",
   "receiptPickCamera": "Photograph the receipt",
   "receiptPickGallery": "Pick a photo from the gallery",
   "receiptRecognizing": "Recognizing text…",
   "receiptFound": "Items found: {count}",
-  "@receiptFound": { "placeholders": { "count": { "type": "int" } } },
+  "@receiptFound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "receiptNotFound": "Could not recognize any items. Try a sharper photo or add products manually.",
   "receiptEditHint": "Check the names — OCR can be wrong. Uncheck the lines you do not need.",
   "receiptAddSelected": "Add selected ({count})",
-  "@receiptAddSelected": { "placeholders": { "count": { "type": "int" } } },
+  "@receiptAddSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "receiptAdded": "Items added: {count}",
-  "@receiptAdded": { "placeholders": { "count": { "type": "int" } } },
-
+  "@receiptAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "menuGenerate": "Superplanner: weekly menu",
   "menuGenerateShort": "Generate menu",
   "menuGenerating": "Assembling the menu…",
@@ -121,11 +173,29 @@
   "menuShopping": "Shopping list",
   "menuHistory": "Plan history",
   "menuKcalPerDay": "~{kcal} kcal/day",
-  "@menuKcalPerDay": { "placeholders": { "kcal": { "type": "int" } } },
+  "@menuKcalPerDay": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
   "menuTarget": "Target: {kcal} kcal",
-  "@menuTarget": { "placeholders": { "kcal": { "type": "int" } } },
+  "@menuTarget": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
   "menuUsesExpiring": "Eat first: {items}",
-  "@menuUsesExpiring": { "placeholders": { "items": { "type": "String" } } },
+  "@menuUsesExpiring": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
   "menuEmptyTitle": "The menu is not assembled yet",
   "menuEmptyBody": "The Superplanner looks into your fridge, takes calories, diet, allergies and seasonality into account — and assembles a 7-day menu right on the device.",
   "menuPlanError": "Failed to assemble the menu",
@@ -134,22 +204,47 @@
   "menuHistoryEmpty": "No saved plans yet",
   "menuDeletePlan": "Delete plan",
   "menuCookMinutes": "{minutes} min",
-  "@menuCookMinutes": { "placeholders": { "minutes": { "type": "int" } } },
+  "@menuCookMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "menuServings": "{count} servings",
-  "@menuServings": { "placeholders": { "count": { "type": "int" } } },
+  "@menuServings": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "menuIngredients": "Ingredients",
   "menuSteps": "Cooking",
   "menuWeekOf": "Week of {date}",
-  "@menuWeekOf": { "placeholders": { "date": { "type": "String" } } },
-
+  "@menuWeekOf": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "shoppingTitle": "Shopping list",
   "shoppingFromPlan": "From the weekly menu plan",
   "shoppingEmpty": "Everything you need is already in the fridge — nothing to buy.",
   "shoppingChecked": "Bought: {done} of {total}",
-  "@shoppingChecked": { "placeholders": { "done": { "type": "int" }, "total": { "type": "int" } } },
+  "@shoppingChecked": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "shoppingClearChecked": "Remove bought",
   "shoppingNoPlan": "Assemble the menu first — the missing-ingredients list will appear here.",
-
   "settingsProfile": "Nutrition profile",
   "profileTitle": "Nutrition profile",
   "profileCalories": "Daily calories, kcal",
@@ -164,7 +259,6 @@
   "profileSaved": "Profile saved",
   "profileOpen": "Change",
   "profileNone": "Not set",
-
   "settingsNotifications": "Expiry reminders",
   "notifEnable": "Send notifications",
   "notifDays": "Warn in advance",
@@ -172,9 +266,14 @@
   "notifDaysOpt1": "1 day ahead",
   "notifHour": "Reminder time",
   "notifHourAt": "At {hour}:00",
-  "@notifHourAt": { "placeholders": { "hour": { "type": "int" } } },
+  "@notifHourAt": {
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
+  },
   "notifPermissionHint": "If notifications do not arrive — check the system permissions and battery optimization settings.",
-
   "onbWelcomeTitle": "Smart Fridge\n& Chef Planner",
   "onbWelcomeBody": "We track expiry dates and assemble a weekly menu from what is already in your fridge. Everything offline.",
   "onbStart": "Start setup",
@@ -186,7 +285,6 @@
   "onbFinish": "Done — to the fridge!",
   "onbSkip": "Skip",
   "onbNext": "Next",
-
   "dietNone": "No restrictions",
   "dietVegetarian": "Vegetarian",
   "dietVegan": "Vegan",
@@ -202,7 +300,6 @@
   "allergenSoy": "Soy",
   "allergenWheat": "Wheat / gluten",
   "allergenSesame": "Sesame",
-
   "catDairy": "Dairy",
   "catMeat": "Meat",
   "catFish": "Fish",
@@ -215,20 +312,29 @@
   "catSweets": "Sweets",
   "catCondiments": "Condiments",
   "catOther": "Other",
-
   "unitPcs": "pcs",
   "unitGram": "g",
   "unitKilogram": "kg",
   "unitMilliliter": "ml",
   "unitLiter": "l",
   "unitPack": "pack",
-
   "slotBreakfast": "Breakfast",
   "slotSnack": "Snack",
   "slotLunch": "Lunch",
   "slotDinner": "Dinner",
-
   "notifTitle": "Check your fridge",
   "notifBody": "{name}: expiry {date}. {days, plural, =0{The term expires today} =1{1 day left} other{{days} days left}}",
-  "@notifBody": { "placeholders": { "name": { "type": "String" }, "date": { "type": "String" }, "days": { "type": "int" } } }
+  "@notifBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  }
 }
