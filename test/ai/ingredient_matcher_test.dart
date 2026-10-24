@@ -81,6 +81,64 @@ void main() {
     });
   });
 
+  group('matchProduct: порядок слов и падежи (токен-матч)', () {
+    final cases = <String, String>{
+      // Порядок слов не важен: раньше «Масло сливочное» ловило стем «слив»
+      // и превращалось в сливу (plum).
+      'Масло сливочное 82%': 'butter',
+      'Сливочное масло': 'butter',
+      'Масло растительное': 'vegetable_oil',
+      'Черный молотый перец': 'pepper',
+      'Перец чёрный молотый': 'pepper',
+      'Печень куриная': 'chicken_liver',
+      'Куриная печень': 'chicken_liver',
+    };
+    for (final entry in cases.entries) {
+      test('"${entry.key}" -> ${entry.value}', () {
+        expect(matcher.matchProduct(entry.key), entry.value);
+      });
+    }
+  });
+
+  group('matchProduct: стоп-фразы (ложные друзья стемов)', () {
+    final cases = <String, String?>{
+      // «печень» внутри «печенье» и «печень трески» — не куриная печень.
+      'Печенье овсяное': null,
+      'Печенье сахарное': null,
+      'Печень трески': null,
+      'Печень минтая': null,
+      // «капуст» внутри «морская капуста» — это ламинария.
+      'Морская капуста': null,
+      // Соусы и кетчупы — не овощи.
+      'Томатный соус': null,
+      'Кетчуп томатный': null,
+      'Томатный сок': null,
+      'Сок апельсиновый': null,
+      // «молок» в «молочных сосисках» — не молоко.
+      'Молочные сосиски': null,
+      'Сосиски Молочные Вязанка': null,
+      // «лук» в «рахат-лукуме» — не лук.
+      'Рахат-лукум': null,
+      // Названия со штрих-кода (Open Food Facts), не закрывающие ингредиенты.
+      'Докторская колбаса ГОСТ': null,
+      'Пельмени Сибирская коллекция': null,
+      'Мороженое эскимо': null,
+    };
+    for (final entry in cases.entries) {
+      test('"${entry.key}" не матчится', () {
+        expect(matcher.matchProduct(entry.key), entry.value);
+      });
+    }
+
+    test('стоп-фраза не ломает честные названия', () {
+      expect(matcher.matchProduct('Томаты в собственном соку'), 'tomato');
+      expect(matcher.matchProduct('Томатная паста'), 'tomato_paste');
+      expect(matcher.matchProduct('Капуста белокочанная'), 'cabbage');
+      expect(matcher.matchProduct('Цветная капуста'), 'cauliflower');
+      expect(matcher.matchProduct('Минеральная вода газированная'), 'water');
+    });
+  });
+
   group('indexProducts', () {
     test('активные проецируются на ключи, неактивные пропускаются', () {
       final fridge = matcher.indexProducts([

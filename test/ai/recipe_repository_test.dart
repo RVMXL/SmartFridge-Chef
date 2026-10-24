@@ -69,6 +69,41 @@ void main() {
     }
   });
 
+  test(
+      'безопасность: ингредиент-аллерген обязан давать рецепту свою метку',
+      () {
+    // Инвариант той же карты, что в scripts/fix_recipe_allergens.py:
+    // генератор недопоставил метки (например, манка без «wheat» ловилась
+    // жёстким фильтром аллергий только частично). Тест не даёт регрессии.
+    const requiredByKey = <String, String>{
+      'flour': 'wheat', 'bread': 'wheat', 'bread_rye': 'wheat',
+      'pasta': 'wheat', 'semolina': 'wheat', 'bulgur_cooked': 'wheat',
+      'couscous_cooked': 'wheat', 'pearl_barley': 'wheat',
+      'barley_cooked': 'wheat', 'soy_sauce': 'wheat',
+      'mayo': 'eggs', 'egg': 'eggs',
+      'milk': 'milk', 'kefir': 'milk', 'yogurt': 'milk',
+      'sour_cream': 'milk', 'cottage_cheese': 'milk', 'cheese': 'milk',
+      'butter': 'milk', 'cream': 'milk',
+      'salmon': 'fish', 'cod': 'fish', 'pollock': 'fish',
+      'herring': 'fish', 'tuna_can': 'fish', 'minced_fish': 'fish',
+      'shrimp': 'shellfish', 'squid': 'shellfish',
+      'walnut': 'nuts', 'almond': 'nuts',
+      'peanut_butter': 'peanuts', 'tofu': 'soy',
+    };
+    final problems = <String>[];
+    for (final r in recipes) {
+      for (final ing in r.ingredients) {
+        final required = requiredByKey[ing.key];
+        if (required == null) continue;
+        final have = r.allergens.map((a) => a.key);
+        if (!have.contains(required)) {
+          problems.add('${r.id}: ключ ${ing.key} требует "$required"');
+        }
+      }
+    }
+    expect(problems, isEmpty, reason: problems.join('; '));
+  });
+
   test('веганские флаги согласованы с составом (без мяса/рыбы)', () {
     for (final r in recipes) {
       if (r.vegan) {

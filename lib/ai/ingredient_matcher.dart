@@ -3,7 +3,17 @@
 /// Пользователь пишет «Куриное филе», «помидоры», «Рис» — рецепту нужны
 /// ключи `chicken_breast`, `tomato`, `rice`. Матчер нормализует ввод
 /// (нижний регистр, ё→е, без пунктуации) и ищет совпадение по словарю
-/// синонимов: точное имя → самое длинное вхождение стема.
+/// синонимов. Матч — на уровне токенов (слов): каждый токен алиаса
+/// должен быть префиксом отдельного слова названия, порядок слов не
+/// важен («масло сливочное» == «Сливочное масло»), падежные окончания
+/// допускаются («гречка», «гречи», «гречневая» — всё стем «греч»). Это
+/// убирает ложные срабатывания коротких стемов внутри чужих слов:
+/// «печенье» больше не печень, «сливочное масло» больше не слива.
+///
+/// Поверх словаря работают стоп-фразы: если название содержит стоп
+/// («морская капуста», «печень трески», «кетчуп»), перечисленные в правиле
+/// ключи запрещены — продукт уходит в нераспознанные (`raw:`), что
+/// безопаснее ложного «закрытия» ингредиента.
 ///
 /// Детерминизм и покрытие словаря закреплены тестами
 /// (test/ai/ingredient_matcher_test.dart).
@@ -83,9 +93,10 @@ class IngredientMatcher {
         (code >= 0x0400 && code <= 0x04FF);
   }
 
-  /// Синонимы: канонический ключ → стемы для поиска вхождением.
-  /// Побеждает самое длинное вхождение (чтобы «куриные бёдра» стало
-  /// thigh, а не breast).
+  /// Синонимы: канонический ключ → стемы. Матч на уровне токенов: каждый
+  /// токен стема — префикс отдельного слова названия (порядок не важен),
+  /// побеждает самый длинный стем (чтобы «куриные бёдра» стало thigh,
+  /// а не breast, и «томатная паста» стало tomato_paste, а не tomato).
   static const Map<String, List<String>> _synonyms = {
     // ---- мясо
     'chicken_breast': ['куриная грудка', 'грудк', 'куриное филе',
@@ -98,7 +109,10 @@ class IngredientMatcher {
     'minced_chicken': ['куриный фарш', 'фарш курицы'],
     'minced_turkey': ['фарш индейки', 'индюшиный фарш'],
     'minced_fish': ['рыбный фарш', 'фарш рыбы'],
-    'chicken_liver': ['куриную печень', 'печень кур', 'печеньк', 'печень'],
+    // Без голого стема «печень»: он ловил «печенье» и «печень трески».
+    // «Печень кур» покрывает и «куриная печень», и «печень куриную».
+    'chicken_liver': ['куриная печень', 'куриную печень', 'печень кур',
+      'chicken liver'],
     // ---- рыба/морепродукты
     'salmon': ['лосос', 'сёмг', 'семг', 'форель', 'salmon'],
     'cod': ['треск', 'cod'],
@@ -203,26 +217,113 @@ class IngredientMatcher {
     'water': ['вода', 'water'],
   };
 
+  /// Стоп-правила: нормализованная фраза → запрещённые ключи.
+  ///
+  /// «Морская капуста» — это ламинария, а не белокочанная капуста;
+  /// «печень трески» — не куриная печень и не треска-филе; кетчуп и
+  /// томатный соус — не помидоры; сок — не фрукт; сосиски «молочные» —
+  /// не молоко; печенье — не овсяные хлопья. Без этих правил короткие
+  /// стемы дают ложные срабатывания, искажающие покрытие холодильника.
+  ///
+  /// Режимы: exact — токен названия равен фразе; prefix — токен начинается
+  /// с фразы; seq — фраза это последовательность префиксов подряд идущих
+  /// токенов.
+  static const Map<String, Set<String>> _stopExact = {
+    'сок': {'tomato', 'orange', 'lemon', 'apple', 'cherry', 'plum', 'pear',
+      'berries', 'raspberry', 'strawberry', 'cucumber'},
+  };
+  static const Map<String, Set<String>> _stopPrefix = {
+    'кетчуп': {'tomato'},
+    'сосиск': {'milk'},
+    'печенье': {'oat_flakes', 'chicken_liver', 'sugar', 'flour', 'butter'},
+    'лукум': {'onion'},
+  };
+  static const Map<String, Set<String>> _stopSeq = {
+    'морская капуста': {'cabbage', 'cauliflower'},
+    'печень треск': {'chicken_liver', 'cod'},
+    'печень минта': {'chicken_liver', 'pollock'},
+    'томатный соус': {'tomato'},
+  };
+
+  /// Ключи, запрещённые для токенов названия стоп-правилами.
+  static Set<String> _blockedKeys(List<String> tokens) {
+    final blocked = <String>{};
+    _stopExact.forEach((phrase, keys) {
+      if (tokens.contains(phrase)) blocked.addAll(keys);
+    });
+    _stopPrefix.forEach((phrase, keys) {
+      if (tokens.any((t) => t.startsWith(phrase))) blocked.addAll(keys);
+    });
+    _stopSeq.forEach((phrase, keys) {
+      final stems = phrase.split(' ');
+      if (stems.length > tokens.length) return;
+      for (var i = 0; i + stems.length <= tokens.length; i++) {
+        var hit = true;
+        for (var j = 0; j < stems.length; j++) {
+          if (!tokens[i + j].startsWith(stems[j])) {
+            hit = false;
+            break;
+          }
+        }
+        if (hit) {
+          blocked.addAll(keys);
+          return;
+        }
+      }
+    });
+    return blocked;
+  }
+
   /// Канонический ключ для названия продукта или null.
   ///
   /// Порядок: точное совпадение нормализованного имени с алиасом →
-  /// самое длинное вхождение стема (стемы короче 3 символов пропускаем).
+  /// токен-префиксный матч стема (стемы короче 3 символов матчатся
+  /// только целиком). Побеждает самый длинный алиас.
   String? matchProduct(String productName) {
     final norm = normalize(productName);
     if (norm.isEmpty) return null;
+    final tokens = norm.split(' ');
+    final blocked = _blockedKeys(tokens);
 
     String? bestKey;
     var bestLen = 0;
     _synonyms.forEach((key, aliases) {
-      for (final alias in aliases) {
-        if (alias.length <= bestLen) continue;
-        if (norm == alias || (alias.length >= 3 && norm.contains(alias))) {
+      if (blocked.contains(key)) return;
+      for (final rawAlias in aliases) {
+        final alias = normalize(rawAlias);
+        if (alias.isEmpty || alias.length <= bestLen) continue;
+        if (_aliasMatches(alias, tokens)) {
           bestKey = key;
           bestLen = alias.length;
         }
       }
     });
     return bestKey;
+  }
+
+  /// Алиас матчится, если он равен всему имени или каждый его токен —
+  /// префикс отдельного токена имени (порядок слов не важен).
+  static bool _aliasMatches(String alias, List<String> tokens) {
+    if (tokens.length == 1 && tokens.single == alias) return true;
+    final aTokens = alias.split(' ');
+    if (aTokens.length == 1) {
+      final a = aTokens.single;
+      if (a.length < 3) return false; // короткие стемы — только точное имя
+      return tokens.any((t) => t.startsWith(a));
+    }
+    final used = List<bool>.filled(tokens.length, false);
+    for (final a in aTokens) {
+      var found = false;
+      for (var i = 0; i < tokens.length; i++) {
+        if (!used[i] && tokens[i].startsWith(a)) {
+          used[i] = true;
+          found = true;
+          break;
+        }
+      }
+      if (!found) return false;
+    }
+    return true;
   }
 
   /// Индекс холодильника: активные продукты → ключи.
