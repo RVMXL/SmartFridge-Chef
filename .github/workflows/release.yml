@@ -1,9 +1,9 @@
 name: Release
 
 # Релиз по тегу: analyze + тесты → подписанный APK → GitHub Release.
-# Ключ подписи не хранится в репозитории: он приходит из секретов
-# KEYSTORE_BASE64 / KEYSTORE_PASSWORD / KEYSTORE_KEY_ALIAS /
-# KEYSTORE_KEY_PASSWORD (см. раздел «Подпись и релизы» в README).
+# Ключ подписи не хранится в репозитории — он приходит из секретов
+# KEYSTORE_BASE64 / KEYSTORE_PASSWORD / KEYSTORE_KEY_ALIAS / KEYSTORE_KEY_PASSWORD.
+# Тело релиза — секция версии из CHANGELOG.md (шаг «Тело релиза из CHANGELOG.md»).
 on:
   push:
     tags: ['v*']
@@ -18,6 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # полная история и теги: нужен git describe для ссылки Full Changelog
 
       - uses: actions/setup-java@v4
         with:
@@ -55,6 +57,29 @@ jobs:
           KEYSTORE_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
         run: flutter build apk --release
 
+      - name: Тело релиза из CHANGELOG.md
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          # Секция нужной версии: от строки «## [X.Y.Z]» до следующего «## [»
+          awk -v ver="$VERSION" \
+            'index($0, "## [" ver "]") == 1 { found = 1; next }
+             found && /^## \[/ { exit }
+             found { print }' CHANGELOG.md > body.md
+          # Версии нет в чейнжлоге — запасной текст, чтобы релиз не остался без описания
+          if [ ! -s body.md ]; then
+            echo "Сборка ${GITHUB_REF_NAME}. Подробности — в CHANGELOG.md." > body.md
+          fi
+          # Убрать пустые строки в конце секции
+          printf '%s\n' "$(cat body.md)" > body.tmp && mv body.tmp body.md
+          # Ссылка на сравнение с предыдущим тегом — как в автогенерируемых заметках
+          PREV_TAG=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)
+          if [ -n "$PREV_TAG" ]; then
+            {
+              echo
+              echo "**Full Changelog**: https://github.com/${GITHUB_REPOSITORY}/compare/${PREV_TAG}...${GITHUB_REF_NAME}"
+            } >> body.md
+          fi
+
       - name: Публикация GitHub Release (пре-релиз)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -65,5 +90,5 @@ jobs:
           gh release create "$GITHUB_REF_NAME" \
             "build/app/outputs/flutter-apk/$NAME" \
             --title "Умный Холодильник $GITHUB_REF_NAME" \
-            --prerelease \
-            --generate-notes
+            --notes-file body.md \
+            --prerelease
