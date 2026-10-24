@@ -124,7 +124,7 @@ v3 (Шаг 3.1) — **кэш автопоиска штрих-кодов**: `barc
 | --- | --- | --- | --- |
 | `daily_calories` | INTEGER | 2000 | Суточный калораж, ккал |
 | `protein_g` / `fat_g` / `carbs_g` | INTEGER | 150 / 67 / 200 | БЖУ в сутки; дефолт — формула 30/30/40 от 2000 ккал (`UserProfile.defaultsForCalories`) |
-| `diet` | TEXT | 'none' | Ключ диеты: none / vegetarian / vegan / lent (пост) / pescatarian / low_carb |
+| `diet` | TEXT | 'none' | Ключ диеты: none / vegetarian / vegan / lent (пост) / pescatarian / low_carb / halal / kosher / hindu (без говядины) |
 | `allergies` | TEXT | '[]' | JSON-массив ключей аллергенов: milk, eggs, fish, shellfish, nuts, peanuts, soy, wheat, sesame |
 | `meals_per_day` | INTEGER | 3 | Приёмов пищи в день (2–6, контроль в UI онбординга) |
 | `region_name` | TEXT | NULL | Резерв (сезонность не реализована; в UI скрыт с 0.3.1) |

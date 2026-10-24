@@ -154,6 +154,124 @@ void main() {
     });
   });
 
+  group('религиозные диеты', () {
+    test('халяль: свинина и алкоголь исключены, креветки разрешены',
+        () async {
+      final pool = await repo.loadAll();
+      final allowed = planner.hardFiltered(pool, request(diet: Diet.halal));
+      final allowedIds = allowed.map((r) => r.id).toSet();
+      for (final r in pool) {
+        if (r.hasPork || r.hasAlcohol) {
+          expect(allowedIds.contains(r.id), isFalse, reason: r.titleRu);
+        }
+      }
+      // Ключевое отличие от кошера: морепродукты остаются в пуле.
+      expect(
+        allowed.where((r) => r.hasShellfish),
+        isNotEmpty,
+        reason: 'халяль разрешает морепродукты — пул не должен их терять',
+      );
+    });
+
+    test('кошер: свинина, алкоголь, моллюски и мясо+молочное исключены',
+        () async {
+      final pool = await repo.loadAll();
+      final allowed = planner.hardFiltered(pool, request(diet: Diet.kosher));
+      expect(allowed.length, lessThan(pool.length),
+          reason: 'кошерный пул обязан сузиться');
+      for (final r in allowed) {
+        expect(r.hasPork, isFalse, reason: r.titleRu);
+        expect(r.hasAlcohol, isFalse, reason: r.titleRu);
+        expect(r.hasShellfish, isFalse, reason: r.titleRu);
+        if (r.hasMeat) {
+          expect(r.hasDairy, isFalse,
+              reason: '${r.titleRu}: мясо + молочное в одном блюде');
+        }
+      }
+    });
+
+    test('кошер: рыба с молочным остаётся в пуле (парве)', () async {
+      final pool = await repo.loadAll();
+      final fishDairy = pool
+          .where((r) =>
+              r.hasFish && r.hasDairy && !r.hasMeat && !r.hasShellfish)
+          .toList();
+      expect(fishDairy, isNotEmpty,
+          reason: 'в базе есть рыбные блюда с молочным — они не «мясо»');
+      final allowed = planner
+          .hardFiltered(pool, request(diet: Diet.kosher))
+          .map((r) => r.id)
+          .toSet();
+      for (final r in fishDairy) {
+        expect(allowed.contains(r.id), isTrue,
+            reason: '${r.titleRu} — рыба парве, кошеру не мешает');
+      }
+    });
+
+    test('индуизм: говядина исключена, свинина не трогается', () async {
+      final pool = await repo.loadAll();
+      final allowed = planner.hardFiltered(pool, request(diet: Diet.hindu));
+      final allowedIds = allowed.map((r) => r.id).toSet();
+      for (final r in pool) {
+        if (r.hasBeef) {
+          expect(allowedIds.contains(r.id), isFalse, reason: r.titleRu);
+        }
+      }
+      expect(
+        allowed.where((r) => r.hasPork),
+        isNotEmpty,
+        reason: 'индуизм запрещает только говядину',
+      );
+    });
+
+    test('все религиозные диеты оставляют достаточный пул для недели',
+        () async {
+      final pool = await repo.loadAll();
+      // неделя 7д x 3 приёма = 21 уникальное блюдо; пул обязан
+      // многократно перекрывать потребность
+      expect(
+        planner.hardFiltered(pool, request(diet: Diet.halal)).length,
+        greaterThan(100),
+      );
+      expect(
+        planner.hardFiltered(pool, request(diet: Diet.kosher)).length,
+        greaterThan(100),
+      );
+      expect(
+        planner.hardFiltered(pool, request(diet: Diet.hindu)).length,
+        greaterThan(100),
+      );
+    });
+
+    test('планы на религиозных диетах уважают фильтры', () async {
+      for (final diet in [Diet.halal, Diet.kosher, Diet.hindu]) {
+        final plan = await planner.generate(request(diet: diet, seed: 8));
+        final allMeals = plan.days.expand((d) => d.meals);
+        expect(allMeals, isNotEmpty, reason: diet.key);
+        for (final meal in allMeals) {
+          if (diet == Diet.halal || diet == Diet.kosher) {
+            expect(meal.recipe.hasPork, isFalse,
+                reason: '${diet.key}: ${meal.recipe.titleRu}');
+            expect(meal.recipe.hasAlcohol, isFalse,
+                reason: '${diet.key}: ${meal.recipe.titleRu}');
+          }
+          if (diet == Diet.kosher) {
+            expect(meal.recipe.hasShellfish, isFalse,
+                reason: meal.recipe.titleRu);
+            if (meal.recipe.hasMeat) {
+              expect(meal.recipe.hasDairy, isFalse,
+                  reason: meal.recipe.titleRu);
+            }
+          }
+          if (diet == Diet.hindu) {
+            expect(meal.recipe.hasBeef, isFalse,
+                reason: meal.recipe.titleRu);
+          }
+        }
+      }
+    });
+  });
+
   group('приоритет сроков', () {
     test('срочная рыба используется в первые дни плана', () async {
       // В холодильнике только истекающая рыба + чуть крупы.

@@ -61,6 +61,9 @@ String dietLabel(AppLocalizations l, Diet d) => switch (d) {
       Diet.lent => l.dietLent,
       Diet.pescatarian => l.dietPescatarian,
       Diet.lowCarb => l.dietLowCarb,
+      Diet.halal => l.dietHalal,
+      Diet.kosher => l.dietKosher,
+      Diet.hindu => l.dietHindu,
     };
 
 /// Локализованное название аллергена.

@@ -565,6 +565,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dietLowCarb => 'Low-carb';
 
   @override
+  String get dietHalal => 'Halal (Muslim)';
+
+  @override
+  String get dietKosher => 'Kosher (Jewish)';
+
+  @override
+  String get dietHindu => 'No beef (Hindu)';
+
+  @override
   String get allergenMilk => 'Milk';
 
   @override

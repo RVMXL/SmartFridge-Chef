@@ -567,6 +567,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dietLowCarb => 'Низкоуглеводная';
 
   @override
+  String get dietHalal => 'Халяль (мусульманская)';
+
+  @override
+  String get dietKosher => 'Кошер (еврейская)';
+
+  @override
+  String get dietHindu => 'Без говядины (индуизм)';
+
+  @override
   String get allergenMilk => 'Молоко';
 
   @override

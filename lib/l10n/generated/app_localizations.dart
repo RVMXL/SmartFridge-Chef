@@ -1094,6 +1094,24 @@ abstract class AppLocalizations {
   /// **'Low-carb'**
   String get dietLowCarb;
 
+  /// No description provided for @dietHalal.
+  ///
+  /// In en, this message translates to:
+  /// **'Halal (Muslim)'**
+  String get dietHalal;
+
+  /// No description provided for @dietKosher.
+  ///
+  /// In en, this message translates to:
+  /// **'Kosher (Jewish)'**
+  String get dietKosher;
+
+  /// No description provided for @dietHindu.
+  ///
+  /// In en, this message translates to:
+  /// **'No beef (Hindu)'**
+  String get dietHindu;
+
   /// No description provided for @allergenMilk.
   ///
   /// In en, this message translates to:

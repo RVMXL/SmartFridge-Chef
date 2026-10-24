@@ -85,6 +85,14 @@ class Recipe {
     required this.lowCarb,
     required this.hasMeat,
     required this.hasFish,
+
+    // Религиозные флаги опциональны (default false): ручные конструкторы
+    // в тестах/DAO не обязаны их указывать, JSON-загрузка задаёт всегда.
+    this.hasPork = false,
+    this.hasAlcohol = false,
+    this.hasBeef = false,
+    this.hasShellfish = false,
+    this.hasDairy = false,
     required this.allergens,
     required this.family,
     required this.secondFamily,
@@ -114,6 +122,30 @@ class Recipe {
   final bool lowCarb;
   final bool hasMeat;
   final bool hasFish;
+
+  // --- флаги религиозных диет (v0.4.3) -------------------------------
+  // Считаются по ключам ингредиентов скриптом
+  // scripts/enrich_recipe_diet_flags.py; инварианты «ключ → флаг»
+  // закреплены тестом в test/ai/recipe_repository_test.dart.
+
+  /// Свинина и производные (бекон, сало, ветчина, салями, желатин) —
+  /// запрещена в халяле и кошере.
+  final bool hasPork;
+
+  /// Алкоголь в составе (вино, пиво, коньяк...) — запрещён в халяле
+  /// и кошере. В текущей базе рецептов алкоголя нет, флаг — страховка.
+  final bool hasAlcohol;
+
+  /// Говядина/телятина, включая говяжий фарш — запрещена в индуизме.
+  final bool hasBeef;
+
+  /// Морепродукты без плавников и чешуи (креветки, кальмары, крабы...) —
+  /// запрещены в кошере; халяль разрешает все морепродукты.
+  final bool hasShellfish;
+
+  /// Молочные продукты (в т.ч. кладовое сливочное масло) — вместе с
+  /// [hasMeat] запрещены в кошере (мясо + молоко в одном блюде).
+  final bool hasDairy;
 
   /// Ключи аллергенов из [Allergen] — жёсткий фильтр планера.
   final List<Allergen> allergens;
@@ -160,6 +192,11 @@ class Recipe {
       lowCarb: (flags['low_carb'] as bool?) ?? false,
       hasMeat: (flags['has_meat'] as bool?) ?? false,
       hasFish: (flags['has_fish'] as bool?) ?? false,
+      hasPork: (flags['has_pork'] as bool?) ?? false,
+      hasAlcohol: (flags['has_alcohol'] as bool?) ?? false,
+      hasBeef: (flags['has_beef'] as bool?) ?? false,
+      hasShellfish: (flags['has_shellfish'] as bool?) ?? false,
+      hasDairy: (flags['has_dairy'] as bool?) ?? false,
       allergens: (j['allergens'] as List<dynamic>? ?? const [])
           .map((a) => Allergen.fromKey(a as String))
           .toList(),
@@ -196,6 +233,11 @@ class Recipe {
           'low_carb': lowCarb,
           'has_meat': hasMeat,
           'has_fish': hasFish,
+          'has_pork': hasPork,
+          'has_alcohol': hasAlcohol,
+          'has_beef': hasBeef,
+          'has_shellfish': hasShellfish,
+          'has_dairy': hasDairy,
         },
         'allergens': allergens.map((a) => a.key).toList(),
         'family': family,

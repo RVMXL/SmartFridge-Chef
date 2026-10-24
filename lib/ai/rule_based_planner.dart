@@ -80,7 +80,7 @@ class RuleBasedPlanner implements MealPlanner {
     final all = await _repo.loadAll();
     final fridge = _matcher.indexProducts(request.products,
         now: request.startDate);
-    final pool = _hardFiltered(all, request);
+    final pool = hardFiltered(all, request);
     final splits = splitsForMealsPerDay(request.profile.mealsPerDay);
     final rnd = Random(request.seed);
 
@@ -171,7 +171,10 @@ class RuleBasedPlanner implements MealPlanner {
   // ------------------------------------------------------------ фильтры
 
   /// Жёсткая фильтрация: аллергии и диета — безопасность, не скоринг.
-  List<Recipe> _hardFiltered(List<Recipe> all, PlanRequest request) {
+  ///
+  /// Публичный (не private): прозрачность безопасных фильтров и прямые
+  /// юнит-тесты религиозных диет на реальном пуле рецептов.
+  List<Recipe> hardFiltered(List<Recipe> all, PlanRequest request) {
     final allergens = request.profile.allergies.toSet();
     final diet = request.profile.diet;
     return all.where((r) {
@@ -191,6 +194,18 @@ class RuleBasedPlanner implements MealPlanner {
           break;
         case Diet.lowCarb:
           break; // низкоуглеводность — мягкий бонус в скоринге
+        case Diet.halal:
+          if (r.hasPork || r.hasAlcohol) return false;
+          break; // морепродукты разрешены целиком
+        case Diet.kosher:
+          if (r.hasPork || r.hasAlcohol || r.hasShellfish) return false;
+          if (r.hasMeat && r.hasDairy) {
+            return false; // мясо + молочное в одном блюде
+          }
+          break; // рыба — «парве», с молочным совместима
+        case Diet.hindu:
+          if (r.hasBeef) return false;
+          break; // свинина индуизмом не запрещена
       }
       if (request.maxCookMinutes > 0 && r.minutes > request.maxCookMinutes) {
         return false;

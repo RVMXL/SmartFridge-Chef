@@ -104,6 +104,63 @@ void main() {
     expect(problems, isEmpty, reason: problems.join('; '));
   });
 
+  test('безопасность: религиозные флаги согласованы с составом', () {
+    // Инвариант той же карты, что в scripts/enrich_recipe_diet_flags.py
+    // (v0.4.3): рецепт с ключом «свинина/алкоголь/говядина/моллюски/
+    // молочное» обязан нести соответствующий флаг — иначе фильтры
+    // халяля/кошера/индуизма пропустят запрещённое блюдо.
+    const requiredFlag = <String, String>{
+      'pork': 'has_pork', 'bacon': 'has_pork', 'lard': 'has_pork',
+      'ham': 'has_pork', 'salami': 'has_pork', 'prosciutto': 'has_pork',
+      'gelatin': 'has_pork',
+      'wine': 'has_alcohol', 'white_wine': 'has_alcohol',
+      'red_wine': 'has_alcohol', 'beer': 'has_alcohol',
+      'cognac': 'has_alcohol', 'rum': 'has_alcohol',
+      'vodka': 'has_alcohol', 'brandy': 'has_alcohol',
+      'beef': 'has_beef', 'minced_beef': 'has_beef', 'veal': 'has_beef',
+      'shrimp': 'has_shellfish', 'squid': 'has_shellfish',
+      'crab': 'has_shellfish', 'mussels': 'has_shellfish',
+      'oysters': 'has_shellfish', 'octopus': 'has_shellfish',
+      'lobster': 'has_shellfish', 'scallops': 'has_shellfish',
+      'milk': 'has_dairy', 'kefir': 'has_dairy', 'cream': 'has_dairy',
+      'sour_cream': 'has_dairy', 'butter': 'has_dairy',
+      'cheese': 'has_dairy', 'cottage_cheese': 'has_dairy',
+      'yogurt': 'has_dairy', 'condensed_milk': 'has_dairy',
+    };
+    bool? flagOf(Recipe r, String name) => switch (name) {
+          'has_pork' => r.hasPork,
+          'has_alcohol' => r.hasAlcohol,
+          'has_beef' => r.hasBeef,
+          'has_shellfish' => r.hasShellfish,
+          'has_dairy' => r.hasDairy,
+          _ => null,
+        };
+    final problems = <String>[];
+    for (final r in recipes) {
+      for (final ing in r.ingredients) {
+        final required = requiredFlag[ing.key];
+        if (required == null) continue;
+        if (flagOf(r, required) != true) {
+          problems.add('${r.id}: ключ ${ing.key} требует флага "$required"');
+        }
+      }
+      // Перекрёстные согласованности флагов между собой и с аллергенами.
+      if (r.hasPork && !r.hasMeat) {
+        problems.add('${r.id}: has_pork без has_meat');
+      }
+      if (r.hasBeef && !r.hasMeat) {
+        problems.add('${r.id}: has_beef без has_meat');
+      }
+      if (r.hasDairy && !r.allergens.contains(Allergen.milk)) {
+        problems.add('${r.id}: has_dairy без аллергена milk');
+      }
+      if (r.hasShellfish && !r.allergens.contains(Allergen.shellfish)) {
+        problems.add('${r.id}: has_shellfish без аллергена shellfish');
+      }
+    }
+    expect(problems, isEmpty, reason: problems.join('; '));
+  });
+
   test('веганские флаги согласованы с составом (без мяса/рыбы)', () {
     for (final r in recipes) {
       if (r.vegan) {
