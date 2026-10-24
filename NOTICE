@@ -1,7 +1,10 @@
 Smart Fridge & Chef Planner (Умный Холодильник & Шеф-Планер)
-Copyright 2026 RVMXL
+Copyright 2026 RVMXL. All rights reserved.
 
-Этот продукт лицензируется по Apache License 2.0 (см. LICENSE).
+Код предоставляется только для просмотра: использование, копирование,
+распространение и изменение запрещены (см. README, раздел «Права»).
+Приложение предоставляется «как есть», без гарантий; автор не несёт
+ответственности за ущерб или проблемы, возникшие при использовании.
 
 Сторонние компоненты (runtime):
 - Flutter SDK и пакеты: flutter_localizations, intl — BSD-3-Clause (Google LLC)
@@ -9,15 +12,16 @@ Copyright 2026 RVMXL
 - provider — MIT (Remi Rousselet)
 - shared_preferences — BSD-3-Clause (Flutter team)
 - path — BSD-3-Clause (Flutter team)
+- mobile_scanner — BSD-3-Clause
+- google_mlkit_text_recognition — MIT (плагин); сам ML Kit — условия
+  Google ML Kit, распознавание выполняется on-device, изображения
+  чеков никуда не отправляются
+- image_picker — Apache-2.0 / BSD-3-Clause (Flutter team)
+- flutter_local_notifications — BSD-3-Clause
+- timezone — BSD-2-Clause; flutter_timezone — Apache-2.0
 
-На последующих шагах добавятся (будут внесены сюда):
-- mobile_scanner (Шаг 3, сканер штрих-кодов)
-- google_mlkit_text_recognition (Шаг 3, OCR чеков) — Apache 2.0 + условия
-  ML Kit (on-device, без отправки изображений)
-- flutter_gemma / MediaPipe LLM Inference (Шаг 2, локальная AI-модель) —
-  использование модели Gemma подчиняется условиям Google Gemma Terms of Use;
-  модель не распространяется в составе репозитория, скачивается отдельно.
+Локальная модель Gemma (опционально, каркас подключён в архитектуре
+провайдеров) используется по условиям Google Gemma Terms of Use; файл
+модели не распространяется в составе репозитория и скачивается отдельно.
 
-Данные о продуктах (Шаг 3): Open Food Facts — база под Open Database
-License (ODbL); приложение не аффилировано с Open Food Facts.
 Товарные знаки Android, iOS и Google принадлежат их правообладателям.
