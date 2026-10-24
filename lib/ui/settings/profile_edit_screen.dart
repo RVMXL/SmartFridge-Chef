@@ -1,5 +1,5 @@
 /// Экран профиля питания (Шаг 3): калораж, БЖУ, диета, аллергены,
-/// количество приёмов пищи и регион (сезонность).
+/// количество приёмов пищи.
 ///
 /// Используется и из настроек, и из онбординга (режим без AppBar-возврата
 /// — тогда кнопка «Сохранить» закрывает онбординг).
@@ -38,7 +38,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late Diet _diet;
   late Set<Allergen> _allergies;
   late int _mealsPerDay;
-  late final TextEditingController _region;
 
   @override
   void initState() {
@@ -51,12 +50,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _diet = p.diet;
     _allergies = {...p.allergies};
     _mealsPerDay = p.mealsPerDay;
-    _region = TextEditingController(text: p.regionName ?? '');
   }
 
   @override
   void dispose() {
-    _region.dispose();
     super.dispose();
   }
 
@@ -81,7 +78,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       diet: _diet,
       allergies: _allergies.toList(),
       mealsPerDay: _mealsPerDay,
-      regionName: _region.text.trim().isEmpty ? null : _region.text.trim(),
       latitude: null,
       longitude: null,
     ));
@@ -197,15 +193,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             selected: {_mealsPerDay.clamp(2, 6)},
             onSelectionChanged: (s) =>
                 setState(() => _mealsPerDay = s.first),
-          ),
-
-          SectionHeader(l.profileRegion),
-          TextField(
-            controller: _region,
-            decoration: InputDecoration(
-              hintText: l.profileRegionHint,
-              border: const OutlineInputBorder(),
-            ),
           ),
 
           const SizedBox(height: 24),

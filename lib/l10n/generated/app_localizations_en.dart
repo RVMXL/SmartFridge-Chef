@@ -50,13 +50,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plannerTitle => 'My Menu';
 
   @override
-  String get plannerPlaceholderTitle => 'Superplanner — Steps 2–3';
-
-  @override
-  String get plannerPlaceholderBody =>
-      'A week menu generated on the device from the fridge contents, your nutrition profile and regional seasonality. Implemented after Step 1 is confirmed.';
-
-  @override
   String get settingsTitle => 'Settings';
 
   @override
@@ -474,12 +467,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileMealsPerDay => 'Meals per day';
-
-  @override
-  String get profileRegion => 'Region (for seasonality)';
-
-  @override
-  String get profileRegionHint => 'For example, Moscow region';
 
   @override
   String get profileSaved => 'Profile saved';

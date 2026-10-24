@@ -170,18 +170,6 @@ abstract class AppLocalizations {
   /// **'My Menu'**
   String get plannerTitle;
 
-  /// No description provided for @plannerPlaceholderTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Superplanner — Steps 2–3'**
-  String get plannerPlaceholderTitle;
-
-  /// No description provided for @plannerPlaceholderBody.
-  ///
-  /// In en, this message translates to:
-  /// **'A week menu generated on the device from the fridge contents, your nutrition profile and regional seasonality. Implemented after Step 1 is confirmed.'**
-  String get plannerPlaceholderBody;
-
   /// No description provided for @settingsTitle.
   ///
   /// In en, this message translates to:
@@ -925,18 +913,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Meals per day'**
   String get profileMealsPerDay;
-
-  /// No description provided for @profileRegion.
-  ///
-  /// In en, this message translates to:
-  /// **'Region (for seasonality)'**
-  String get profileRegion;
-
-  /// No description provided for @profileRegionHint.
-  ///
-  /// In en, this message translates to:
-  /// **'For example, Moscow region'**
-  String get profileRegionHint;
 
   /// No description provided for @profileSaved.
   ///
