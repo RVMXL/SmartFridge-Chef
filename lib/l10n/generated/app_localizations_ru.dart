@@ -50,13 +50,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get plannerTitle => 'Мое меню';
 
   @override
-  String get plannerPlaceholderTitle => 'Суперпланер — Шаги 2–3';
-
-  @override
-  String get plannerPlaceholderBody =>
-      'Меню на неделю, генерируемое на устройстве из содержимого холодильника, вашего профиля питания и сезонности региона. Реализуется после подтверждения Шага 1.';
-
-  @override
   String get settingsTitle => 'Настройки';
 
   @override
@@ -477,12 +470,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get profileMealsPerDay => 'Приёмов пищи в день';
-
-  @override
-  String get profileRegion => 'Регион (для сезонности)';
-
-  @override
-  String get profileRegionHint => 'Например, Московская область';
 
   @override
   String get profileSaved => 'Профиль сохранён';
