@@ -55,11 +55,15 @@ jobs:
           KEYSTORE_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
         run: flutter build apk --release
 
-      - name: Публикация GitHub Release
+      - name: Публикация GitHub Release (пре-релиз)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          APK="build/app/outputs/flutter-apk/app-release.apk"
+          NAME="SmartFridge-${GITHUB_REF_NAME#v}.apk"
+          mv "$APK" "build/app/outputs/flutter-apk/$NAME"
           gh release create "$GITHUB_REF_NAME" \
-            build/app/outputs/flutter-apk/app-release.apk \
-            --title "Умный Холодильник & Шеф-Планер $GITHUB_REF_NAME" \
+            "build/app/outputs/flutter-apk/$NAME" \
+            --title "Умный Холодильник $GITHUB_REF_NAME" \
+            --prerelease \
             --generate-notes

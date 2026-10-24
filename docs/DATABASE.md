@@ -109,7 +109,7 @@ v1 (Шаг 1) — **продукты** и **профиль пользовате�
 | `diet` | TEXT | 'none' | Ключ диеты: none / vegetarian / vegan / lent (пост) / pescatarian / low_carb |
 | `allergies` | TEXT | '[]' | JSON-массив ключей аллергенов: milk, eggs, fish, shellfish, nuts, peanuts, soy, wheat, sesame |
 | `meals_per_day` | INTEGER | 3 | Приёмов пищи в день (2–6, контроль в UI онбординга) |
-| `region_name` | TEXT | NULL | Регион для сезонности (название) |
+| `region_name` | TEXT | NULL | Резерв (сезонность не реализована; в UI скрыт с 0.3.1) |
 | `latitude` / `longitude` | REAL | NULL | Координаты; из широты выводится климатическая зона для сезонности |
 | `onboarded` | INTEGER | 0 | Пройден ли онбординг |
 | `created_at` / `updated_at` | TEXT | — | Аудит изменений |
