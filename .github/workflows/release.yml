@@ -67,10 +67,36 @@ jobs:
 
       - name: Сборка подписанного APK
         env:
+          # ВАЖНО: KEYSTORE_BASE64 нужен именно здесь — Gradle читает его
+          # через System.getenv() на этапе конфигурации. Без этой переменной
+          # сборка молча уходит на debug-ключ раннера (так было до 0.5.2).
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEYSTORE_KEY_ALIAS: ${{ secrets.KEYSTORE_KEY_ALIAS }}
           KEYSTORE_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
         run: flutter build apk --release
+
+      - name: Проверка подписи APK (не debug!)
+        run: |
+          APK=build/app/outputs/flutter-apk/app-release.apk
+          APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
+          "$APKSIGNER" verify --print-certs "$APK" | sed -n '1,6p'
+          # Отпечаток должен совпадать с сертификатом из Secrets,
+          # а не со случайным debug-ключом раннера
+          EXPECTED=$(keytool -list -v -keystore android/app/upload-keystore.jks \
+            -storepass "$KEYSTORE_PASSWORD" 2>/dev/null | grep 'SHA256:' \
+            | head -1 | sed 's/.*SHA256: *//; s/\r//; s/[ :]*//g' | tr 'A-F' 'a-f')
+          ACTUAL=$("$APKSIGNER" verify --print-certs "$APK" \
+            | grep 'SHA-256 digest' | head -1 \
+            | sed 's/.*SHA-256 digest: *//; s/\r//; s/ //g' | tr 'A-F' 'a-f')
+          echo "ожидался: $EXPECTED"
+          echo "фактический: $ACTUAL"
+          if [ -z "$EXPECTED" ] || [ "$EXPECTED" != "$ACTUAL" ]; then
+            echo "::error::APK подписан НЕ тем ключом — прерываю релиз"
+            exit 1
+          fi
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
       - name: Тело релиза из CHANGELOG.md
         run: |
