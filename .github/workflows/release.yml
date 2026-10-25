@@ -47,8 +47,23 @@ jobs:
       - name: Восстановление ключа подписи (из Secrets)
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
+          # Fail fast: без ключа Gradle молча подписал бы APK случайным
+          # debug-ключом раннера — обновления поверх перестали бы ставиться.
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::Секрет KEYSTORE_BASE64 пуст — отменяю сборку, иначе APK получит случайную debug-подпись"
+            exit 1
+          fi
           echo "$KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+          if ! keytool -list -keystore android/app/upload-keystore.jks \
+                 -storepass "$KEYSTORE_PASSWORD" > /dev/null 2>&1; then
+            echo "::error::Ключ подписи не читается с KEYSTORE_PASSWORD — проверь секреты"
+            exit 1
+          fi
+          echo "Ключ подписи OK, отпечаток сертификата:"
+          keytool -list -v -keystore android/app/upload-keystore.jks \
+            -storepass "$KEYSTORE_PASSWORD" | grep 'SHA256:'
 
       - name: Сборка подписанного APK
         env:
