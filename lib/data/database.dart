@@ -14,6 +14,9 @@
 /// миграция данных из колонки diet); `shopping_items.missing_grams` —
 /// «не хватает X г» для учёта граммов; `meal_plans.filter_report` —
 /// диагностика «почему рецепты исключены».
+/// v5 — (v0.5.4): `user_profile.dislikes` — нелюбимые продукты (JSON-список
+/// правил с режимом «всегда / только основа блюда»);
+/// `planned_meals.minor_dislikes` — пометки «содержит лук и т.п.» в плане.
 library;
 
 import 'package:path/path.dart' as p;
@@ -23,7 +26,7 @@ class AppDatabase {
   AppDatabase._();
 
   static const String dbName = 'smart_fridge.db';
-  static const int dbVersion = 4;
+  static const int dbVersion = 5;
 
   /// Открывает базу.
   ///
@@ -41,13 +44,14 @@ class AppDatabase {
     );
   }
 
-  /// Полная схема (v1 + v2 + v3 + v4) для новой базы.
+  /// Полная схема (v1 + v2 + v3 + v4 + v5) для новой базы.
   static Future<void> _onCreate(Database db, int version) async {
     final batch = db.batch();
     createV1Tables(batch);
     createV2Tables(batch);
     createV3Tables(batch);
     createV4Columns(batch);
+    createV5Columns(batch);
     await batch.commit(noResult: true);
   }
 
@@ -75,6 +79,12 @@ class AppDatabase {
     if (oldVersion < 4) {
       // v3 -> v4: список диет + граммы в покупках + отчёт фильтра.
       await upgradeToV4(db, migrateLegacyDiet: true);
+    }
+    if (oldVersion < 5) {
+      // v4 -> v5: нелюбимые продукты + пометки в плане.
+      final batch = db.batch();
+      createV5Columns(batch);
+      await batch.commit(noResult: true);
     }
     assert(oldVersion >= 1 && newVersion == dbVersion,
         'Неизвестная версия: $oldVersion -> $newVersion');
@@ -240,5 +250,18 @@ class AppDatabase {
         "WHERE diet IS NOT NULL AND diet != '' AND diet != 'none'",
       );
     }
+  }
+
+  // ------------------------------------------------------------- схема v5
+
+  /// Колонки версии 5 (v0.5.4): нелюбимые продукты и пометки в плане.
+  /// Только добавление колонок, данные не трогаются.
+  static void createV5Columns(Batch batch) {
+    batch.execute(
+      "ALTER TABLE user_profile ADD COLUMN dislikes TEXT NOT NULL DEFAULT '[]'",
+    );
+    batch.execute(
+      "ALTER TABLE planned_meals ADD COLUMN minor_dislikes TEXT NOT NULL DEFAULT '[]'",
+    );
   }
 }

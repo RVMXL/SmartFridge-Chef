@@ -41,6 +41,10 @@ enum Diet {
 }
 
 /// Пищевая аллергия/непереносимость (исключается из рецептов меню).
+///
+/// Состав доведён до «большой 14» ЕС (v0.5.4): к молоку, яйцам, рыбе,
+/// ракообразным/моллюскам, орехам, арахису, сое, глютену и кунжуту
+/// добавлены сельдерей, горчица, сульфиты и люпин.
 enum Allergen {
   milk('milk'),
   eggs('eggs'),
@@ -52,7 +56,21 @@ enum Allergen {
 
   /// Пшеница/глютен.
   wheat('wheat'),
-  sesame('sesame');
+  sesame('sesame'),
+
+  /// Сельдерей (в т.ч. корневой и стеблевой) — аллерген ЕС.
+  celery('celery'),
+
+  /// Горчица и соусы на её основе — аллерген ЕС.
+  mustard('mustard'),
+
+  /// Сульфиты (консервант E220–E228): винный уксус, вино, сухофрукты.
+  /// В базе рецептов помечаются уксус и вино.
+  sulphites('sulphites'),
+
+  /// Люпин (мука/белок, встречается в выпечке) — аллерген ЕС.
+  /// В текущей базе рецептов люпина нет — на будущее.
+  lupin('lupin');
 
   const Allergen(this.key);
   final String key;
@@ -61,6 +79,43 @@ enum Allergen {
         (a) => a.key == key,
         orElse: () => Allergen.milk,
       );
+}
+
+/// Правило «не люблю и не покупаю» (v0.5.4).
+///
+/// [key] — канонический ключ IngredientMatcher, ключ группы из
+/// DislikeEngine.groups (например fish_any) или произвольное название
+/// продукта (матчится по названию ингредиента в рецептах).
+/// [always] — режим:
+///  • true — «не переношу вовсе»: исключить блюдо при любом количестве;
+///  • false — «только как основа блюда»: исключить, если доля продукта
+///    >= DislikeEngine.majorShare массы блюда; в малом количестве блюдо
+///    разрешено, но помечается «содержит: …» в плане.
+class DislikeRule {
+  const DislikeRule({required this.key, this.always = false});
+
+  final String key;
+  final bool always;
+
+  DislikeRule copyWith({String? key, bool? always}) =>
+      DislikeRule(key: key ?? this.key, always: always ?? this.always);
+
+  Map<String, Object?> toJson() => {'key': key, 'always': always};
+
+  static DislikeRule fromJson(Map<String, Object?> j) => DislikeRule(
+        key: j['key'] as String,
+        always: (j['always'] as bool?) ?? false,
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      other is DislikeRule && other.key == key && other.always == always;
+
+  @override
+  int get hashCode => Object.hash(key, always);
+
+  @override
+  String toString() => 'DislikeRule($key, ${always ? "всегда" : "основа"})';
 }
 
 /// Профиль питания пользователя.
@@ -73,6 +128,7 @@ class UserProfile {
     this.carbsG = 200,
     this.diets = const [],
     this.allergies = const [],
+    this.dislikes = const [],
     this.mealsPerDay = 3,
     this.regionName,
     this.latitude,
@@ -101,6 +157,12 @@ class UserProfile {
 
   /// Аллергены — исключаются при генерации меню.
   final List<Allergen> allergies;
+
+  /// Нелюбимые продукты (v0.5.4) — правила «не люблю и не покупаю».
+  /// В отличие от аллергий работают с порогом по доле в блюде:
+  /// «основа блюда» исключается, «приправа для вкуса» — допустима
+  /// с пометкой в плане.
+  final List<DislikeRule> dislikes;
 
   /// Количество приёмов пищи в день (2–6).
   final int mealsPerDay;
@@ -136,6 +198,7 @@ class UserProfile {
     int? carbsG,
     List<Diet>? diets,
     List<Allergen>? allergies,
+    List<DislikeRule>? dislikes,
     int? mealsPerDay,
     String? regionName,
     double? latitude,
@@ -152,6 +215,7 @@ class UserProfile {
       carbsG: carbsG ?? this.carbsG,
       diets: diets ?? this.diets,
       allergies: allergies ?? this.allergies,
+      dislikes: dislikes ?? this.dislikes,
       mealsPerDay: mealsPerDay ?? this.mealsPerDay,
       regionName: regionName ?? this.regionName,
       latitude: latitude ?? this.latitude,
@@ -173,6 +237,8 @@ class UserProfile {
         'diet': diets.isEmpty ? Diet.none.key : diets.first.key,
         'diets': jsonEncode(diets.map((d) => d.key).toList()),
         'allergies': jsonEncode(allergies.map((a) => a.key).toList()),
+        'dislikes':
+            jsonEncode(dislikes.map((d) => d.toJson()).toList()),
         'meals_per_day': mealsPerDay,
         'region_name': regionName,
         'latitude': latitude,
@@ -185,6 +251,8 @@ class UserProfile {
   static UserProfile fromMap(Map<String, Object?> map) {
     final rawAllergies =
         jsonDecode(map['allergies'] as String? ?? '[]') as List<dynamic>;
+    final rawDislikes =
+        jsonDecode(map['dislikes'] as String? ?? '[]') as List<dynamic>;
     // v0.5.0: источник истины — колонка diets (JSON-массив).
     // Старые записи (до миграции данных) читаются по колонке diet.
     final rawDiets = map['diets'] as String?;
@@ -207,6 +275,10 @@ class UserProfile {
       diets: diets,
       allergies:
           rawAllergies.map((k) => Allergen.fromKey(k as String)).toList(),
+      dislikes: rawDislikes
+          .map((d) =>
+              DislikeRule.fromJson(d as Map<String, Object?>))
+          .toList(),
       mealsPerDay: (map['meals_per_day'] as int?) ?? 3,
       regionName: map['region_name'] as String?,
       latitude: (map['latitude'] as num?)?.toDouble(),
@@ -222,5 +294,6 @@ class UserProfile {
       '$proteinG/$fatG/$carbsG, диеты: '
       '${diets.isEmpty ? "нет" : diets.map((d) => d.key).join("+")}, '
       'аллергии: ${allergies.map((a) => a.key).join(",")}, '
+      'не любит: ${dislikes.map((d) => d.key).join(",")}, '
       'приёмов: $mealsPerDay)';
 }

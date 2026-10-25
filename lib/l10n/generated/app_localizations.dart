@@ -1597,6 +1597,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A product with this barcode is already in the fridge'**
   String get productSavedDuplicate;
+
+  /// No description provided for @allergenCelery.
+  ///
+  /// In en, this message translates to:
+  /// **'Celery'**
+  String get allergenCelery;
+
+  /// No description provided for @allergenMustard.
+  ///
+  /// In en, this message translates to:
+  /// **'Mustard'**
+  String get allergenMustard;
+
+  /// No description provided for @allergenSulphites.
+  ///
+  /// In en, this message translates to:
+  /// **'Sulphites'**
+  String get allergenSulphites;
+
+  /// No description provided for @allergenLupin.
+  ///
+  /// In en, this message translates to:
+  /// **'Lupin'**
+  String get allergenLupin;
+
+  /// No description provided for @onbDislikesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What don\'t you like?'**
+  String get onbDislikesTitle;
+
+  /// No description provided for @onbDislikesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick what you never buy. Dishes where it is a main ingredient won\'t be planned; a pinch for flavour is fine — and marked in the plan.'**
+  String get onbDislikesBody;
+
+  /// No description provided for @profileDislikes.
+  ///
+  /// In en, this message translates to:
+  /// **'Disliked foods'**
+  String get profileDislikes;
+
+  /// No description provided for @profileDislikesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Dishes where a disliked food is a main ingredient (10%+ of the dish) are excluded from the plan; a small amount is fine, marked as \"contains\". \"Always exclude\" is for foods you can\'t stand at all.'**
+  String get profileDislikesHint;
+
+  /// No description provided for @dislikeAddLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom food'**
+  String get dislikeAddLabel;
+
+  /// No description provided for @dislikeAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get dislikeAdd;
+
+  /// No description provided for @dislikeModeAlways.
+  ///
+  /// In en, this message translates to:
+  /// **'always exclude'**
+  String get dislikeModeAlways;
+
+  /// No description provided for @dislikeModeMajor.
+  ///
+  /// In en, this message translates to:
+  /// **'only if a main ingredient'**
+  String get dislikeModeMajor;
+
+  /// No description provided for @menuContainsDislike.
+  ///
+  /// In en, this message translates to:
+  /// **'contains: {names}'**
+  String menuContainsDislike(String names);
+
+  /// No description provided for @dislikesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing marked yet — add from the presets below or type your own'**
+  String get dislikesEmpty;
 }
 
 class _AppLocalizationsDelegate

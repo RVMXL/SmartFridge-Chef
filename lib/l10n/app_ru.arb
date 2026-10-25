@@ -249,5 +249,26 @@
   "shareQrCount": "Передаётся продуктов: {n}",
   "productSaved": "Добавлено в холодильник",
   "productUpdated": "Изменения сохранены",
-  "productSavedDuplicate": "Продукт с таким штрих-кодом уже в холодильнике"
+  "productSavedDuplicate": "Продукт с таким штрих-кодом уже в холодильнике",
+  "allergenCelery": "Сельдерей",
+  "allergenMustard": "Горчица",
+  "allergenSulphites": "Сульфиты",
+  "allergenLupin": "Люпин",
+  "onbDislikesTitle": "Что вы не любите?",
+  "onbDislikesBody": "Отметьте то, что не покупаете. Блюда, где такой продукт — основа, не попадут в план; в малом количестве для вкуса — попадут, но с пометкой.",
+  "profileDislikes": "Нелюбимые продукты",
+  "profileDislikesHint": "Блюда, где нелюбимый продукт — основа (10% массы и больше), исключаются из плана; в малом количестве — остаются, но с пометкой «содержит». Режим «исключать всегда» — если не переносите вовсе.",
+  "dislikeAddLabel": "Свой продукт",
+  "dislikeAdd": "Добавить",
+  "dislikeModeAlways": "исключать всегда",
+  "dislikeModeMajor": "только если основа блюда",
+  "menuContainsDislike": "содержит: {names}",
+  "@menuContainsDislike": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "dislikesEmpty": "Пока ничего не отмечено — добавьте из пресетов ниже или впишите своё"
 }

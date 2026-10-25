@@ -1,14 +1,16 @@
 /// Онбординг (Шаг 3, ТЗ: «Пользователь один раз настраивает свои параметры»).
 ///
-/// 4 экрана PageView: приветствие → калораж → диета/аллергии → приёмы пищи
-/// и напоминания. На финале сохраняется профиль (onboarded = 1) и
-/// запрашиваются права на пуши. «Пропустить» — сохраняет профиль по
-/// умолчанию; донастроить можно в «Настройках».
+/// 5 экранов PageView: приветствие → калораж → диета/аллергии →
+/// нелюбимые продукты (v0.5.4) → приёмы пищи и напоминания. На финале
+/// сохраняется профиль (onboarded = 1) и запрашиваются права на пуши.
+/// «Пропустить» — сохраняет профиль по умолчанию; донастроить можно
+/// в «Настройках».
 library;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../ai/dislikes.dart';
 import '../../data/models/user_profile.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../notifications/reminder_scheduler.dart';
@@ -31,10 +33,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _calories = 2000;
   final Set<Diet> _diets = {};
   final Set<Allergen> _allergies = {};
+  final Set<String> _dislikes = {};
   int _mealsPerDay = 3;
   bool _wantNotifications = true;
 
-  static const _pages = 4;
+  static const _pages = 5;
 
   @override
   void dispose() {
@@ -63,6 +66,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       dailyCalories: _calories,
       diets: _diets.where((d) => d != Diet.none).toList(),
       allergies: _allergies.toList(),
+      // В онбординге — быстрый выбор: все нелюбимые в мягком режиме
+      // «только если основа блюда»; тонкая настройка — в профиле.
+      dislikes: _dislikes
+          .map((key) => DislikeRule(key: key, always: false))
+          .toList(),
       mealsPerDay: _mealsPerDay,
     ));
     if (ok && wantNotifications && mounted) {
@@ -124,6 +132,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       }),
                       onAllergen: (a, on) => setState(() {
                         on ? _allergies.add(a) : _allergies.remove(a);
+                      }),
+                    ),
+                  ),
+                  _Step(
+                    title: l.onbDislikesTitle,
+                    subtitle: l.onbDislikesBody,
+                    onNext: _next,
+                    child: _DislikesStep(
+                      selected: _dislikes,
+                      onToggle: (key) => setState(() {
+                        _dislikes.contains(key)
+                            ? _dislikes.remove(key)
+                            : _dislikes.add(key);
                       }),
                     ),
                   ),
@@ -361,6 +382,33 @@ class _NotifyStep extends StatelessWidget {
         value: enabled,
         onChanged: onEnabled,
       ),
+    );
+  }
+}
+
+/// Шаг «Что вы не любите?» (v0.5.4): пресеты нелюбимых продуктов.
+/// Режим на этом шаге не спрашиваем — по умолчанию «только если основа
+/// блюда», меняется в настройках профиля.
+class _DislikesStep extends StatelessWidget {
+  const _DislikesStep({required this.selected, required this.onToggle});
+
+  final Set<String> selected;
+  final void Function(String) onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final localeTag = Localizations.localeOf(context).languageCode;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 0,
+      children: [
+        for (final preset in DislikeEngine.presets)
+          FilterChip(
+            label: Text(preset.label(localeTag)),
+            selected: selected.contains(preset.key),
+            onSelected: (_) => onToggle(preset.key),
+          ),
+      ],
     );
   }
 }

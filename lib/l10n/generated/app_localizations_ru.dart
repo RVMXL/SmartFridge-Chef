@@ -865,4 +865,51 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get productSavedDuplicate =>
       'Продукт с таким штрих-кодом уже в холодильнике';
+
+  @override
+  String get allergenCelery => 'Сельдерей';
+
+  @override
+  String get allergenMustard => 'Горчица';
+
+  @override
+  String get allergenSulphites => 'Сульфиты';
+
+  @override
+  String get allergenLupin => 'Люпин';
+
+  @override
+  String get onbDislikesTitle => 'Что вы не любите?';
+
+  @override
+  String get onbDislikesBody =>
+      'Отметьте то, что не покупаете. Блюда, где такой продукт — основа, не попадут в план; в малом количестве для вкуса — попадут, но с пометкой.';
+
+  @override
+  String get profileDislikes => 'Нелюбимые продукты';
+
+  @override
+  String get profileDislikesHint =>
+      'Блюда, где нелюбимый продукт — основа (10% массы и больше), исключаются из плана; в малом количестве — остаются, но с пометкой «содержит». Режим «исключать всегда» — если не переносите вовсе.';
+
+  @override
+  String get dislikeAddLabel => 'Свой продукт';
+
+  @override
+  String get dislikeAdd => 'Добавить';
+
+  @override
+  String get dislikeModeAlways => 'исключать всегда';
+
+  @override
+  String get dislikeModeMajor => 'только если основа блюда';
+
+  @override
+  String menuContainsDislike(String names) {
+    return 'содержит: $names';
+  }
+
+  @override
+  String get dislikesEmpty =>
+      'Пока ничего не отмечено — добавьте из пресетов ниже или впишите своё';
 }

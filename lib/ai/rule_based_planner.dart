@@ -22,6 +22,7 @@ import '../data/models/meal_plan.dart';
 import '../data/models/recipe.dart';
 import '../data/models/user_profile.dart';
 import 'calorie_target.dart';
+import 'dislikes.dart';
 import 'ingredient_matcher.dart';
 import 'planner.dart';
 import 'recipe_repository.dart';
@@ -136,6 +137,11 @@ class RuleBasedPlanner implements MealPlanner {
         }
         final match = _matcher.matchRecipe(recipe, fridge);
         coveredKeys.addAll(match.matchedKeys);
+        // Нелюбимое в малом количестве (приправа) — допустимо, но план
+        // честно помечает «содержит: лук» (v0.5.4).
+        final tolerated =
+            DislikeEngine.evaluate(recipe, request.profile.dislikes)
+                .toleratedMarks;
         meals.add(PlannedMeal(
           dayIndex: d,
           slot: split.slot,
@@ -143,6 +149,7 @@ class RuleBasedPlanner implements MealPlanner {
           recipe: recipe,
           usesExpiring: match.expiringNames,
           coverage: match.coverage,
+          minorDislikes: tolerated,
         ));
         usedRecipes[recipe.id] = (usedRecipes[recipe.id] ?? 0) + 1;
         if (recipe.family.isNotEmpty) {
@@ -199,13 +206,14 @@ class RuleBasedPlanner implements MealPlanner {
 
   /// Та же фильтрация с отчётом «почему исключено» (v0.5.0).
   /// Причина у рецепта — первая сработавшая: аллергии → диеты в порядке
-  /// выбора → время готовки.
+  /// выбора → нелюбимые (v0.5.4) → время готовки.
   FilterDiagnostics hardFilteredDetailed(
     List<Recipe> all,
     PlanRequest request,
   ) {
     final allergens = request.profile.allergies.toSet();
     final diets = request.profile.diets;
+    final dislikes = request.profile.dislikes;
     final maxMinutes = request.maxCookMinutes;
     final allowed = <Recipe>[];
     final counts = <String, int>{};
@@ -224,6 +232,7 @@ class RuleBasedPlanner implements MealPlanner {
           if (reason != null) break;
         }
       }
+      reason ??= DislikeEngine.evaluate(r, dislikes).exclusionReason;
       if (reason == null && maxMinutes > 0 && r.minutes > maxMinutes) {
         reason = 'готовка дольше $maxMinutes мин';
       }

@@ -360,7 +360,25 @@ class _DayCard extends StatelessWidget {
                 '${meal.usesExpiring.isEmpty ? '' : ' · ★ ${meal.usesExpiring.length}'}',
                 style: theme.textTheme.bodySmall,
               ),
-              trailing: const Icon(Icons.chevron_right),
+              // Нелюбимое в малом количестве (v0.5.4): честная пометка
+              // «содержит: лук» под приёмом пищи.
+              trailing: meal.minorDislikes.isEmpty
+                  ? const Icon(Icons.chevron_right)
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            l.menuContainsDislike(
+                                meal.minorDislikes.take(2).join(', ')),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.tertiary),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right),
+                      ],
+                    ),
               onTap: () => _showRecipe(context, meal),
             ),
         ],

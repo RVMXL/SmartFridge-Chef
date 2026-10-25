@@ -197,9 +197,7 @@ class Recipe {
       hasBeef: (flags['has_beef'] as bool?) ?? false,
       hasShellfish: (flags['has_shellfish'] as bool?) ?? false,
       hasDairy: (flags['has_dairy'] as bool?) ?? false,
-      allergens: (j['allergens'] as List<dynamic>? ?? const [])
-          .map((a) => Allergen.fromKey(a as String))
-          .toList(),
+      allergens: _allergensOf(j),
       family: (j['family'] as String?) ?? '',
       secondFamily: (j['second_family'] as String?) ?? '',
       ingredients: (j['ingredients'] as List<dynamic>? ?? const [])
@@ -213,6 +211,32 @@ class Recipe {
           .toList(),
     );
   }
+
+  /// Аллергены рецепта: список из JSON (9 базовых, считается генератором
+  /// базы) ОБЪЕДИНЯЕТСЯ с аллергенами, выводимыми по ключам ингредиентов
+  /// для новых пунктов «большой 14» (v0.5.4: сельдерей, горчица, сульфиты).
+  /// Так новые аллергены не требуют перегенерации recipes.json.
+  static List<Allergen> _allergensOf(Map<String, Object?> j) {
+    final result =
+        (j['allergens'] as List<dynamic>? ?? const [])
+            .map((a) => Allergen.fromKey(a as String))
+            .toSet();
+    final ingredients = j['ingredients'] as List<dynamic>? ?? const [];
+    for (final raw in ingredients) {
+      final key = (raw as Map<String, Object?>)['key'] as String?;
+      final derived = _allergenByKey[key];
+      if (derived != null) result.add(derived);
+    }
+    return result.toList(growable: false);
+  }
+
+  /// Ключ ингредиента → аллерген (вывод по составу). Уксус помечается
+  /// сульфитами консервативно: винный/бальзамический уксус их содержит.
+  static const Map<String, Allergen> _allergenByKey = {
+    'celery': Allergen.celery,
+    'mustard': Allergen.mustard,
+    'vinegar': Allergen.sulphites,
+  };
 
   Map<String, Object?> toJson() => {
         'id': id,

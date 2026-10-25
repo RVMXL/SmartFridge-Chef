@@ -77,6 +77,10 @@ String allergenLabel(AppLocalizations l, Allergen a) => switch (a) {
       Allergen.soy => l.allergenSoy,
       Allergen.wheat => l.allergenWheat,
       Allergen.sesame => l.allergenSesame,
+      Allergen.celery => l.allergenCelery,
+      Allergen.mustard => l.allergenMustard,
+      Allergen.sulphites => l.allergenSulphites,
+      Allergen.lupin => l.allergenLupin,
     };
 
 /// Локализованное название приёма пищи.

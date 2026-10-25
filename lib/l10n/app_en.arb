@@ -387,5 +387,26 @@
   },
   "productSaved": "Added to your fridge",
   "productUpdated": "Changes saved",
-  "productSavedDuplicate": "A product with this barcode is already in the fridge"
+  "productSavedDuplicate": "A product with this barcode is already in the fridge",
+  "allergenCelery": "Celery",
+  "allergenMustard": "Mustard",
+  "allergenSulphites": "Sulphites",
+  "allergenLupin": "Lupin",
+  "onbDislikesTitle": "What don't you like?",
+  "onbDislikesBody": "Pick what you never buy. Dishes where it is a main ingredient won't be planned; a pinch for flavour is fine — and marked in the plan.",
+  "profileDislikes": "Disliked foods",
+  "profileDislikesHint": "Dishes where a disliked food is a main ingredient (10%+ of the dish) are excluded from the plan; a small amount is fine, marked as \"contains\". \"Always exclude\" is for foods you can't stand at all.",
+  "dislikeAddLabel": "Custom food",
+  "dislikeAdd": "Add",
+  "dislikeModeAlways": "always exclude",
+  "dislikeModeMajor": "only if a main ingredient",
+  "menuContainsDislike": "contains: {names}",
+  "@menuContainsDislike": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "dislikesEmpty": "Nothing marked yet — add from the presets below or type your own"
 }

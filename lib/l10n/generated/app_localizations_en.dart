@@ -860,4 +860,51 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get productSavedDuplicate =>
       'A product with this barcode is already in the fridge';
+
+  @override
+  String get allergenCelery => 'Celery';
+
+  @override
+  String get allergenMustard => 'Mustard';
+
+  @override
+  String get allergenSulphites => 'Sulphites';
+
+  @override
+  String get allergenLupin => 'Lupin';
+
+  @override
+  String get onbDislikesTitle => 'What don\'t you like?';
+
+  @override
+  String get onbDislikesBody =>
+      'Pick what you never buy. Dishes where it is a main ingredient won\'t be planned; a pinch for flavour is fine — and marked in the plan.';
+
+  @override
+  String get profileDislikes => 'Disliked foods';
+
+  @override
+  String get profileDislikesHint =>
+      'Dishes where a disliked food is a main ingredient (10%+ of the dish) are excluded from the plan; a small amount is fine, marked as \"contains\". \"Always exclude\" is for foods you can\'t stand at all.';
+
+  @override
+  String get dislikeAddLabel => 'Custom food';
+
+  @override
+  String get dislikeAdd => 'Add';
+
+  @override
+  String get dislikeModeAlways => 'always exclude';
+
+  @override
+  String get dislikeModeMajor => 'only if a main ingredient';
+
+  @override
+  String menuContainsDislike(String names) {
+    return 'contains: $names';
+  }
+
+  @override
+  String get dislikesEmpty =>
+      'Nothing marked yet — add from the presets below or type your own';
 }

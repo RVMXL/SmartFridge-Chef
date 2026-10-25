@@ -17,6 +17,7 @@ class PlannedMeal {
     required this.recipe,
     required this.usesExpiring,
     required this.coverage,
+    this.minorDislikes = const [],
   });
 
   final int dayIndex;
@@ -35,6 +36,10 @@ class PlannedMeal {
   /// Доля некладовых ингредиентов, найденных в холодильнике (0..1).
   final double coverage;
 
+  /// Нелюбимые продукты в малом количестве (v0.5.4): блюдо разрешено,
+  /// но помечается «содержит: лук». Пусто — пометки нет.
+  final List<String> minorDislikes;
+
   int get kcal => recipe.kcal;
 
   Map<String, Object?> toMap(String planId) => {
@@ -47,6 +52,7 @@ class PlannedMeal {
         'kcal': recipe.kcal,
         'uses_expiring': jsonEncode(usesExpiring),
         'coverage': coverage,
+        'minor_dislikes': jsonEncode(minorDislikes),
       };
 
   static PlannedMeal fromMap(Map<String, Object?> map) => PlannedMeal(
@@ -59,6 +65,10 @@ class PlannedMeal {
                 as List<dynamic>))
             .cast<String>(),
         coverage: ((map['coverage'] as num?) ?? 0).toDouble(),
+        minorDislikes:
+            ((jsonDecode(map['minor_dislikes'] as String? ?? '[]')
+                    as List<dynamic>))
+                .cast<String>(),
       );
 
   @override

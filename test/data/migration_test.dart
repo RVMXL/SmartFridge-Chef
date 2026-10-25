@@ -226,6 +226,57 @@ void main() {
       'PRAGMA table_info(user_profile)',
     )).map((r) => r['name'] as String).toSet();
     expect(profileCols, contains('diets'));
+    // Колонки v5 (v0.5.4) тоже.
+    expect(profileCols, contains('dislikes'));
+    final mealCols = (await db.rawQuery(
+      'PRAGMA table_info(planned_meals)',
+    )).map((r) => r['name'] as String).toSet();
+    expect(mealCols, contains('minor_dislikes'));
+    await db.close();
+  });
+
+  test('миграция v4 -> v5: колонки dislikes / minor_dislikes', () async {
+    final dbPath = '${tmp.path}/v4to5.db';
+    // База версии 4 с профилем.
+    final v4 = await openDatabase(dbPath, version: 4);
+    final b4 = v4.batch();
+    AppDatabase.createV1Tables(b4);
+    AppDatabase.createV2Tables(b4);
+    AppDatabase.createV3Tables(b4);
+    AppDatabase.createV4Columns(b4);
+    await b4.commit(noResult: true);
+    await v4.insert('user_profile', {
+      'daily_calories': 2000,
+      'protein_g': 150,
+      'fat_g': 67,
+      'carbs_g': 200,
+      'diet': 'none',
+      'allergies': '[]',
+      'meals_per_day': 3,
+      'onboarded': 1,
+      'created_at': '2026-10-24T10:00:00.000',
+      'updated_at': '2026-10-24T10:00:00.000',
+      'diets': '[]',
+    });
+    await v4.close();
+
+    final db = await AppDatabase.open(absolutePath: dbPath);
+    expect(await db.getVersion(), AppDatabase.dbVersion);
+
+    final profileCols = (await db.rawQuery(
+      'PRAGMA table_info(user_profile)',
+    )).map((r) => r['name'] as String).toSet();
+    expect(profileCols, contains('dislikes'));
+    final mealCols = (await db.rawQuery(
+      'PRAGMA table_info(planned_meals)',
+    )).map((r) => r['name'] as String).toSet();
+    expect(mealCols, contains('minor_dislikes'));
+
+    // Профиль читается, нелюбимые пусты (дефолт колонки).
+    final rows = await db.query('user_profile', limit: 1);
+    final profile = UserProfile.fromMap(rows.first);
+    expect(profile.dislikes, isEmpty);
+    expect(profile.allergies, isEmpty);
     await db.close();
   });
 }

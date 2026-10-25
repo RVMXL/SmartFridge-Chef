@@ -8,6 +8,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../ai/dislikes.dart';
+import '../../ai/ingredient_matcher.dart';
 import '../../data/models/user_profile.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../state/profile_controller.dart';
@@ -37,6 +39,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late int _carbs;
   late Set<Diet> _diets;
   late Set<Allergen> _allergies;
+  late List<DislikeRule> _dislikes;
   late int _mealsPerDay;
 
   @override
@@ -49,6 +52,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _carbs = p.carbsG;
     _diets = {...p.diets};
     _allergies = {...p.allergies};
+    _dislikes = [...p.dislikes];
     _mealsPerDay = p.mealsPerDay;
   }
 
@@ -77,6 +81,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       carbsG: _carbs,
       diets: _diets.where((d) => d != Diet.none).toList(),
       allergies: _allergies.toList(),
+      dislikes: _dislikes,
       mealsPerDay: _mealsPerDay,
       latitude: null,
       longitude: null,
@@ -200,6 +205,18 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             ],
           ),
 
+          SectionHeader(l.profileDislikes),
+          Text(
+            l.profileDislikesHint,
+            style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 8),
+          _DislikesEditor(
+            rules: _dislikes,
+            onChanged: (rules) => setState(() => _dislikes = rules),
+          ),
+
           SectionHeader(l.profileMealsPerDay),
           SegmentedButton<int>(
             segments: [
@@ -236,6 +253,159 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       onFieldSubmitted: (v) => setState(() {
         onChanged(int.tryParse(v)?.clamp(0, 500) ?? value);
       }),
+    );
+  }
+}
+
+/// Редактор «нелюбимых продуктов» (v0.5.4): выбранные правила с
+/// переключением режима («всегда / только основа блюда») и удалением,
+/// пресеты для быстрого добавления и поле для своего продукта.
+class _DislikesEditor extends StatefulWidget {
+  const _DislikesEditor({required this.rules, required this.onChanged});
+
+  final List<DislikeRule> rules;
+  final ValueChanged<List<DislikeRule>> onChanged;
+
+  @override
+  State<_DislikesEditor> createState() => _DislikesEditorState();
+}
+
+class _DislikesEditorState extends State<_DislikesEditor> {
+  final _customCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _customCtrl.dispose();
+    super.dispose();
+  }
+
+  void _apply(List<DislikeRule> rules) => widget.onChanged(rules);
+
+  void _addPreset(DislikePreset preset) {
+    if (widget.rules.any((r) => r.key == preset.key)) return;
+    _apply([...widget.rules, DislikeRule(key: preset.key)]);
+  }
+
+  void _addCustom() {
+    final name = _customCtrl.text.trim();
+    if (name.isEmpty) return;
+    // Дубликат своего пункта не добавляем (по нормализованному имени).
+    if (widget.rules.any(
+      (r) => IngredientMatcher.normalize(r.key) ==
+          IngredientMatcher.normalize(name),
+    )) {
+      _customCtrl.clear();
+      return;
+    }
+    _apply([...widget.rules, DislikeRule(key: name)]);
+    _customCtrl.clear();
+    setState(() {});
+  }
+
+  /// Подпись правила: пресет → его название, иначе — сам ключ
+  /// (пользовательский ввод).
+  static String _ruleLabel(DislikeRule rule, String localeTag) {
+    for (final p in DislikeEngine.presets) {
+      if (p.key == rule.key) return p.label(localeTag);
+    }
+    return rule.key;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final localeTag = Localizations.localeOf(context).languageCode;
+    final unusedPresets = DislikeEngine.presets
+        .where((p) => !widget.rules.any((r) => r.key == p.key))
+        .toList(growable: false);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (widget.rules.isEmpty)
+          Text(
+            l.dislikesEmpty,
+            style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant),
+          ),
+        for (final rule in widget.rules)
+          Card(
+            margin: const EdgeInsets.symmetric(vertical: 3),
+            child: ListTile(
+              dense: true,
+              title: Text(_ruleLabel(rule, localeTag)),
+              subtitle: Text(
+                rule.always ? l.dislikeModeAlways : l.dislikeModeMajor,
+                style: theme.textTheme.bodySmall,
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Режим: «всегда» ⇄ «основа блюда».
+                  IconButton(
+                    tooltip: rule.always
+                        ? l.dislikeModeMajor
+                        : l.dislikeModeAlways,
+                    icon: Icon(rule.always
+                        ? Icons.block
+                        : Icons.restaurant_menu),
+                    onPressed: () => _apply([
+                      for (final r in widget.rules)
+                        if (identical(r, rule))
+                          r.copyWith(always: !r.always)
+                        else
+                          r,
+                    ]),
+                  ),
+                  IconButton(
+                    tooltip: l.commonDelete,
+                    icon: const Icon(Icons.close),
+                    onPressed: () => _apply([
+                      for (final r in widget.rules)
+                        if (!identical(r, rule)) r,
+                    ]),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        if (unusedPresets.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 0,
+            children: [
+              for (final p in unusedPresets)
+                ActionChip(
+                  label: Text(p.label(localeTag)),
+                  tooltip: l.dislikeModeMajor,
+                  onPressed: () => setState(() => _addPreset(p)),
+                ),
+            ],
+          ),
+        ],
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _customCtrl,
+                decoration: InputDecoration(
+                  labelText: l.dislikeAddLabel,
+                  isDense: true,
+                ),
+                onSubmitted: (_) => _addCustom(),
+              ),
+            ),
+            const SizedBox(width: 8),
+            FilledButton.tonal(
+              onPressed: _addCustom,
+              child: Text(l.dislikeAdd),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
