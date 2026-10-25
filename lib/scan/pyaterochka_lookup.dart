@@ -1,10 +1,11 @@
-/// Цены «Пятёрочки» — второй источник данных (v0.5.5, эксперимент).
+/// Цены «Пятёрочки» — источник данных для России (v0.5.5, эксперимент;
+/// v0.5.6 — переведён на общий контракт [PriceHit]).
 ///
 /// Каталог 5ka.ru не требует ключей и авторизации, но его WAF пускает
 /// только «домашние» IP: запросы выполняются ПРЯМО С УСТРОЙСТВА
-/// пользователя (natивные HTTP без CORS). Датацентровые и VPN-адреса
+/// пользователя (нативные HTTP без CORS). Датацентровые и VPN-адреса
 /// получают HTML-заглушку «Проблемы со связью» — это детектируется и
-/// превращается в [PyaterochkaUnavailable]: приложение просто остаётся
+/// превращается в [PriceUnavailable]: приложение просто остаётся
 /// без цены, всё остальное работает как раньше (offline-first).
 ///
 /// Документированные эндпоинты (см. scripts/pyaterochka_fixture_search.json
@@ -20,85 +21,25 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Найденный в каталоге товар: минимум для подстановки цены.
-class PyaterochkaHit {
-  const PyaterochkaHit({
-    required this.plu,
-    required this.name,
-    required this.price,
-    this.oldPrice,
-    this.isAvailable = true,
-    this.packageQuantity,
-    this.rating,
-    this.ratesCount,
-  });
+import 'price_source.dart';
 
-  /// Идентификатор карточки товара в каталоге Пятёрочки.
-  final int plu;
-  final String name;
-
-  /// Текущая цена за упаковку, ₽ (prices.regular).
-  final double price;
-
-  /// «Старая цена» из акции (prices.discount), если есть.
-  final double? oldPrice;
-
-  /// Есть ли товар в выбранном магазине.
-  final bool isAvailable;
-
-  /// Фасовка как в каталоге («310 г», «930 мл»).
-  final String? packageQuantity;
-
-  final double? rating;
-  final int? ratesCount;
-
-  bool get isPromo => oldPrice != null && oldPrice! > price;
-}
-
-/// Почему не получилось получить цены.
-enum PyaterochkaFailReason {
-  /// WAF: датацентровый/VPN IP, HTML-заглушка, не-200 ответ.
-  blocked,
-
-  /// Сеть: таймаут, нет соединения.
-  network,
-}
-
-/// Цены недоступны — приложению следует молча продолжать без них.
-class PyaterochkaUnavailable implements Exception {
-  const PyaterochkaUnavailable(this.reason);
-
-  final PyaterochkaFailReason reason;
-
-  @override
-  String toString() => 'PyaterochkaUnavailable(${reason.name})';
-}
-
-/// Нормализация названия для сопоставления: нижний регистр, ё → е,
-/// знаки препинания → пробел, схлопнутые пробелы.
-String normalizeForMatch(String raw) {
-  final lowered = raw
-      .toLowerCase()
-      .replaceAll('ё', 'е')
-      .replaceAll(RegExp(r'[^0-9a-zа-я]+'), ' ');
-  return lowered.replaceAll(RegExp(r'\s+'), ' ').trim();
-}
+export 'price_source.dart'
+    show PriceFailReason, PriceHit, PriceUnavailable, normalizeForMatch;
 
 /// Чистый парсер ответа поиска Пятёрочки (без сети — удобно тестировать).
 ///
 /// Ожидает {"products": [...]}; неизвестные поля игнорируются, битые
 /// позиции пропускаются. Пустой список — валидный ответ «ничего не нашли».
-List<PyaterochkaHit> parsePyaterochkaSearchJson(Map<String, dynamic> json) {
+List<PriceHit> parsePyaterochkaSearchJson(Map<String, dynamic> json) {
   final raw = json['products'] ?? json['items'];
   if (raw is! List) return const [];
 
-  final hits = <PyaterochkaHit>[];
+  final hits = <PriceHit>[];
   for (final item in raw) {
     if (item is! Map<String, dynamic>) continue;
     final name = (item['name'] as String?)?.trim() ?? '';
@@ -106,25 +47,25 @@ List<PyaterochkaHit> parsePyaterochkaSearchJson(Map<String, dynamic> json) {
     if (name.isEmpty || plu is! int) continue;
 
     final prices = item['prices'];
-    final price = _parsePrice(
+    final price = parsePriceValue(
       prices is Map<String, dynamic> ? prices['regular'] : null,
     );
     if (price == null) continue;
 
-    final oldPrice = _parsePrice(
+    final oldPrice = parsePriceValue(
       prices is Map<String, dynamic> ? prices['discount'] : null,
     );
     final rating = item['rating'];
-    hits.add(PyaterochkaHit(
-      plu: plu,
+    hits.add(PriceHit(
       name: name,
       price: price,
       oldPrice: oldPrice,
       isAvailable: item['is_available'] is bool
           ? item['is_available'] as bool
           : true,
-      packageQuantity:
-          _cleanText(item['package_quantity'] as String? ?? item['property_clarification'] as String?),
+      packageQuantity: _cleanText(
+          item['package_quantity'] as String? ??
+              item['property_clarification'] as String?),
       rating: (rating is Map<String, dynamic>
               ? rating['rating_average']
               : null)
@@ -137,62 +78,17 @@ List<PyaterochkaHit> parsePyaterochkaSearchJson(Map<String, dynamic> json) {
   return hits;
 }
 
-/// Выбор лучшего совпадения с запросом среди [hits].
-///
-/// Счёт: +2 за каждый токен запроса, найденный в названии товара,
-/// +3 если товар содержит весь запрос целиком. При равенстве выигрывает
-/// популярнее товар (больше оценок), затем выше рейтинг. Товары без
-/// ни одного совпадения не предлагаются (null) — чтобы не подставлять
-/// цену случайного товара.
-PyaterochkaHit? pickBestPyaterochkaHit(
-  List<PyaterochkaHit> hits,
-  String query,
-) {
-  final q = normalizeForMatch(query);
-  if (q.isEmpty) return null;
-  final tokens = q.split(' ').where((t) => t.length >= 2).toSet();
-
-  PyaterochkaHit? best;
-  var bestScore = 0;
-  var bestRates = -1;
-  var bestRating = -1.0;
-  for (final hit in hits) {
-    final name = normalizeForMatch('${hit.name} ${hit.packageQuantity ?? ''}');
-    var score = 0;
-    for (final token in tokens) {
-      if (name.contains(token)) score += 2;
-    }
-    if (name.contains(q)) score += 3;
-    if (score == 0) continue;
-
-    final rates = hit.ratesCount ?? 0;
-    final rating = hit.rating ?? 0.0;
-    if (score > bestScore ||
-        (score == bestScore &&
-            (rates > bestRates ||
-                (rates == bestRates && rating > bestRating)))) {
-      best = hit;
-      bestScore = score;
-      bestRates = rates;
-      bestRating = rating;
-    }
-  }
-  return best;
-}
+/// Лучшее совпадение с запросом (общий матчер, см. [pickBestPriceHit]).
+PriceHit? pickBestPyaterochkaHit(List<PriceHit> hits, String query) =>
+    pickBestPriceHit(hits, query);
 
 String? _cleanText(String? raw) {
   final v = raw?.replaceAll(RegExp(r'\s+'), ' ').trim() ?? '';
   return v.isEmpty ? null : v;
 }
 
-double? _parsePrice(dynamic raw) {
-  if (raw == null) return null;
-  if (raw is num) return raw.toDouble();
-  return double.tryParse(raw.toString().replaceAll(',', '.').trim());
-}
-
 /// HTTP-клиент каталога Пятёрочки. Все методы могут бросить только
-/// [PyaterochkaUnavailable] — любого рода неудача означает «цены нет».
+/// [PriceUnavailable] — любого рода неудача означает «цены нет».
 class PyaterochkaService {
   PyaterochkaService({
     http.Client? httpClient,
@@ -204,7 +100,7 @@ class PyaterochkaService {
   /// Версия веб-фронта, зафиксированная при эксперименте (Task 14).
   static const String _appVersion = '0.1.1.dev';
 
-  static const String _storeCodePref = 'pref_pyat_device_id';
+  static const String _deviceIdPref = 'pref_pyat_device_id';
 
   final http.Client? _client;
   final Duration timeout;
@@ -215,10 +111,10 @@ class PyaterochkaService {
   Future<String> ensureDeviceId() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final existing = prefs.getString(_storeCodePref);
+      final existing = prefs.getString(_deviceIdPref);
       if (existing != null && existing.isNotEmpty) return existing;
       final id = _generateUuidV4();
-      await prefs.setString(_storeCodePref, id);
+      await prefs.setString(_deviceIdPref, id);
       return id;
     } catch (_) {
       // SharedPreferences недоступен (тесты) — одноразовый id на запуск.
@@ -229,8 +125,8 @@ class PyaterochkaService {
   /// Поиск по каталогу выбранного магазина.
   ///
   /// [storeCode] — SAP-код магазина (см. настройки). Бросает
-  /// [PyaterochkaUnavailable] при блокировке WAF или проблемах сети.
-  Future<List<PyaterochkaHit>> search({
+  /// [PriceUnavailable] при блокировке WAF или проблемах сети.
+  Future<List<PriceHit>> search({
     required String storeCode,
     required String query,
     int limit = 12,
@@ -260,28 +156,24 @@ class PyaterochkaService {
             'x-tenant-id': 'TC5',
           })
           .timeout(timeout);
-    } on TimeoutException {
-      throw const PyaterochkaUnavailable(PyaterochkaFailReason.network);
-    } on SocketException {
-      throw const PyaterochkaUnavailable(PyaterochkaFailReason.network);
-    } on http.ClientException {
-      throw const PyaterochkaUnavailable(PyaterochkaFailReason.network);
+    } on Exception catch (e) {
+      throwNetwork(e);
     }
 
     // WAF: не-200 или HTML-заглушка «Проблемы со связью» (VPN/датацентр).
     final body = utf8.decode(response.bodyBytes, allowMalformed: true);
-    if (response.statusCode != 200 || body.trimLeft().startsWith('<')) {
-      throw const PyaterochkaUnavailable(PyaterochkaFailReason.blocked);
+    if (response.statusCode != 200 || looksLikeHtml(body)) {
+      throw const PriceUnavailable(PriceFailReason.blocked);
     }
 
     final Object decoded;
     try {
       decoded = jsonDecode(body);
     } on FormatException {
-      throw const PyaterochkaUnavailable(PyaterochkaFailReason.blocked);
+      throw const PriceUnavailable(PriceFailReason.blocked);
     }
     if (decoded is! Map<String, dynamic>) {
-      throw const PyaterochkaUnavailable(PyaterochkaFailReason.blocked);
+      throw const PriceUnavailable(PriceFailReason.blocked);
     }
     return parsePyaterochkaSearchJson(decoded);
   }

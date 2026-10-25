@@ -1,0 +1,75 @@
+{
+  "meta": {
+    "pagination": {
+      "limit": 12,
+      "start": 0,
+      "total": 4
+    }
+  },
+  "data": [
+    {
+      "productId": "0001111041700",
+      "description": "Kroger 2% Reduced Fat Milk",
+      "brand": "KROGER",
+      "size": "1 gal",
+      "categories": ["Dairy", "Milk"],
+      "items": [
+        {
+          "itemId": "111_1111041700",
+          "price": {
+            "regular": 3.29,
+            "promo": 2.99
+          },
+          "size": "1 gal"
+        }
+      ],
+      "instore": true,
+      "shiptohome": true,
+      "delivery": true,
+      "curbside": true,
+      "images": [
+        {
+          "sizes": [
+            {
+              "size": "Large",
+              "url": "https://www.kroger.com/product/images/large/0001111041700"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "productId": "0001111041701",
+      "description": "Simple Truth Organic Milk 1% Lowfat",
+      "brand": "SIMPLE TRUTH",
+      "size": "0.5 gal",
+      "categories": ["Dairy"],
+      "items": [
+        {
+          "itemId": "111_1111041701",
+          "price": {
+            "regular": 4.49
+          }
+        }
+      ],
+      "instore": false,
+      "curbside": false
+    },
+    {
+      "productId": "0001111041799",
+      "description": "Товар без цены в items — пропускается",
+      "items": [
+        {
+          "itemId": "111_x",
+          "size": "1 gal"
+        }
+      ]
+    },
+    {
+      "productId": "0001111041798",
+      "description": "Пустые items — тоже пропускается",
+      "items": []
+    },
+    "не-объект — пропускается"
+  ]
+}

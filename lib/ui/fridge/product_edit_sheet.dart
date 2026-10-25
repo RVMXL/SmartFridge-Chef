@@ -16,6 +16,9 @@ import 'package:provider/provider.dart';
 import '../../core/freshness.dart';
 import '../../data/models/product.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../scan/kroger_lookup.dart';
+import '../../scan/openprices_lookup.dart';
+import '../../scan/price_source.dart';
 import '../../scan/pyaterochka_lookup.dart';
 import '../../state/settings_controller.dart';
 import '../widgets/common.dart';
@@ -69,12 +72,14 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
   late DateTime _expiry;
   bool _triedSave = false;
 
-  // Цены Пятёрочки (v0.5.5): состояние автоподстановки.
-  PyaterochkaHit? _pyatHit;
-  bool _pyatLoading = false;
-  bool _pyatMissed = false;
-  bool _pyatStoreMissing = false;
-  PyaterochkaFailReason? _pyatFail;
+  // Автоподстановка цены (v0.5.6, источники цен): состояние поиска.
+  PriceHit? _priceHit;
+  bool _priceLoading = false;
+  bool _priceMissed = false;
+  bool _priceNotConfigured = false;
+  bool _barcodeMissing = false;
+  PriceFailReason? _priceFail;
+  String _currencySymbol = '₽';
 
   /// Пользователь правил цену руками после последней автоподстановки.
   bool _priceTouched = false;
@@ -118,62 +123,108 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
 
   bool get _nameValid => _name.text.trim().isNotEmpty;
 
-  /// Автопоиск цены включён и магазин выбран?
-  bool get _pyatActive {
+  /// Автопоиск цены включён и источник настроен?
+  bool get _priceActive {
     final settings = context.read<SettingsController>();
-    return settings.pyaterochkaEnabled &&
-        settings.pyaterochkaStoreCode.trim().isNotEmpty;
+    return settings.priceLookupEnabled && settings.priceSourceReady;
   }
 
   /// Тихая автоподстановка: только если фича включена, цены ещё нет
-  /// и имя уже заполнено (сканером/OFF). Никаких диалогов — не вышло,
-  /// значит поле остаётся пустым.
+  /// и имя (или штрих-код для Open Prices) уже заполнено. Никаких
+  /// диалогов — не вышло, значит поле остаётся пустым.
   void _maybeAutoFetchPrice() {
     final hasPrice = widget.existing?.price != null ||
         _price.text.trim().isNotEmpty;
-    if (!_pyatActive || hasPrice || !_nameValid) return;
+    if (!_priceActive || hasPrice) return;
+    final settings = context.read<SettingsController>();
+    if (settings.priceSourceKind == 'open_prices') {
+      if (_barcode.text.trim().isEmpty) return;
+    } else if (!_nameValid) {
+      return;
+    }
     _fetchPrice();
   }
 
   Future<void> _fetchPrice() async {
     final settings = context.read<SettingsController>();
-    final service = context.read<PyaterochkaService>();
-    final store = settings.pyaterochkaStoreCode.trim();
-    if (store.isEmpty) {
+    final kind = settings.priceSourceKind;
+    if (!settings.priceLookupEnabled) return;
+
+    // Предварительные проверки без сети: у Open Prices нужен штрих-код,
+    // у остальных — настроенный источник (SAP-код / ключи Kroger).
+    if (kind == 'open_prices' && _barcode.text.trim().isEmpty) {
       setState(() {
-        _pyatStoreMissing = true;
-        _pyatMissed = false;
-        _pyatFail = null;
+        _priceLoading = false;
+        _barcodeMissing = true;
+        _priceNotConfigured = false;
+        _priceMissed = false;
+        _priceFail = null;
       });
       return;
     }
-    setState(() {
-      _pyatLoading = true;
-      _pyatStoreMissing = false;
-      _pyatMissed = false;
-      _pyatFail = null;
-    });
-    try {
-      final hits = await service.search(
-        storeCode: store,
-        query: _name.text.trim(),
-      );
-      if (!mounted) return;
-      final best = pickBestPyaterochkaHit(hits, _name.text.trim());
+    if (!settings.priceSourceReady) {
       setState(() {
-        _pyatLoading = false;
+        _priceLoading = false;
+        _priceNotConfigured = true;
+        _barcodeMissing = false;
+        _priceMissed = false;
+        _priceFail = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _priceLoading = true;
+      _priceNotConfigured = false;
+      _barcodeMissing = false;
+      _priceMissed = false;
+      _priceFail = null;
+    });
+
+    try {
+      final List<PriceHit> hits;
+      switch (kind) {
+        case 'kroger':
+          hits = await context.read<KrogerService>().search(
+                clientId: settings.krogerClientId,
+                clientSecret: settings.krogerClientSecret,
+                locationId: settings.krogerLocationId,
+                query: _name.text.trim(),
+              );
+          break;
+        case 'open_prices':
+          hits = await context
+              .read<OpenPricesService>()
+              .lookupBarcode(_barcode.text.trim());
+          break;
+        case 'pyaterochka':
+        default:
+          hits = await context.read<PyaterochkaService>().search(
+                storeCode: settings.pyaterochkaStoreCode,
+                query: _name.text.trim(),
+              );
+          break;
+      }
+      if (!mounted) return;
+      final best = kind == 'open_prices'
+          ? (hits.isEmpty ? null : hits.first)
+          : pickBestPriceHit(hits, _name.text.trim());
+      setState(() {
+        _priceLoading = false;
         if (best == null) {
-          _pyatMissed = true;
+          _priceMissed = true;
         } else {
-          _pyatHit = best;
+          _priceHit = best;
+          _currencySymbol = best.currencySymbol;
           _price.text = _fmtPrice(best.price);
+          _priceTouched = false; // автоподстановка, не ручной ввод
         }
       });
-    } on PyaterochkaUnavailable catch (e) {
+    } on PriceUnavailable catch (e) {
       if (!mounted) return;
       setState(() {
-        _pyatLoading = false;
-        _pyatFail = e.reason;
+        _priceLoading = false;
+        _priceFail = e.reason;
       });
     }
   }
@@ -184,9 +235,10 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
 
   /// Поле цены: ручной ввод всегда доступен; кнопка автоподстановки,
   /// статусы и подсказки — только при включённой экспериментальной фиче
-  /// «Цены Пятёрочки».
+  /// «Цены» (источник — в настройках).
   Widget _buildPriceField(AppLocalizations l, ThemeData theme) {
-    final pyatOn = context.read<SettingsController>().pyaterochkaEnabled;
+    final priceOn =
+        context.read<SettingsController>().priceLookupEnabled;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -196,10 +248,10 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
               const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
             labelText: l.productFieldPrice,
-            suffixText: '₽',
-            suffixIcon: pyatOn
+            suffixText: _currencySymbol,
+            suffixIcon: priceOn
                 ? IconButton(
-                    icon: _pyatLoading
+                    icon: _priceLoading
                         ? const SizedBox(
                             width: 18,
                             height: 18,
@@ -207,41 +259,52 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
                                 CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.refresh),
-                    tooltip: l.pyatRefresh,
-                    onPressed: _pyatLoading ? null : _fetchPrice,
+                    tooltip: l.priceRefresh,
+                    onPressed: _priceLoading ? null : _fetchPrice,
                   )
                 : null,
           ),
           onChanged: (_) => _priceTouched = true,
         ),
-        if (pyatOn) ...[
+        if (priceOn) ...[
           const SizedBox(height: 4),
-          if (_pyatLoading)
-            Text(l.pyatSearching,
+          if (_priceLoading)
+            Text(l.priceSearching,
                 style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant))
-          else if (_pyatHit != null)
-            Text(l.pyatMatched(_pyatHit!.name),
+          else if (_priceHit != null)
+            Text(l.priceMatched(_priceHit!.name),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant))
-          else if (_pyatFail != null)
+          else if (_priceFail != null)
             Text(
-              _pyatFail == PyaterochkaFailReason.blocked
-                  ? l.pyatUnavailable
-                  : l.pyatNoNetwork,
+              switch (_priceFail!) {
+                PriceFailReason.blocked => l.priceUnavailable,
+                PriceFailReason.network => l.priceNoNetwork,
+                PriceFailReason.auth => l.priceAuthError,
+              },
               style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.error),
             )
-          else if (_pyatStoreMissing)
-            Text(l.pyatStoreRequired,
+          else if (_priceNotConfigured)
+            Text(l.priceNotConfigured,
                 style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.error))
-          else if (_pyatMissed)
-            Text(l.pyatNotFound,
+          else if (_barcodeMissing)
+            Text(l.priceBarcodeRequired,
                 style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant)),
+                    color: theme.colorScheme.error))
+          else if (_priceMissed)
+            Text(
+              context.read<SettingsController>().priceSourceKind ==
+                      'open_prices'
+                  ? l.priceBarcodeNotFound
+                  : l.priceNotFound,
+              style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant),
+            ),
         ],
       ],
     );
@@ -275,7 +338,9 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
     // null — цену не трогали, прежние метаданные сохраняются как есть.
     final String? freshSource = _priceTouched
         ? 'manual'
-        : (_pyatHit != null ? 'pyaterochka' : null);
+        : (_priceHit != null
+            ? context.read<SettingsController>().priceSourceKind
+            : null);
     final product = base.copyWith(
       name: _name.text.trim(),
       category: _category,

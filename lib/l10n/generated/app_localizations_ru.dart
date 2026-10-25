@@ -914,10 +914,59 @@ class AppLocalizationsRu extends AppLocalizations {
       'Пока ничего не отмечено — добавьте из пресетов ниже или впишите своё';
 
   @override
-  String get pyatSectionTitle => 'Цены Пятёрочки (эксперимент)';
+  String get priceSectionTitle => 'Цены магазинов (эксперимент)';
 
   @override
-  String get pyatEnable => 'Подставлять цены Пятёрочки';
+  String get priceEnable => 'Подставлять цены при добавлении продукта';
+
+  @override
+  String get priceSourceLabel => 'Источник цен';
+
+  @override
+  String get priceSourcePyat => 'Пятёрочка — Россия';
+
+  @override
+  String get priceSourceKroger => 'Kroger — США';
+
+  @override
+  String get priceSourceOpenPrices => 'Open Prices — по штрихкоду (весь мир)';
+
+  @override
+  String get priceRefresh => 'Найти цену';
+
+  @override
+  String get priceSearching => 'Ищем цену…';
+
+  @override
+  String priceMatched(String name) {
+    return 'Совпало: $name';
+  }
+
+  @override
+  String get priceNotFound => 'В выбранном магазине не нашлось';
+
+  @override
+  String get priceBarcodeNotFound =>
+      'Цены этого штрихкода в Open Prices пока нет';
+
+  @override
+  String get priceUnavailable => 'Источник недоступен (блокировка или VPN)';
+
+  @override
+  String get priceNoNetwork => 'Сеть недоступна — цена не получена';
+
+  @override
+  String get priceAuthError => 'Ключ отклонён — проверьте его в настройках';
+
+  @override
+  String get priceNotConfigured => 'Источник цены не настроен — см. настройки';
+
+  @override
+  String get priceBarcodeRequired => 'Для Open Prices нужен штрих-код товара';
+
+  @override
+  String get priceOpenPricesNote =>
+      'Цена подставляется по отсканированному штрихкоду из открытой базы Open Prices (проект Open Food Facts): без ключей и регистрации. Покрытие краудсорсное и неравномерное — для части товаров цен пока нет.';
 
   @override
   String get pyatStoreCode => 'Код магазина (SAP)';
@@ -931,27 +980,35 @@ class AppLocalizationsRu extends AppLocalizations {
       'Запросы идут прямо с устройства, ключи и аккаунты не нужны. Пятёрочка блокирует VPN и серверные IP: при включённом VPN цена просто не подставится — всё остальное работает.';
 
   @override
-  String get pyatRefresh => 'Найти цену в Пятёрочке';
+  String get krogerClientId => 'Client ID (developer.kroger.com)';
 
   @override
-  String get pyatSearching => 'Ищем в Пятёрочке…';
+  String get krogerClientSecret => 'Client Secret';
 
   @override
-  String pyatMatched(String name) {
-    return 'Совпало: $name';
+  String get krogerZip => 'ZIP-код магазина';
+
+  @override
+  String get krogerFindStores => 'Найти магазины по ZIP';
+
+  @override
+  String krogerSelected(String name) {
+    return 'Выбрано: $name';
   }
 
   @override
-  String get pyatNotFound => 'В каталоге Пятёрочки не нашлось';
+  String get krogerPickTitle => 'Магазины рядом';
 
   @override
-  String get pyatUnavailable => 'Пятёрочка недоступна: VPN или блокировка IP';
+  String get krogerNeedCredentials =>
+      'Заполните Client ID, Client Secret и ZIP-код';
 
   @override
-  String get pyatNoNetwork => 'Сеть недоступна — цена не получена';
+  String get krogerStoresEmpty => 'Магазинов рядом с этим ZIP не нашлось';
 
   @override
-  String get pyatStoreRequired => 'Укажите код магазина в настройках';
+  String get krogerHint =>
+      'Создайте бесплатное приложение на developer.kroger.com (Public tier, Products API) и вставьте Client ID и Client Secret. Ключи хранятся только на устройстве и уходят только на api.kroger.com.';
 
   @override
   String get productFieldPrice => 'Цена';

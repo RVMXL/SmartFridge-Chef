@@ -271,20 +271,44 @@
     }
   },
   "dislikesEmpty": "Пока ничего не отмечено — добавьте из пресетов ниже или впишите своё",
-  "pyatSectionTitle": "Цены Пятёрочки (эксперимент)",
-  "pyatEnable": "Подставлять цены Пятёрочки",
+  "priceSectionTitle": "Цены магазинов (эксперимент)",
+  "priceEnable": "Подставлять цены при добавлении продукта",
+  "priceSourceLabel": "Источник цен",
+  "priceSourcePyat": "Пятёрочка — Россия",
+  "priceSourceKroger": "Kroger — США",
+  "priceSourceOpenPrices": "Open Prices — по штрихкоду (весь мир)",
+  "priceRefresh": "Найти цену",
+  "priceSearching": "Ищем цену…",
+  "priceMatched": "Совпало: {name}",
+  "priceNotFound": "В выбранном магазине не нашлось",
+  "priceBarcodeNotFound": "Цены этого штрихкода в Open Prices пока нет",
+  "priceUnavailable": "Источник недоступен (блокировка или VPN)",
+  "priceNoNetwork": "Сеть недоступна — цена не получена",
+  "priceAuthError": "Ключ отклонён — проверьте его в настройках",
+  "priceNotConfigured": "Источник цены не настроен — см. настройки",
+  "priceBarcodeRequired": "Для Open Prices нужен штрих-код товара",
+  "priceOpenPricesNote": "Цена подставляется по отсканированному штрихкоду из открытой базы Open Prices (проект Open Food Facts): без ключей и регистрации. Покрытие краудсорсное и неравномерное — для части товаров цен пока нет.",
   "pyatStoreCode": "Код магазина (SAP)",
   "pyatStoreHint": "Код — 4 символа, например 35XY. Возьмите его на 5ka.ru: выберите свой магазин в доставке и найдите sapCode в адресе любого запроса каталога (DevTools → Network → …/stores/КОД/…). Цены подставляются как в этом магазине.",
   "pyatVpnNote": "Запросы идут прямо с устройства, ключи и аккаунты не нужны. Пятёрочка блокирует VPN и серверные IP: при включённом VPN цена просто не подставится — всё остальное работает.",
-  "pyatRefresh": "Найти цену в Пятёрочке",
-  "pyatSearching": "Ищем в Пятёрочке…",
-  "pyatMatched": "Совпало: {name}",
-  "pyatNotFound": "В каталоге Пятёрочки не нашлось",
-  "pyatUnavailable": "Пятёрочка недоступна: VPN или блокировка IP",
-  "pyatNoNetwork": "Сеть недоступна — цена не получена",
-  "pyatStoreRequired": "Укажите код магазина в настройках",
+  "krogerClientId": "Client ID (developer.kroger.com)",
+  "krogerClientSecret": "Client Secret",
+  "krogerZip": "ZIP-код магазина",
+  "krogerFindStores": "Найти магазины по ZIP",
+  "krogerSelected": "Выбрано: {name}",
+  "krogerPickTitle": "Магазины рядом",
+  "krogerNeedCredentials": "Заполните Client ID, Client Secret и ZIP-код",
+  "krogerStoresEmpty": "Магазинов рядом с этим ZIP не нашлось",
+  "krogerHint": "Создайте бесплатное приложение на developer.kroger.com (Public tier, Products API) и вставьте Client ID и Client Secret. Ключи хранятся только на устройстве и уходят только на api.kroger.com.",
   "productFieldPrice": "Цена",
-  "@pyatMatched": {
+  "@priceMatched": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@krogerSelected": {
     "placeholders": {
       "name": {
         "type": "String"

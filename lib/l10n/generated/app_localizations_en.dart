@@ -909,10 +909,59 @@ class AppLocalizationsEn extends AppLocalizations {
       'Nothing marked yet — add from the presets below or type your own';
 
   @override
-  String get pyatSectionTitle => 'Pyaterochka prices (experimental)';
+  String get priceSectionTitle => 'Store prices (experimental)';
 
   @override
-  String get pyatEnable => 'Fill in Pyaterochka prices';
+  String get priceEnable => 'Auto-fill prices when adding a product';
+
+  @override
+  String get priceSourceLabel => 'Price source';
+
+  @override
+  String get priceSourcePyat => 'Pyaterochka — Russia';
+
+  @override
+  String get priceSourceKroger => 'Kroger — USA';
+
+  @override
+  String get priceSourceOpenPrices => 'Open Prices — by barcode (worldwide)';
+
+  @override
+  String get priceRefresh => 'Find price';
+
+  @override
+  String get priceSearching => 'Searching for a price…';
+
+  @override
+  String priceMatched(String name) {
+    return 'Matched: $name';
+  }
+
+  @override
+  String get priceNotFound => 'Not found in the selected store';
+
+  @override
+  String get priceBarcodeNotFound =>
+      'No price for this barcode in Open Prices yet';
+
+  @override
+  String get priceUnavailable => 'Source unavailable (blocked or VPN)';
+
+  @override
+  String get priceNoNetwork => 'Network unavailable — no price';
+
+  @override
+  String get priceAuthError => 'Key rejected — check it in Settings';
+
+  @override
+  String get priceNotConfigured => 'Price source not configured — see Settings';
+
+  @override
+  String get priceBarcodeRequired => 'Open Prices needs the product barcode';
+
+  @override
+  String get priceOpenPricesNote =>
+      'The price is filled from the open Open Prices database (Open Food Facts project) by the scanned barcode: no keys, no registration. Coverage is crowdsourced and uneven — some products have no prices yet.';
 
   @override
   String get pyatStoreCode => 'Store code (SAP)';
@@ -926,27 +975,35 @@ class AppLocalizationsEn extends AppLocalizations {
       'Requests go straight from the device — no keys, no accounts. Pyaterochka blocks VPN and datacenter IPs: with VPN on, the price simply won\'t be filled — everything else keeps working.';
 
   @override
-  String get pyatRefresh => 'Find price in Pyaterochka';
+  String get krogerClientId => 'Client ID (developer.kroger.com)';
 
   @override
-  String get pyatSearching => 'Searching Pyaterochka…';
+  String get krogerClientSecret => 'Client Secret';
 
   @override
-  String pyatMatched(String name) {
-    return 'Matched: $name';
+  String get krogerZip => 'Store ZIP code';
+
+  @override
+  String get krogerFindStores => 'Find stores by ZIP';
+
+  @override
+  String krogerSelected(String name) {
+    return 'Selected: $name';
   }
 
   @override
-  String get pyatNotFound => 'Not found in the Pyaterochka catalog';
+  String get krogerPickTitle => 'Stores nearby';
 
   @override
-  String get pyatUnavailable => 'Pyaterochka unavailable: VPN or IP blocked';
+  String get krogerNeedCredentials =>
+      'Fill in Client ID, Client Secret and ZIP code';
 
   @override
-  String get pyatNoNetwork => 'Network unavailable — no price';
+  String get krogerStoresEmpty => 'No stores found near this ZIP';
 
   @override
-  String get pyatStoreRequired => 'Set the store code in settings';
+  String get krogerHint =>
+      'Create a free app at developer.kroger.com (Public tier, Products API) and paste its Client ID and Client Secret. Keys are stored only on the device and are sent only to api.kroger.com.';
 
   @override
   String get productFieldPrice => 'Price';

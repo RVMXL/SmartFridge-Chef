@@ -1,6 +1,6 @@
-/// Тесты цен Пятёрочки (v0.5.5): парсер реальной выдачи (fixture с телефона
-/// пользователя, Task 14), выбор лучшего совпадения, детекция блокировки
-/// WAF и хранение анонимного deviceId.
+/// Тесты цен Пятёрочки (v0.5.5, контракт v0.5.6): парсер реальной выдачи
+/// (fixture с телефона пользователя, Task 14), выбор лучшего совпадения,
+/// детекция блокировки WAF и хранение анонимного deviceId.
 library;
 
 import 'dart:convert';
@@ -25,21 +25,22 @@ void main() {
 
       expect(hits, hasLength(3));
 
-      final classic = hits.firstWhere((h) => h.plu == 2023501);
+      final classic = hits.firstWhere((h) => h.name.contains('классическое'));
       expect(classic.name, 'Печенье Посиделкино Овсяное классическое 320г');
       expect(classic.price, 89.99);
       expect(classic.oldPrice, isNull);
       expect(classic.isAvailable, isTrue);
       expect(classic.packageQuantity, '320 г');
+      expect(classic.currencySymbol, '₽');
       expect(classic.rating, closeTo(4.89, 0.001));
       expect(classic.ratesCount, 7289);
       expect(classic.isPromo, isFalse);
 
-      final chocolate = hits.firstWhere((h) => h.plu == 91535);
+      final chocolate = hits.firstWhere((h) => h.name.contains('шоколада'));
       expect(chocolate.price, 109.99);
       expect(chocolate.packageQuantity, '310 г');
 
-      final raisin = hits.firstWhere((h) => h.plu == 2023502);
+      final raisin = hits.firstWhere((h) => h.name.contains('изюмом'));
       expect(raisin.price, 84.99);
       expect(raisin.ratesCount, 5628);
     });
@@ -78,7 +79,7 @@ void main() {
   });
 
   group('pickBestPyaterochkaHit — сопоставление с названием продукта', () {
-    late List<PyaterochkaHit> hits;
+    late List<PriceHit> hits;
     setUp(() async {
       hits = parsePyaterochkaSearchJson(await _fixture());
     });
@@ -89,19 +90,19 @@ void main() {
         hits,
         'Печенье Посиделкино Овсяное классическое',
       );
-      expect(best?.plu, 2023501);
+      expect(best?.name, contains('классическое'));
     });
 
     test('неоднозначный запрос: при равном счёте выигрывает популярнее', () {
       // Все три товара содержат оба токена — побеждает наибольшее число
       // оценок (классическое, 7289).
       final best = pickBestPyaterochkaHit(hits, 'Посиделкино овсяное');
-      expect(best?.plu, 2023501);
+      expect(best?.name, contains('классическое'));
     });
 
     test('нормализация: ё→е, регистр и пунктуация не мешают', () {
       final best = pickBestPyaterochkaHit(hits, 'печенье, овсяное (кусок. шоколада)!');
-      expect(best?.plu, 91535);
+      expect(best?.name, contains('шоколада'));
     });
 
     test('запрос не про эти товары → null, а не случайная цена', () {
@@ -146,15 +147,14 @@ void main() {
       expect(headers!['x-device-id'], hasLength(36));
     });
 
-    test('403 → PyaterochkaUnavailable(blocked), не исключение сети',
-        () async {
+    test('403 → PriceUnavailable(blocked), не исключение сети', () async {
       final service = PyaterochkaService(
         httpClient: MockClient((_) async => http.Response('Forbidden', 403)),
       );
       expect(
         () => service.search(storeCode: '35XY', query: 'молоко'),
-        throwsA(isA<PyaterochkaUnavailable>().having(
-          (e) => e.reason, 'reason', PyaterochkaFailReason.blocked,
+        throwsA(isA<PriceUnavailable>().having(
+          (e) => e.reason, 'reason', PriceFailReason.blocked,
         )),
       );
     });
@@ -170,8 +170,8 @@ void main() {
       );
       expect(
         () => service.search(storeCode: '35XY', query: 'молоко'),
-        throwsA(isA<PyaterochkaUnavailable>().having(
-          (e) => e.reason, 'reason', PyaterochkaFailReason.blocked,
+        throwsA(isA<PriceUnavailable>().having(
+          (e) => e.reason, 'reason', PriceFailReason.blocked,
         )),
       );
     });
@@ -182,7 +182,7 @@ void main() {
       );
       expect(
         () => service.search(storeCode: '35XY', query: 'молоко'),
-        throwsA(isA<PyaterochkaUnavailable>()),
+        throwsA(isA<PriceUnavailable>()),
       );
     });
 

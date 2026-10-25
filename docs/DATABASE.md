@@ -96,9 +96,9 @@ v4 (v0.5.0) — колонки: `user_profile.diets` (список диет),
 | `kcal_per_100` … `carbs_per_100` | REAL | нет | БЖУК на 100 г/мл — из Open Food Facts; нужно планеру для сверки с профилем |
 | `notes` | TEXT | нет | Заметка пользователя |
 | `status` | TEXT | да (default 'active') | active / consumed / discarded |
-| `price` | REAL | нет | Цена за упаковку/шт в ₽ (каталог Пятёрочки или вручную); NULL — цену не вводили |
+| `price` | REAL | нет | Цена за упаковку/шт в валюте источника (Пятёрочка/Kroger/Open Prices) или вручную; NULL — цену не вводили |
 | `price_updated_at` | TEXT | нет | Момент последнего обновления цены (ISO-8601) |
-| `price_source` | TEXT | нет | 'pyaterochka' (автопоиск) или 'manual' |
+| `price_source` | TEXT | нет | 'pyaterochka' / 'kroger' / 'open_prices' (автопоиск, v0.5.6) или 'manual' |
 
 ### Индексы
 

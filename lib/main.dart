@@ -15,6 +15,8 @@ import 'l10n/generated/app_localizations.dart';
 import 'notifications/reminder_scheduler.dart';
 import 'notifications/reminder_sync.dart';
 import 'scan/barcode_lookup.dart';
+import 'scan/kroger_lookup.dart';
+import 'scan/openprices_lookup.dart';
 import 'scan/pyaterochka_lookup.dart';
 import 'state/plan_controller.dart';
 import 'state/product_controller.dart';
@@ -64,8 +66,11 @@ void main() async {
     openDb: AppDataStore.instance.database,
   );
 
-  // Цены Пятёрочки (v0.5.5, эксперимент): запросы только с устройства.
+  // Источники цен (v0.5.5–v0.5.6, эксперимент): запросы только
+  // с устройства; ключи Kroger — свои у каждого пользователя.
   final pyaterochka = PyaterochkaService();
+  final kroger = KrogerService();
+  final openPrices = OpenPricesService();
 
   runApp(SmartFridgeApp(
     settings: settings,
@@ -76,6 +81,8 @@ void main() async {
     scheduler: scheduler,
     barcodeLookup: barcodeLookup,
     pyaterochka: pyaterochka,
+    kroger: kroger,
+    openPrices: openPrices,
   ));
 }
 
@@ -90,6 +97,8 @@ class SmartFridgeApp extends StatelessWidget {
     required this.scheduler,
     required this.barcodeLookup,
     required this.pyaterochka,
+    required this.kroger,
+    required this.openPrices,
   });
 
   final SettingsController settings;
@@ -100,6 +109,8 @@ class SmartFridgeApp extends StatelessWidget {
   final LocalReminderScheduler scheduler;
   final BarcodeLookupService barcodeLookup;
   final PyaterochkaService pyaterochka;
+  final KrogerService kroger;
+  final OpenPricesService openPrices;
 
   /// Семенной цвет обеих тем — зелёный «свежести» (#2E7D32).
   static const Color seedColor = Color(0xFF2E7D32);
@@ -116,6 +127,8 @@ class SmartFridgeApp extends StatelessWidget {
         Provider<ReminderScheduler>.value(value: scheduler),
         Provider<BarcodeLookupService>.value(value: barcodeLookup),
         Provider<PyaterochkaService>.value(value: pyaterochka),
+        Provider<KrogerService>.value(value: kroger),
+        Provider<OpenPricesService>.value(value: openPrices),
       ],
       child: Consumer<SettingsController>(
         builder: (context, s, _) => MaterialApp(

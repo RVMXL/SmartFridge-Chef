@@ -409,20 +409,44 @@
     }
   },
   "dislikesEmpty": "Nothing marked yet — add from the presets below or type your own",
-  "pyatSectionTitle": "Pyaterochka prices (experimental)",
-  "pyatEnable": "Fill in Pyaterochka prices",
+  "priceSectionTitle": "Store prices (experimental)",
+  "priceEnable": "Auto-fill prices when adding a product",
+  "priceSourceLabel": "Price source",
+  "priceSourcePyat": "Pyaterochka — Russia",
+  "priceSourceKroger": "Kroger — USA",
+  "priceSourceOpenPrices": "Open Prices — by barcode (worldwide)",
+  "priceRefresh": "Find price",
+  "priceSearching": "Searching for a price…",
+  "priceMatched": "Matched: {name}",
+  "priceNotFound": "Not found in the selected store",
+  "priceBarcodeNotFound": "No price for this barcode in Open Prices yet",
+  "priceUnavailable": "Source unavailable (blocked or VPN)",
+  "priceNoNetwork": "Network unavailable — no price",
+  "priceAuthError": "Key rejected — check it in Settings",
+  "priceNotConfigured": "Price source not configured — see Settings",
+  "priceBarcodeRequired": "Open Prices needs the product barcode",
+  "priceOpenPricesNote": "The price is filled from the open Open Prices database (Open Food Facts project) by the scanned barcode: no keys, no registration. Coverage is crowdsourced and uneven — some products have no prices yet.",
   "pyatStoreCode": "Store code (SAP)",
   "pyatStoreHint": "The code is 4 characters, e.g. 35XY. Get it on 5ka.ru: pick your store for delivery and find the sapCode in any catalog request URL (DevTools → Network → …/stores/CODE/…). Prices will match that store.",
   "pyatVpnNote": "Requests go straight from the device — no keys, no accounts. Pyaterochka blocks VPN and datacenter IPs: with VPN on, the price simply won't be filled — everything else keeps working.",
-  "pyatRefresh": "Find price in Pyaterochka",
-  "pyatSearching": "Searching Pyaterochka…",
-  "pyatMatched": "Matched: {name}",
-  "pyatNotFound": "Not found in the Pyaterochka catalog",
-  "pyatUnavailable": "Pyaterochka unavailable: VPN or IP blocked",
-  "pyatNoNetwork": "Network unavailable — no price",
-  "pyatStoreRequired": "Set the store code in settings",
+  "krogerClientId": "Client ID (developer.kroger.com)",
+  "krogerClientSecret": "Client Secret",
+  "krogerZip": "Store ZIP code",
+  "krogerFindStores": "Find stores by ZIP",
+  "krogerSelected": "Selected: {name}",
+  "krogerPickTitle": "Stores nearby",
+  "krogerNeedCredentials": "Fill in Client ID, Client Secret and ZIP code",
+  "krogerStoresEmpty": "No stores found near this ZIP",
+  "krogerHint": "Create a free app at developer.kroger.com (Public tier, Products API) and paste its Client ID and Client Secret. Keys are stored only on the device and are sent only to api.kroger.com.",
   "productFieldPrice": "Price",
-  "@pyatMatched": {
+  "@priceMatched": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@krogerSelected": {
     "placeholders": {
       "name": {
         "type": "String"

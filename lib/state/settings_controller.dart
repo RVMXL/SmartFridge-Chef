@@ -105,17 +105,35 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ------------------------------------ цены Пятёрочки (v0.5.5, эксп.)
+  // ------------------------------------ источники цен (v0.5.5–v0.5.6, эксп.)
 
-  static const String _kPyatEnabled = 'pref_pyat_enabled';
+  static const String _kPriceEnabled = 'pref_pyat_enabled'; // ключ с 0.5.5
+  static const String _kPriceSource = 'pref_price_source';
   static const String _kPyatStoreCode = 'pref_pyat_store_code';
 
-  /// Подставлять цены Пятёрочки при добавлении продукта. Выключено по
-  /// умолчанию: фича экспериментальная и требует кода магазина.
-  bool get pyaterochkaEnabled => _prefs.getBool(_kPyatEnabled) ?? false;
+  static const String _kKrogerClientId = 'pref_kroger_client_id';
+  static const String _kKrogerClientSecret = 'pref_kroger_client_secret';
+  static const String _kKrogerZip = 'pref_kroger_zip';
+  static const String _kKrogerLocationId = 'pref_kroger_location_id';
+  static const String _kKrogerLocationLabel = 'pref_kroger_location_label';
 
-  Future<void> setPyaterochkaEnabled(bool on) async {
-    await _prefs.setBool(_kPyatEnabled, on);
+  /// Подставлять цены при добавлении продукта (источник — [priceSourceKind]).
+  /// Выключено по умолчанию: фича экспериментальная.
+  bool get priceLookupEnabled => _prefs.getBool(_kPriceEnabled) ?? false;
+
+  Future<void> setPriceLookupEnabled(bool on) async {
+    await _prefs.setBool(_kPriceEnabled, on);
+    notifyListeners();
+  }
+
+  /// Выбранный источник цены: 'pyaterochka' | 'kroger' | 'open_prices'.
+  /// По умолчанию 'pyaterochka' (наследует поведение пользователей 0.5.5,
+  /// у которых был включён pref_pyat_enabled).
+  String get priceSourceKind => _prefs.getString(_kPriceSource) ?? 'pyaterochka';
+
+  Future<void> setPriceSourceKind(String kind) async {
+    assert(['pyaterochka', 'kroger', 'open_prices'].contains(kind));
+    await _prefs.setString(_kPriceSource, kind);
     notifyListeners();
   }
 
@@ -126,6 +144,61 @@ class SettingsController extends ChangeNotifier {
   Future<void> setPyaterochkaStoreCode(String code) async {
     await _prefs.setString(_kPyatStoreCode, code.trim());
     notifyListeners();
+  }
+
+  // ------------------------------- Kroger (США): ключи пользователя
+
+  /// Client ID приложения пользователя (developer.kroger.com).
+  String get krogerClientId => _prefs.getString(_kKrogerClientId) ?? '';
+
+  Future<void> setKrogerClientId(String v) async {
+    await _prefs.setString(_kKrogerClientId, v.trim());
+    notifyListeners();
+  }
+
+  /// Client Secret приложения пользователя. Хранится только локально,
+  /// никуда не отправляется кроме api.kroger.com (обмен на токен).
+  String get krogerClientSecret => _prefs.getString(_kKrogerClientSecret) ?? '';
+
+  Future<void> setKrogerClientSecret(String v) async {
+    await _prefs.setString(_kKrogerClientSecret, v.trim());
+    notifyListeners();
+  }
+
+  /// ZIP-код района пользователя (только запрос списка магазинов Kroger).
+  String get krogerZip => _prefs.getString(_kKrogerZip) ?? '';
+
+  Future<void> setKrogerZip(String v) async {
+    await _prefs.setString(_kKrogerZip, v.trim());
+    notifyListeners();
+  }
+
+  /// Выбранный магазин (locationId из Locations API). Пусто — не выбран.
+  String get krogerLocationId => _prefs.getString(_kKrogerLocationId) ?? '';
+
+  Future<void> setKrogerLocationId(String id, String label) async {
+    await _prefs.setString(_kKrogerLocationId, id.trim());
+    await _prefs.setString(_kKrogerLocationLabel, label);
+    notifyListeners();
+  }
+
+  /// Человекочитаемое описание выбранного магазина («RALPHS — Ralphs…, …»).
+  String get krogerLocationLabel =>
+      _prefs.getString(_kKrogerLocationLabel) ?? '';
+
+  /// Готов ли источник цены к работе (без диалогов в форме продукта).
+  bool get priceSourceReady {
+    switch (priceSourceKind) {
+      case 'pyaterochka':
+        return pyaterochkaStoreCode.trim().isNotEmpty;
+      case 'kroger':
+        return krogerClientId.trim().isNotEmpty &&
+            krogerClientSecret.trim().isNotEmpty &&
+            krogerLocationId.trim().isNotEmpty;
+      case 'open_prices':
+        return true; // ключей и настроек не требует
+    }
+    return false;
   }
 
   /// Загрузка предпочтений до runApp, чтобы не мигать темой при старте.

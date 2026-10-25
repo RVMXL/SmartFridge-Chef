@@ -9,6 +9,8 @@ import '../../core/constants.dart';
 import '../../data/models/user_profile.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../notifications/reminder_scheduler.dart';
+import '../../scan/kroger_lookup.dart';
+import '../../scan/price_source.dart';
 import '../../state/profile_controller.dart';
 import '../../state/product_controller.dart';
 import '../../state/settings_controller.dart';
@@ -138,8 +140,8 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
 
-          // ---------------- Цены Пятёрочки (эксперимент, v0.5.5)
-          SectionHeader(l.pyatSectionTitle),
+          // ---------------- Цены магазинов (эксперимент, v0.5.5–v0.5.6)
+          SectionHeader(l.priceSectionTitle),
           Card(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -148,37 +150,48 @@ class SettingsScreen extends StatelessWidget {
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
                     secondary: const Icon(Icons.sell_outlined),
-                    title: Text(l.pyatEnable),
-                    value: settings.pyaterochkaEnabled,
-                    onChanged: (on) => settings.setPyaterochkaEnabled(on),
+                    title: Text(l.priceEnable),
+                    value: settings.priceLookupEnabled,
+                    onChanged: (on) => settings.setPriceLookupEnabled(on),
                   ),
-                  if (settings.pyaterochkaEnabled) ...[
-                    TextFormField(
-                      initialValue: settings.pyaterochkaStoreCode,
-                      decoration: InputDecoration(
-                        labelText: l.pyatStoreCode,
-                        hintText: '35XY',
-                      ),
-                      onChanged: settings.setPyaterochkaStoreCode,
+                  if (settings.priceLookupEnabled) ...[
+                    DropdownButtonFormField<String>(
+                      initialValue: settings.priceSourceKind,
+                      decoration:
+                          InputDecoration(labelText: l.priceSourceLabel),
+                      items: [
+                        DropdownMenuItem(
+                          value: 'pyaterochka',
+                          child: Text(l.priceSourcePyat),
+                        ),
+                        DropdownMenuItem(
+                          value: 'kroger',
+                          child: Text(l.priceSourceKroger),
+                        ),
+                        DropdownMenuItem(
+                          value: 'open_prices',
+                          child: Text(l.priceSourceOpenPrices),
+                        ),
+                      ],
+                      onChanged: (kind) {
+                        if (kind != null) settings.setPriceSourceKind(kind);
+                      },
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8, bottom: 4),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(l.pyatStoreHint,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant)),
+                    if (settings.priceSourceKind == 'pyaterochka')
+                      _buildPyaterochkaConfig(l, theme, settings),
+                    if (settings.priceSourceKind == 'kroger')
+                      _buildKrogerConfig(context, l, theme, settings),
+                    if (settings.priceSourceKind == 'open_prices')
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8, bottom: 8),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(l.priceOpenPricesNote,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                  color:
+                                      theme.colorScheme.onSurfaceVariant)),
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4, bottom: 8),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(l.pyatVpnNote,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant)),
-                      ),
-                    ),
                   ],
                 ],
               ),
@@ -243,6 +256,184 @@ class SettingsScreen extends StatelessWidget {
                 ],
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Конфиг Пятёрочки: SAP-код магазина + подсказки (без изменений с 0.5.5).
+  Widget _buildPyaterochkaConfig(
+      AppLocalizations l, ThemeData theme, SettingsController settings) {
+    return Column(
+      children: [
+        TextFormField(
+          initialValue: settings.pyaterochkaStoreCode,
+          decoration: InputDecoration(
+            labelText: l.pyatStoreCode,
+            hintText: '35XY',
+          ),
+          onChanged: settings.setPyaterochkaStoreCode,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 4),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(l.pyatStoreHint,
+                style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant)),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 4, bottom: 8),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(l.pyatVpnNote,
+                style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Конфиг Kroger: ключи пользователя, ZIP и выбор магазина.
+  Widget _buildKrogerConfig(BuildContext context, AppLocalizations l,
+      ThemeData theme, SettingsController settings) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFormField(
+          initialValue: settings.krogerClientId,
+          decoration: InputDecoration(labelText: l.krogerClientId),
+          onChanged: settings.setKrogerClientId,
+        ),
+        TextFormField(
+          initialValue: settings.krogerClientSecret,
+          obscureText: true,
+          decoration: InputDecoration(labelText: l.krogerClientSecret),
+          onChanged: settings.setKrogerClientSecret,
+        ),
+        TextFormField(
+          initialValue: settings.krogerZip,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(labelText: l.krogerZip, hintText: '45202'),
+          onChanged: settings.setKrogerZip,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: OutlinedButton.icon(
+            icon: const Icon(Icons.storefront_outlined),
+            label: Text(l.krogerFindStores),
+            onPressed: () => _pickKrogerLocation(context),
+          ),
+        ),
+        if (settings.krogerLocationId.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              l.krogerSelected(
+                  settings.krogerLocationLabel.isEmpty
+                      ? settings.krogerLocationId
+                      : settings.krogerLocationLabel),
+              style: theme.textTheme.bodySmall,
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(l.krogerHint,
+                style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Диалог выбора магазина Kroger по ZIP: FutureBuilder над Locations API;
+  /// тап по магазину сохраняет locationId + человекочитаемый label.
+  Future<void> _pickKrogerLocation(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    final settings = context.read<SettingsController>();
+    final kroger = context.read<KrogerService>();
+
+    if (settings.krogerClientId.trim().isEmpty ||
+        settings.krogerClientSecret.trim().isEmpty ||
+        settings.krogerZip.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.krogerNeedCredentials)),
+      );
+      return;
+    }
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l.krogerPickTitle),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: FutureBuilder<List<KrogerLocation>>(
+            future: kroger.locations(
+              clientId: settings.krogerClientId,
+              clientSecret: settings.krogerClientSecret,
+              zipCode: settings.krogerZip,
+            ),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+              if (snapshot.hasError) {
+                final reason = snapshot.error is PriceUnavailable
+                    ? (snapshot.error as PriceUnavailable).reason
+                    : PriceFailReason.network;
+                return Text(
+                  switch (reason) {
+                    PriceFailReason.auth => l.priceAuthError,
+                    PriceFailReason.blocked => l.priceUnavailable,
+                    PriceFailReason.network => l.priceNoNetwork,
+                  },
+                );
+              }
+              final stores = snapshot.data ?? const <KrogerLocation>[];
+              if (stores.isEmpty) {
+                return Text(l.krogerStoresEmpty);
+              }
+              return ListView.builder(
+                shrinkWrap: true,
+                itemCount: stores.length,
+                itemBuilder: (context, i) {
+                  final store = stores[i];
+                  return ListTile(
+                    dense: true,
+                    title: Text(store.name),
+                    subtitle: Text(
+                      '${store.chain.isEmpty ? 'Kroger' : store.chain}'
+                      '${store.shortAddress.isEmpty ? '' : ' · ${store.shortAddress}'}',
+                    ),
+                    onTap: () {
+                      settings.setKrogerLocationId(
+                        store.locationId,
+                        '${store.chain.isEmpty ? 'Kroger' : store.chain}'
+                        ' — ${store.name}'
+                        '${store.shortAddress.isEmpty ? '' : ', ${store.shortAddress}'}',
+                      );
+                      Navigator.of(dialogContext).pop();
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
           ),
         ],
       ),

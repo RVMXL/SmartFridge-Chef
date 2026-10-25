@@ -1682,17 +1682,107 @@ abstract class AppLocalizations {
   /// **'Nothing marked yet — add from the presets below or type your own'**
   String get dislikesEmpty;
 
-  /// No description provided for @pyatSectionTitle.
+  /// No description provided for @priceSectionTitle.
   ///
   /// In en, this message translates to:
-  /// **'Pyaterochka prices (experimental)'**
-  String get pyatSectionTitle;
+  /// **'Store prices (experimental)'**
+  String get priceSectionTitle;
 
-  /// No description provided for @pyatEnable.
+  /// No description provided for @priceEnable.
   ///
   /// In en, this message translates to:
-  /// **'Fill in Pyaterochka prices'**
-  String get pyatEnable;
+  /// **'Auto-fill prices when adding a product'**
+  String get priceEnable;
+
+  /// No description provided for @priceSourceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price source'**
+  String get priceSourceLabel;
+
+  /// No description provided for @priceSourcePyat.
+  ///
+  /// In en, this message translates to:
+  /// **'Pyaterochka — Russia'**
+  String get priceSourcePyat;
+
+  /// No description provided for @priceSourceKroger.
+  ///
+  /// In en, this message translates to:
+  /// **'Kroger — USA'**
+  String get priceSourceKroger;
+
+  /// No description provided for @priceSourceOpenPrices.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Prices — by barcode (worldwide)'**
+  String get priceSourceOpenPrices;
+
+  /// No description provided for @priceRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Find price'**
+  String get priceRefresh;
+
+  /// No description provided for @priceSearching.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching for a price…'**
+  String get priceSearching;
+
+  /// No description provided for @priceMatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Matched: {name}'**
+  String priceMatched(String name);
+
+  /// No description provided for @priceNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found in the selected store'**
+  String get priceNotFound;
+
+  /// No description provided for @priceBarcodeNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No price for this barcode in Open Prices yet'**
+  String get priceBarcodeNotFound;
+
+  /// No description provided for @priceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Source unavailable (blocked or VPN)'**
+  String get priceUnavailable;
+
+  /// No description provided for @priceNoNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Network unavailable — no price'**
+  String get priceNoNetwork;
+
+  /// No description provided for @priceAuthError.
+  ///
+  /// In en, this message translates to:
+  /// **'Key rejected — check it in Settings'**
+  String get priceAuthError;
+
+  /// No description provided for @priceNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Price source not configured — see Settings'**
+  String get priceNotConfigured;
+
+  /// No description provided for @priceBarcodeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Prices needs the product barcode'**
+  String get priceBarcodeRequired;
+
+  /// No description provided for @priceOpenPricesNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The price is filled from the open Open Prices database (Open Food Facts project) by the scanned barcode: no keys, no registration. Coverage is crowdsourced and uneven — some products have no prices yet.'**
+  String get priceOpenPricesNote;
 
   /// No description provided for @pyatStoreCode.
   ///
@@ -1712,47 +1802,59 @@ abstract class AppLocalizations {
   /// **'Requests go straight from the device — no keys, no accounts. Pyaterochka blocks VPN and datacenter IPs: with VPN on, the price simply won\'t be filled — everything else keeps working.'**
   String get pyatVpnNote;
 
-  /// No description provided for @pyatRefresh.
+  /// No description provided for @krogerClientId.
   ///
   /// In en, this message translates to:
-  /// **'Find price in Pyaterochka'**
-  String get pyatRefresh;
+  /// **'Client ID (developer.kroger.com)'**
+  String get krogerClientId;
 
-  /// No description provided for @pyatSearching.
+  /// No description provided for @krogerClientSecret.
   ///
   /// In en, this message translates to:
-  /// **'Searching Pyaterochka…'**
-  String get pyatSearching;
+  /// **'Client Secret'**
+  String get krogerClientSecret;
 
-  /// No description provided for @pyatMatched.
+  /// No description provided for @krogerZip.
   ///
   /// In en, this message translates to:
-  /// **'Matched: {name}'**
-  String pyatMatched(String name);
+  /// **'Store ZIP code'**
+  String get krogerZip;
 
-  /// No description provided for @pyatNotFound.
+  /// No description provided for @krogerFindStores.
   ///
   /// In en, this message translates to:
-  /// **'Not found in the Pyaterochka catalog'**
-  String get pyatNotFound;
+  /// **'Find stores by ZIP'**
+  String get krogerFindStores;
 
-  /// No description provided for @pyatUnavailable.
+  /// No description provided for @krogerSelected.
   ///
   /// In en, this message translates to:
-  /// **'Pyaterochka unavailable: VPN or IP blocked'**
-  String get pyatUnavailable;
+  /// **'Selected: {name}'**
+  String krogerSelected(String name);
 
-  /// No description provided for @pyatNoNetwork.
+  /// No description provided for @krogerPickTitle.
   ///
   /// In en, this message translates to:
-  /// **'Network unavailable — no price'**
-  String get pyatNoNetwork;
+  /// **'Stores nearby'**
+  String get krogerPickTitle;
 
-  /// No description provided for @pyatStoreRequired.
+  /// No description provided for @krogerNeedCredentials.
   ///
   /// In en, this message translates to:
-  /// **'Set the store code in settings'**
-  String get pyatStoreRequired;
+  /// **'Fill in Client ID, Client Secret and ZIP code'**
+  String get krogerNeedCredentials;
+
+  /// No description provided for @krogerStoresEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No stores found near this ZIP'**
+  String get krogerStoresEmpty;
+
+  /// No description provided for @krogerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a free app at developer.kroger.com (Public tier, Products API) and paste its Client ID and Client Secret. Keys are stored only on the device and are sent only to api.kroger.com.'**
+  String get krogerHint;
 
   /// No description provided for @productFieldPrice.
   ///

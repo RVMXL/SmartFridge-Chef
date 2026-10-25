@@ -1,0 +1,54 @@
+{
+  "meta": {
+    "pagination": {
+      "limit": 15,
+      "start": 0,
+      "total": 2
+    }
+  },
+  "data": [
+    {
+      "locationId": "01400413",
+      "chain": "KROGER",
+      "address": {
+        "addressLine1": "800 Loveland Madeira Rd",
+        "city": "Loveland",
+        "state": "OH",
+        "zipCode": "45140",
+        "county": "HAMILTON COUNTY"
+      },
+      "geolocation": {
+        "latitude": 39.2612003,
+        "longitude": -84.2733961,
+        "latLng": "39.2612003,-84.2733961"
+      },
+      "name": "Kroger - Loveland",
+      "hours": {
+        "open": "06:00",
+        "close": "23:00"
+      },
+      "phone": "5136773820",
+      "departments": [],
+      "distance": 2.4
+    },
+    {
+      "locationId": "01400929",
+      "chain": "RALPHS",
+      "address": {
+        "addressLine1": "3701 Crenshaw Blvd",
+        "city": "Los Angeles",
+        "state": "CA",
+        "zipCode": "90016"
+      },
+      "name": "Ralphs - Crenshaw",
+      "departments": [],
+      "distance": null
+    },
+    {
+      "locationId": "",
+      "chain": "BROKEN",
+      "name": "Без locationId — должен быть пропущен"
+    },
+    "не-объект — тоже пропускается"
+  ]
+}
