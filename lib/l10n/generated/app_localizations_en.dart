@@ -850,4 +850,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String shareQrCount(Object n) {
     return 'Sharing products: $n';
   }
+
+  @override
+  String get productSaved => 'Added to your fridge';
+
+  @override
+  String get productUpdated => 'Changes saved';
+
+  @override
+  String get productSavedDuplicate =>
+      'A product with this barcode is already in the fridge';
 }

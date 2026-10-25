@@ -1579,6 +1579,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sharing products: {n}'**
   String shareQrCount(Object n);
+
+  /// No description provided for @productSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to your fridge'**
+  String get productSaved;
+
+  /// No description provided for @productUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes saved'**
+  String get productUpdated;
+
+  /// No description provided for @productSavedDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'A product with this barcode is already in the fridge'**
+  String get productSavedDuplicate;
 }
 
 class _AppLocalizationsDelegate

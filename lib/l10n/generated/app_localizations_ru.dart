@@ -855,4 +855,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String shareQrCount(Object n) {
     return 'Передаётся продуктов: $n';
   }
+
+  @override
+  String get productSaved => 'Добавлено в холодильник';
+
+  @override
+  String get productUpdated => 'Изменения сохранены';
+
+  @override
+  String get productSavedDuplicate =>
+      'Продукт с таким штрих-кодом уже в холодильнике';
 }
