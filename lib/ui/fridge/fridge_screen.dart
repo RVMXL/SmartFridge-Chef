@@ -16,6 +16,7 @@ import '../../state/product_controller.dart';
 import '../scan/receipt_screen.dart';
 import '../scan/scanner_screen.dart';
 import '../share/receive_qr_screen.dart';
+import '../share/share_picker_screen.dart';
 import '../share/share_qr_screen.dart';
 import '../widgets/common.dart';
 import 'product_edit_sheet.dart';
@@ -120,10 +121,87 @@ class _FridgeScreenState extends State<FridgeScreen> {
       ),
     );
     if (!mounted || choice == null) return;
+    if (choice == 1) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const ReceiveQrScreen()),
+      );
+      return;
+    }
+    // choice == 0: сначала выбираем, ЧТО передать (v0.5.1).
+    final selected = await _chooseShareSet();
+    if (!mounted || selected == null || selected.isEmpty) return;
     await Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) =>
-          choice == 0 ? const ShareQrScreen() : const ReceiveQrScreen(),
+      builder: (_) => ShareQrScreen(products: selected),
     ));
+  }
+
+  /// Выбор состава передачи: все несъеденные / скоропортящиеся (≤3 дня)
+  /// / вручную. null — пользователь передумал.
+  Future<List<Product>?> _chooseShareSet() async {
+    final l = AppLocalizations.of(context);
+    final all = context.read<ProductController>().products;
+    if (all.isEmpty) return const [];
+
+    final today = DateTime.now();
+    final limit = DateTime(today.year, today.month, today.day)
+        .add(const Duration(days: 3));
+    final perishable = all
+        .where((p) => !p.expiryDate.isAfter(limit))
+        .toList(growable: false);
+
+    final choice = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetCtx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 4),
+              child: Text(
+                l.shareWhatTitle,
+                style: Theme.of(sheetCtx).textTheme.titleSmall,
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.kitchen_outlined),
+              title: Text(l.shareWhatAll),
+              subtitle: Text(l.shareWhatAllHint(all.length)),
+              onTap: () => Navigator.of(sheetCtx).pop(0),
+            ),
+            ListTile(
+              leading: const Icon(Icons.schedule_outlined),
+              title: Text(l.shareWhatPerishable),
+              subtitle: Text(l.shareWhatPerishableHint(perishable.length)),
+              enabled: perishable.isNotEmpty,
+              onTap: perishable.isEmpty
+                  ? null
+                  : () => Navigator.of(sheetCtx).pop(1),
+            ),
+            ListTile(
+              leading: const Icon(Icons.checklist),
+              title: Text(l.shareWhatManual),
+              subtitle: Text(l.shareWhatManualHint),
+              onTap: () => Navigator.of(sheetCtx).pop(2),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!mounted || choice == null) return null;
+    switch (choice) {
+      case 0:
+        return all;
+      case 1:
+        return perishable;
+      default:
+        final picked = await Navigator.of(context).push<List<Product>>(
+          MaterialPageRoute(
+            builder: (_) => SharePickerScreen(products: all),
+          ),
+        );
+        return picked;
+    }
   }
 
   Future<void> _openScanner() async {

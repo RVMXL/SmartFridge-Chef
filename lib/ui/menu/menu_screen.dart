@@ -14,6 +14,7 @@ import '../../data/models/recipe.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../state/plan_controller.dart';
 import '../widgets/common.dart';
+import 'cooked_sheet.dart';
 import 'shopping_screen.dart';
 
 class MenuScreen extends StatefulWidget {
@@ -470,6 +471,19 @@ class RecipeSheet extends StatelessWidget {
                 ],
               ),
             ),
+          const SizedBox(height: 16),
+          // «Приготовил» (v0.5.1): подтверждаемое списание ингредиентов
+          // из холодильника — скоропортящееся первым, штуки правятся.
+          FilledButton.icon(
+            onPressed: () async {
+              final ok = await showCookedSheet(context, recipe);
+              if (ok == true && context.mounted) {
+                Navigator.of(context).pop(); // закрыть и лист рецепта
+              }
+            },
+            icon: const Icon(Icons.soup_kitchen_outlined),
+            label: Text(l.cookedButton),
+          ),
           const SizedBox(height: 24),
         ],
       ),

@@ -775,4 +775,84 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$name: срок годности до $date. $_temp0';
   }
+
+  @override
+  String get cookedButton => 'Приготовил — вычесть из холодильника';
+
+  @override
+  String get cookedSheetTitle => 'Вычесть из холодильника';
+
+  @override
+  String get cookedSheetHint =>
+      'Списание предлагается автоматически: первым — скоропортящееся. Снимите галочки или поправьте штуки, если потратили меньше.';
+
+  @override
+  String get cookedApply => 'Вычесть';
+
+  @override
+  String get cookedMissing => 'Нет в холодильнике';
+
+  @override
+  String get cookedNothing =>
+      'Ингредиентов из рецепта нет в холодильнике — списывать нечего.';
+
+  @override
+  String get cookedWillFinish => 'уйдёт в «съедено»';
+
+  @override
+  String cookedRemains(Object n) {
+    return 'останется $n';
+  }
+
+  @override
+  String cookedDone(Object n) {
+    return 'Вычтено из холодильника: $n';
+  }
+
+  @override
+  String get shareWhatTitle => 'Что передать?';
+
+  @override
+  String get shareWhatAll => 'Все несъеденные';
+
+  @override
+  String shareWhatAllHint(Object n) {
+    return 'Все активные продукты: $n';
+  }
+
+  @override
+  String get shareWhatPerishable => 'Скоропортящиеся (≤3 дней)';
+
+  @override
+  String shareWhatPerishableHint(Object n) {
+    return 'То, что истекает в ближайшие 3 дня: $n';
+  }
+
+  @override
+  String get shareWhatManual => 'Выбрать вручную';
+
+  @override
+  String get shareWhatManualHint => 'Отметить позиции в списке';
+
+  @override
+  String get sharePickTitle => 'Выбор продуктов';
+
+  @override
+  String sharePickSend(Object n) {
+    return 'Передать: $n';
+  }
+
+  @override
+  String get sharePickAll => 'Выбрать все';
+
+  @override
+  String get sharePickNone => 'Снять все';
+
+  @override
+  String get sharePickEmpty => 'Несъеденных продуктов нет — передавать нечего';
+
+  @override
+  String shareQrCount(Object n) {
+    return 'Передаётся продуктов: $n';
+  }
 }

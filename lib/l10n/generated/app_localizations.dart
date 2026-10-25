@@ -1447,6 +1447,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name}: expiry {date}. {days, plural, =0{The term expires today} =1{1 day left} other{{days} days left}}'**
   String notifBody(String name, String date, int days);
+
+  /// No description provided for @cookedButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cooked — deduct from fridge'**
+  String get cookedButton;
+
+  /// No description provided for @cookedSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deduct from fridge'**
+  String get cookedSheetTitle;
+
+  /// No description provided for @cookedSheetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Deduction is suggested automatically, soonest-expiring first. Uncheck rows or adjust pieces if you used less.'**
+  String get cookedSheetHint;
+
+  /// No description provided for @cookedApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Deduct'**
+  String get cookedApply;
+
+  /// No description provided for @cookedMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in the fridge'**
+  String get cookedMissing;
+
+  /// No description provided for @cookedNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'No recipe ingredients found in the fridge — nothing to deduct.'**
+  String get cookedNothing;
+
+  /// No description provided for @cookedWillFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'will be marked as eaten'**
+  String get cookedWillFinish;
+
+  /// No description provided for @cookedRemains.
+  ///
+  /// In en, this message translates to:
+  /// **'leaving {n}'**
+  String cookedRemains(Object n);
+
+  /// No description provided for @cookedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Deducted from fridge: {n}'**
+  String cookedDone(Object n);
+
+  /// No description provided for @shareWhatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What to share?'**
+  String get shareWhatTitle;
+
+  /// No description provided for @shareWhatAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All uneaten'**
+  String get shareWhatAll;
+
+  /// No description provided for @shareWhatAllHint.
+  ///
+  /// In en, this message translates to:
+  /// **'All active products: {n}'**
+  String shareWhatAllHint(Object n);
+
+  /// No description provided for @shareWhatPerishable.
+  ///
+  /// In en, this message translates to:
+  /// **'Perishable (≤3 days)'**
+  String get shareWhatPerishable;
+
+  /// No description provided for @shareWhatPerishableHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What expires within 3 days: {n}'**
+  String shareWhatPerishableHint(Object n);
+
+  /// No description provided for @shareWhatManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick manually'**
+  String get shareWhatManual;
+
+  /// No description provided for @shareWhatManualHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Check items in the list'**
+  String get shareWhatManualHint;
+
+  /// No description provided for @sharePickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select products'**
+  String get sharePickTitle;
+
+  /// No description provided for @sharePickSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Share: {n}'**
+  String sharePickSend(Object n);
+
+  /// No description provided for @sharePickAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get sharePickAll;
+
+  /// No description provided for @sharePickNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get sharePickNone;
+
+  /// No description provided for @sharePickEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No uneaten products to share'**
+  String get sharePickEmpty;
+
+  /// No description provided for @shareQrCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing products: {n}'**
+  String shareQrCount(Object n);
 }
 
 class _AppLocalizationsDelegate

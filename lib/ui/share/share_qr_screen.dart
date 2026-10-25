@@ -1,8 +1,13 @@
-/// Экран «Показать QR» (v0.5.0): серия QR-кодов со всеми активными
-/// продуктами холодильника для передачи второму телефону.
+/// Экран «Показать QR» (v0.5.0, выбор состава v0.5.1): QR со списком
+/// продуктов для передачи второму телефону.
+///
+/// Состав задаёт вызывающий экран ([products]): все несъеденные,
+/// скоропортящиеся или выбранные вручную. Если список не передан —
+/// берутся все активные продукты холодильника (старое поведение).
 ///
 /// Одиночная передача (мало продуктов) — один код; много продуктов —
 /// страницы формата Amnezia (850 байт/страницу, до 255 страниц).
+/// Серия запускается ТОЛЬКО если данные не влезли в один код.
 /// Автопрокрутка включена по умолчанию: держи экран напротив камеры
 /// получателя, страницы сменяются сами; кнопками можно листать вручную.
 library;
@@ -19,7 +24,10 @@ import '../../share/product_share_codec.dart';
 import '../../state/product_controller.dart';
 
 class ShareQrScreen extends StatefulWidget {
-  const ShareQrScreen({super.key});
+  const ShareQrScreen({super.key, this.products});
+
+  /// Продукты к передаче. null — все активные из холодильника.
+  final List<Product>? products;
 
   @override
   State<ShareQrScreen> createState() => _ShareQrScreenState();
@@ -27,6 +35,7 @@ class ShareQrScreen extends StatefulWidget {
 
 class _ShareQrScreenState extends State<ShareQrScreen> {
   List<String> _pages = const [];
+  List<Product> _shared = const [];
   bool _auto = true;
   int _index = 0;
   bool _failed = false;
@@ -45,12 +54,15 @@ class _ShareQrScreenState extends State<ShareQrScreen> {
   }
 
   Future<void> _buildPages() async {
-    final controller = context.read<ProductController>();
-    await controller.refresh();
-    if (!mounted) return;
-    final products = controller.products
-        .where((p) => p.status == ProductStatus.active)
-        .toList();
+    List<Product> products;
+    if (widget.products != null) {
+      products = widget.products!;
+    } else {
+      final controller = context.read<ProductController>();
+      await controller.refresh();
+      if (!mounted) return;
+      products = controller.products;
+    }
     if (products.isEmpty) {
       setState(() => _pages = const []);
       return;
@@ -59,6 +71,7 @@ class _ShareQrScreenState extends State<ShareQrScreen> {
       final pages = ProductShareCodec.encode(products);
       setState(() {
         _pages = pages;
+        _shared = products;
         _index = 0;
         _failed = false;
       });
@@ -154,10 +167,15 @@ class _ShareQrScreenState extends State<ShareQrScreen> {
               ),
               const SizedBox(height: 16),
               Text(
+                l.shareQrCount(_shared.length),
+                style: theme.textTheme.titleSmall,
+              ),
+              const SizedBox(height: 12),
+              Text(
                 multi
                     ? l.shareQrPage(_index + 1, _pages.length)
                     : l.shareQrSingle,
-                style: theme.textTheme.titleSmall,
+                style: theme.textTheme.bodyMedium,
               ),
               if (multi) ...[
                 const SizedBox(height: 12),

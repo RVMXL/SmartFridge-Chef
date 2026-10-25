@@ -149,6 +149,52 @@ void main() {
     expect(controller.stats?.activeCount, 0);
   });
 
+  group('applyCookedDeductions (v0.5.1)', () {
+    test('частичное списание уменьшает количество, статус активный',
+        () async {
+      await controller.add(product('Куриное филе').copyWith(
+        quantity: 500,
+        unit: ProductUnit.gram,
+      ));
+      final p = controller.products.single;
+      final applied = await controller
+          .applyCookedDeductions([(productId: p.id!, qty: 300)]);
+      expect(applied, 1);
+      expect(controller.products.single.quantity, 200);
+      expect(controller.stats?.activeCount, 1);
+    });
+
+    test('полное списание переводит позицию в «съедено»', () async {
+      await controller.add(product('Молоко').copyWith(
+        quantity: 900,
+        unit: ProductUnit.milliliter,
+      ));
+      await controller.add(product('Яйца').copyWith(quantity: 10));
+      final milk = controller.products.firstWhere((p) => p.name == 'Молоко');
+      final eggs = controller.products.firstWhere((p) => p.name == 'Яйца');
+      // Молоко списываем целиком, яйца — частично (2 из 10).
+      final applied = await controller.applyCookedDeductions([
+        (productId: milk.id!, qty: 900),
+        (productId: eggs.id!, qty: 2),
+      ]);
+      expect(applied, 2);
+      expect(controller.products, hasLength(1));
+      expect(controller.products.single.name, 'Яйца');
+      expect(controller.products.single.quantity, 8);
+      expect(controller.stats?.activeCount, 1);
+    });
+
+    test('несуществующий id и нулевое количество пропускаются', () async {
+      await controller.add(product('Хлеб'));
+      final applied = await controller.applyCookedDeductions([
+        (productId: 999999, qty: 1),
+        (productId: controller.products.single.id!, qty: 0),
+      ]);
+      expect(applied, 0);
+      expect(controller.products.single.quantity, 1);
+    });
+  });
+
   test('addAll из чека: позиции с занятым кодом не валят партию', () async {
     await controller.add(product('Кефир', barcode: '4600000000003'));
     final saved = await controller.addAll([

@@ -770,4 +770,84 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$name: expiry $date. $_temp0';
   }
+
+  @override
+  String get cookedButton => 'Cooked — deduct from fridge';
+
+  @override
+  String get cookedSheetTitle => 'Deduct from fridge';
+
+  @override
+  String get cookedSheetHint =>
+      'Deduction is suggested automatically, soonest-expiring first. Uncheck rows or adjust pieces if you used less.';
+
+  @override
+  String get cookedApply => 'Deduct';
+
+  @override
+  String get cookedMissing => 'Not in the fridge';
+
+  @override
+  String get cookedNothing =>
+      'No recipe ingredients found in the fridge — nothing to deduct.';
+
+  @override
+  String get cookedWillFinish => 'will be marked as eaten';
+
+  @override
+  String cookedRemains(Object n) {
+    return 'leaving $n';
+  }
+
+  @override
+  String cookedDone(Object n) {
+    return 'Deducted from fridge: $n';
+  }
+
+  @override
+  String get shareWhatTitle => 'What to share?';
+
+  @override
+  String get shareWhatAll => 'All uneaten';
+
+  @override
+  String shareWhatAllHint(Object n) {
+    return 'All active products: $n';
+  }
+
+  @override
+  String get shareWhatPerishable => 'Perishable (≤3 days)';
+
+  @override
+  String shareWhatPerishableHint(Object n) {
+    return 'What expires within 3 days: $n';
+  }
+
+  @override
+  String get shareWhatManual => 'Pick manually';
+
+  @override
+  String get shareWhatManualHint => 'Check items in the list';
+
+  @override
+  String get sharePickTitle => 'Select products';
+
+  @override
+  String sharePickSend(Object n) {
+    return 'Share: $n';
+  }
+
+  @override
+  String get sharePickAll => 'Select all';
+
+  @override
+  String get sharePickNone => 'Clear all';
+
+  @override
+  String get sharePickEmpty => 'No uneaten products to share';
+
+  @override
+  String shareQrCount(Object n) {
+    return 'Sharing products: $n';
+  }
 }

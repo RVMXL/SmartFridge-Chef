@@ -165,6 +165,36 @@ class ProductController extends ChangeNotifier {
     }
   }
 
+  /// Списание после «Приготовил» (v0.5.1): уменьшает количество,
+  /// обнулившиеся позиции переводит в «съедено» (история сохраняется).
+  /// Принимает позиции плана списания; один refresh в конце, а не N.
+  /// Возвращает число реально затронутых позиций.
+  Future<int> applyCookedDeductions(
+    List<({int productId, double qty})> rows,
+  ) async {
+    try {
+      final dao = ProductDao(await _openDb());
+      var applied = 0;
+      for (final r in rows) {
+        final fresh = await dao.getById(r.productId);
+        if (fresh == null || r.qty <= 0) continue;
+        final remaining = fresh.quantity - r.qty;
+        if (remaining <= 0.0001) {
+          await dao.setStatus(fresh.id!, ProductStatus.consumed);
+        } else {
+          await dao.update(fresh.copyWith(quantity: remaining));
+        }
+        applied++;
+      }
+      await refresh();
+      return applied;
+    } catch (e) {
+      error = e.toString();
+      notifyListeners();
+      return 0;
+    }
+  }
+
   /// Жёсткое удаление (без истории).
   Future<bool> delete(int id) async {
     try {
