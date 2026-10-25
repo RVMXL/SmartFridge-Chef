@@ -8,10 +8,11 @@ Copyright 2026 RVMXL. All rights reserved.
 
 Сторонние компоненты (runtime):
 - Flutter SDK и пакеты: flutter_localizations, intl — BSD-3-Clause (Google LLC)
-- sqflite, sqflite_common_ffi — MIT (AlexTekartik / Foundation)
+- sqflite — MIT (AlexTekartik / Foundation)
 - provider — MIT (Remi Rousselet)
 - shared_preferences — BSD-3-Clause (Flutter team)
 - path — BSD-3-Clause (Flutter team)
+- http — BSD-3-Clause (Dart project authors)
 - mobile_scanner — BSD-3-Clause
 - google_mlkit_text_recognition — MIT (плагин); сам ML Kit — условия
   Google ML Kit, распознавание выполняется on-device, изображения
@@ -19,6 +20,20 @@ Copyright 2026 RVMXL. All rights reserved.
 - image_picker — Apache-2.0 / BSD-3-Clause (Flutter team)
 - flutter_local_notifications — BSD-3-Clause
 - timezone — BSD-2-Clause; flutter_timezone — Apache-2.0
+- qr_flutter — BSD-3-Clause (© 2020 Luke Freeman)
+
+Сторонние компоненты (только сборка и тесты, в приложение не входят):
+- sqflite_common_ffi — MIT (AlexTekartik / Foundation)
+- flutter_lints — BSD-3-Clause (Flutter team)
+
+Внешние данные и сервисы, используемые приложением (не входят в состав
+и не распространяются с ним):
+- Open Food Facts — открытая база продуктов, данные под лицензией
+  Open Database License (ODbL); запрос — только поиск по штрих-коду.
+- Каталог Пятёрочки (X5 Digital, 5d.5ka.ru) — цены и наличие; опциональная
+  функция, выключена по умолчанию, запрос — только поиск по названию
+  товара прямо с устройства. Приложение не аффилировано с X5 Group;
+  торговые марки принадлежат их правообладателям.
 
 Локальная модель Gemma (опционально, каркас подключён в архитектуре
 провайдеров) используется по условиям Google Gemma Terms of Use; файл
