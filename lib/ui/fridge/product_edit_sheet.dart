@@ -4,6 +4,9 @@
 /// [initialBarcode], [initialName] и [initialCategory] приходят из
 /// сканера/автопоиска/OCR — пользователь дозаполняет остальное.
 /// Дата по умолчанию — типовой срок категории одним тапом.
+/// Возвращает сохранённый [Product] или null, если пользователь закрыл
+/// форму без сохранения. Вызывающий код ОБЯЗАН сохранить результат
+/// через ProductController.add/update (см. _saveSheetResult во fridge_screen).
 library;
 
 import 'package:flutter/material.dart';
@@ -14,14 +17,14 @@ import '../../data/models/product.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../widgets/common.dart';
 
-Future<void> showProductEditSheet(
+Future<Product?> showProductEditSheet(
   BuildContext context, {
   Product? existing,
   String? initialBarcode,
   String? initialName,
   ProductCategory? initialCategory,
 }) {
-  return showModalBottomSheet(
+  return showModalBottomSheet<Product>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,

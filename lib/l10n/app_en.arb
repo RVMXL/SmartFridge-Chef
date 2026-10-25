@@ -384,5 +384,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "productSaved": "Added to your fridge",
+  "productUpdated": "Changes saved",
+  "productSavedDuplicate": "A product with this barcode is already in the fridge"
 }

@@ -246,5 +246,8 @@
   "sharePickAll": "Выбрать все",
   "sharePickNone": "Снять все",
   "sharePickEmpty": "Несъеденных продуктов нет — передавать нечего",
-  "shareQrCount": "Передаётся продуктов: {n}"
+  "shareQrCount": "Передаётся продуктов: {n}",
+  "productSaved": "Добавлено в холодильник",
+  "productUpdated": "Изменения сохранены",
+  "productSavedDuplicate": "Продукт с таким штрих-кодом уже в холодильнике"
 }

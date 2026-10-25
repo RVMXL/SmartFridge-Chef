@@ -28,6 +28,31 @@ class FridgeScreen extends StatefulWidget {
   State<FridgeScreen> createState() => _FridgeScreenState();
 }
 
+/// Сохраняет продукт, вернувшийся из формы редактирования: add для нового,
+/// update для правки существующей карточки; результат — снекбаром.
+/// ВАЖНО: раньше результат формы терялся — «Сохранить» ничего не добавляло.
+Future<void> _saveSheetResult(
+  BuildContext context,
+  Product product, {
+  bool isEdit = false,
+}) async {
+  final ctrl = context.read<ProductController>();
+  final l = AppLocalizations.of(context);
+  final String msg;
+  if (isEdit) {
+    msg = await ctrl.update(product) ? l.productUpdated : l.productSaveError;
+  } else {
+    msg = switch (await ctrl.add(product)) {
+      AddResult.ok => l.productSaved,
+      AddResult.duplicateBarcode => l.productSavedDuplicate,
+      AddResult.error => l.productSaveError,
+    };
+  }
+  if (context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+}
+
 class _FridgeScreenState extends State<FridgeScreen> {
   bool _searching = false;
   final _searchCtrl = TextEditingController();
@@ -84,7 +109,9 @@ class _FridgeScreenState extends State<FridgeScreen> {
           builder: (_) => const ReceiptScreen(),
         ));
       case 2:
-        await showProductEditSheet(context);
+        final manual = await showProductEditSheet(context);
+        if (!mounted || manual == null) return;
+        await _saveSheetResult(context, manual);
     }
   }
 
@@ -252,7 +279,10 @@ class _FridgeScreenState extends State<FridgeScreen> {
           existing.copyWith(quantity: existing.quantity + 1),
         );
       } else if (action == _DuplicateAction.edit) {
-        await showProductEditSheet(context, existing: existing);
+        final updated =
+            await showProductEditSheet(context, existing: existing);
+        if (!mounted || updated == null) return;
+        await _saveSheetResult(context, updated, isEdit: true);
       }
       return;
     }
@@ -276,15 +306,22 @@ class _FridgeScreenState extends State<FridgeScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.scanLookupMiss)),
       );
-      await showProductEditSheet(context, initialBarcode: barcode);
+      final manual = await showProductEditSheet(
+        context,
+        initialBarcode: barcode,
+      );
+      if (!mounted || manual == null) return;
+      await _saveSheetResult(context, manual);
       return;
     }
-    await showProductEditSheet(
+    final filled = await showProductEditSheet(
       context,
       initialBarcode: barcode,
       initialName: found.name,
       initialCategory: found.category,
     );
+    if (!mounted || filled == null) return;
+    await _saveSheetResult(context, filled);
   }
 
   @override
@@ -556,7 +593,12 @@ class _ProductCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 4),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => showProductEditSheet(context, existing: product),
+        onTap: () async {
+          final updated =
+              await showProductEditSheet(context, existing: product);
+          if (updated == null || !context.mounted) return;
+          await _saveSheetResult(context, updated, isEdit: true);
+        },
         child: Row(
           children: [
             Container(
