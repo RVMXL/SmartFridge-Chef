@@ -33,7 +33,7 @@ void main() {
 
   UserProfile profile({
     int calories = 2100,
-    Diet diet = Diet.vegan,
+    List<Diet> diets = const [Diet.vegan],
     List<Allergen> allergies = const [Allergen.nuts, Allergen.milk],
     int meals = 4,
     bool onboarded = true,
@@ -42,7 +42,7 @@ void main() {
     final now = DateTime(2026, 10, 24, 9, 0);
     return UserProfile(
       dailyCalories: calories,
-      diet: diet,
+      diets: diets,
       allergies: allergies,
       mealsPerDay: meals,
       regionName: region,
@@ -67,7 +67,7 @@ void main() {
     expect(loaded.proteinG, 150);
     expect(loaded.fatG, 67);
     expect(loaded.carbsG, 200);
-    expect(loaded.diet, Diet.vegan);
+    expect(loaded.diets, [Diet.vegan]);
     expect(loaded.allergies, [Allergen.nuts, Allergen.milk]);
     expect(loaded.mealsPerDay, 4);
     expect(loaded.regionName, 'Казань');
@@ -78,12 +78,12 @@ void main() {
 
   test('upsert: повторное save обновляет ту же строку', () async {
     await dao.save(profile(calories: 2100));
-    await dao.save(profile(calories: 1800, diet: Diet.lent));
+    await dao.save(profile(calories: 1800, diets: [Diet.lent]));
     final loaded = (await dao.getProfile())!;
 
     expect(loaded.id, 1);
     expect(loaded.dailyCalories, 1800);
-    expect(loaded.diet, Diet.lent);
+    expect(loaded.diets, [Diet.lent]);
   });
 
   test('markOnboarded создаёт дефолтный профиль, если его не было', () async {
@@ -91,7 +91,7 @@ void main() {
     final loaded = (await dao.getProfile())!;
     expect(loaded.onboarded, isTrue);
     expect(loaded.dailyCalories, 2000);
-    expect(loaded.diet, Diet.none);
+    expect(loaded.diets, isEmpty);
   });
 
   test('markOnboarded не затирает существующие данные', () async {

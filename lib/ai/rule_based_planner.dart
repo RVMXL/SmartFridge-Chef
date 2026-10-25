@@ -63,6 +63,24 @@ abstract final class ScoreWeights {
   static const int jitter = 7;
 }
 
+/// Результат жёсткой фильтрации с диагностикой (v0.5.0).
+class FilterDiagnostics {
+  const FilterDiagnostics({
+    required this.allowed,
+    required this.excludedCounts,
+    required this.excludedExamples,
+  });
+
+  /// Рецепты, прошедшие все фильтры (пул для скоринга).
+  final List<Recipe> allowed;
+
+  /// Причина → сколько рецептов исключено (причина — первая сработавшая).
+  final Map<String, int> excludedCounts;
+
+  /// Причина → до трёх примеров названий исключённых рецептов.
+  final Map<String, List<String>> excludedExamples;
+}
+
 class RuleBasedPlanner implements MealPlanner {
   RuleBasedPlanner(this._repo, {this._matcher = const IngredientMatcher()});
 
@@ -80,7 +98,8 @@ class RuleBasedPlanner implements MealPlanner {
     final all = await _repo.loadAll();
     final fridge = _matcher.indexProducts(request.products,
         now: request.startDate);
-    final pool = hardFiltered(all, request);
+    final diagnostics = hardFilteredDetailed(all, request);
+    final pool = diagnostics.allowed;
     final splits = splitsForMealsPerDay(request.profile.mealsPerDay);
     final rnd = Random(request.seed);
 
@@ -108,7 +127,7 @@ class RuleBasedPlanner implements MealPlanner {
           usedRecipes: usedRecipes,
           usedFamilies: usedFamilies,
           usedSides: usedSides,
-          diet: request.profile.diet,
+          diets: request.profile.diets,
           rnd: rnd,
         );
         if (recipe == null) {
@@ -160,6 +179,8 @@ class RuleBasedPlanner implements MealPlanner {
       days: days,
       shoppingList: _shoppingList(pool: pool, days: days, fridge: fridge),
       warnings: warnings,
+      excludedCounts: diagnostics.excludedCounts,
+      excludedExamples: diagnostics.excludedExamples,
     );
   }
 
@@ -170,48 +191,116 @@ class RuleBasedPlanner implements MealPlanner {
 
   // ------------------------------------------------------------ фильтры
 
-  /// Жёсткая фильтрация: аллергии и диета — безопасность, не скоринг.
-  ///
+  /// Жёсткая фильтрация: аллергии и диеты — безопасность, не скоринг.
   /// Публичный (не private): прозрачность безопасных фильтров и прямые
   /// юнит-тесты религиозных диет на реальном пуле рецептов.
-  List<Recipe> hardFiltered(List<Recipe> all, PlanRequest request) {
+  List<Recipe> hardFiltered(List<Recipe> all, PlanRequest request) =>
+      hardFilteredDetailed(all, request).allowed;
+
+  /// Та же фильтрация с отчётом «почему исключено» (v0.5.0).
+  /// Причина у рецепта — первая сработавшая: аллергии → диеты в порядке
+  /// выбора → время готовки.
+  FilterDiagnostics hardFilteredDetailed(
+    List<Recipe> all,
+    PlanRequest request,
+  ) {
     final allergens = request.profile.allergies.toSet();
-    final diet = request.profile.diet;
-    return all.where((r) {
-      if (r.allergens.any(allergens.contains)) return false;
-      switch (diet) {
-        case Diet.none:
-          break;
-        case Diet.vegetarian:
-          if (r.hasMeat || r.hasFish) return false;
-          break;
-        case Diet.vegan:
-        case Diet.lent:
-          if (!r.vegan) return false;
-          break;
-        case Diet.pescatarian:
-          if (r.hasMeat) return false;
-          break;
-        case Diet.lowCarb:
-          break; // низкоуглеводность — мягкий бонус в скоринге
-        case Diet.halal:
-          if (r.hasPork || r.hasAlcohol) return false;
-          break; // морепродукты разрешены целиком
-        case Diet.kosher:
-          if (r.hasPork || r.hasAlcohol || r.hasShellfish) return false;
-          if (r.hasMeat && r.hasDairy) {
-            return false; // мясо + молочное в одном блюде
-          }
-          break; // рыба — «парве», с молочным совместима
-        case Diet.hindu:
-          if (r.hasBeef) return false;
-          break; // свинина индуизмом не запрещена
+    final diets = request.profile.diets;
+    final maxMinutes = request.maxCookMinutes;
+    final allowed = <Recipe>[];
+    final counts = <String, int>{};
+    final examples = <String, List<String>>{};
+    void exclude(String reason, Recipe r) {
+      counts[reason] = (counts[reason] ?? 0) + 1;
+      final list = examples.putIfAbsent(reason, () => []);
+      if (list.length < 3) list.add(r.titleRu);
+    }
+
+    for (final r in all) {
+      var reason = allergenExclusionReason(r, allergens);
+      if (reason == null) {
+        for (final d in diets) {
+          reason = dietExclusionReason(r, d);
+          if (reason != null) break;
+        }
       }
-      if (request.maxCookMinutes > 0 && r.minutes > request.maxCookMinutes) {
-        return false;
+      if (reason == null && maxMinutes > 0 && r.minutes > maxMinutes) {
+        reason = 'готовка дольше $maxMinutes мин';
       }
-      return true;
-    }).toList();
+      if (reason == null) {
+        allowed.add(r);
+      } else {
+        exclude(reason, r);
+      }
+    }
+    return FilterDiagnostics(
+      allowed: allowed,
+      excludedCounts: counts,
+      excludedExamples: examples,
+    );
+  }
+
+  /// Человеческая причина исключения рецепта аллергиями (или null).
+  static String? allergenExclusionReason(
+    Recipe r,
+    Set<Allergen> allergies,
+  ) {
+    for (final a in allergies) {
+      if (r.allergens.contains(a)) {
+        return 'аллергия: ${_allergenRu[a] ?? a.key}';
+      }
+    }
+    return null;
+  }
+
+  static const Map<Allergen, String> _allergenRu = {
+    Allergen.milk: 'молоко',
+    Allergen.eggs: 'яйца',
+    Allergen.fish: 'рыба',
+    Allergen.shellfish: 'моллюски',
+    Allergen.nuts: 'орехи',
+    Allergen.peanuts: 'арахис',
+    Allergen.soy: 'соя',
+    Allergen.wheat: 'пшеница (глютен)',
+    Allergen.sesame: 'кунжут',
+  };
+
+  /// Человеческая причина исключения рецепта диетой (или null).
+  /// Используется и фильтром, и диагностикой — правила в одном месте.
+  static String? dietExclusionReason(Recipe r, Diet d) {
+    switch (d) {
+      case Diet.none:
+        return null;
+      case Diet.vegetarian:
+        if (r.hasMeat || r.hasFish) return 'вегетарианская: мясо или рыба';
+        return null;
+      case Diet.vegan:
+        if (!r.vegan) return 'веганская: не веганский рецепт';
+        return null;
+      case Diet.lent:
+        if (!r.vegan) return 'пост: не постный рецепт';
+        return null;
+      case Diet.pescatarian:
+        if (r.hasMeat) return 'пескетарианская: мясо';
+        return null;
+      case Diet.lowCarb:
+        return null; // низкоуглеводность — мягкий бонус в скоринге
+      case Diet.halal:
+        if (r.hasPork) return 'халяль: свинина';
+        if (r.hasAlcohol) return 'халяль: алкоголь';
+        return null;
+      case Diet.kosher:
+        if (r.hasPork) return 'кошер: свинина';
+        if (r.hasAlcohol) return 'кошер: алкоголь';
+        if (r.hasShellfish) return 'кошер: морепродукты без чешуи';
+        if (r.hasMeat && r.hasDairy) {
+          return 'кошер: мясо с молочным';
+        }
+        return null;
+      case Diet.hindu:
+        if (r.hasBeef) return 'индуизм: говядина';
+        return null;
+    }
   }
 
   // ------------------------------------------------------------ скоринг
@@ -224,7 +313,7 @@ class RuleBasedPlanner implements MealPlanner {
     required Map<String, int> usedRecipes,
     required Map<String, int> usedFamilies,
     required Map<String, int> usedSides,
-    required Diet diet,
+    required List<Diet> diets,
     required Random rnd,
   }) {
     final allowedCategories = slotCategories[slot]!;
@@ -249,7 +338,7 @@ class RuleBasedPlanner implements MealPlanner {
         usedRecipes: usedRecipes,
         usedFamilies: usedFamilies,
         usedSides: usedSides,
-        diet: diet,
+        diets: diets,
         rnd: rnd,
       );
       if (s > bestScore) {
@@ -268,7 +357,7 @@ class RuleBasedPlanner implements MealPlanner {
     required Map<String, int> usedRecipes,
     required Map<String, int> usedFamilies,
     required Map<String, int> usedSides,
-    required Diet diet,
+    required List<Diet> diets,
     required Random rnd,
   }) {
     final match = _matcher.matchRecipe(recipe, fridge);
@@ -292,8 +381,8 @@ class RuleBasedPlanner implements MealPlanner {
         (recipe.kcal - targetKcal).abs() /
         max(targetKcal, 1);
 
-    // Диета low_carb — мягкое предпочтение.
-    if (diet == Diet.lowCarb) {
+    // Диета low_carb — мягкое предпочтение (среди прочих выбранных диет).
+    if (diets.contains(Diet.lowCarb)) {
       s += recipe.lowCarb
           ? ScoreWeights.lowCarbBonus
           : -ScoreWeights.lowCarbPenalty;
@@ -325,7 +414,11 @@ class RuleBasedPlanner implements MealPlanner {
   // --------------------------------------------------- покупки и варнинги
 
   /// Недостающие ингредиенты: некладовые ингредиенты выбранных рецептов,
-  /// которых нет в холодильнике (дедупликация по ключу).
+  /// которых в холодильнике нет или не хватает по массе (v0.5.0:
+  /// граммы). Потребность по ключу суммируется по всем выбранным
+  /// рецептам недели; недостача = потребность − есть (для счётных
+  /// позиций масса в холодильнике неизвестна — граммовая подсказка
+  /// не даётся).
   List<PlanShoppingItem> _shoppingList({
     required List<Recipe> pool,
     required List<PlanDay> days,
@@ -336,15 +429,31 @@ class RuleBasedPlanner implements MealPlanner {
         .map((m) => m.recipe.id)
         .toSet();
     final picked = pool.where((r) => pickedIds.contains(r.id));
-    final byKey = <String, String>{};
+    final neededBy = <String, int>{};
+    final nameBy = <String, String>{};
     for (final r in picked) {
       for (final ing in r.cookingIngredients) {
-        if (fridge.containsKey(ing.key)) continue;
-        byKey.putIfAbsent(ing.key, () => ing.ru);
+        neededBy[ing.key] = (neededBy[ing.key] ?? 0) + ing.grams;
+        nameBy.putIfAbsent(ing.key, () => ing.ru);
       }
     }
-    final keys = byKey.keys.toList()..sort();
-    return keys.map((k) => PlanShoppingItem(key: k, name: byKey[k]!)).toList();
+    final items = <PlanShoppingItem>[];
+    final keys = neededBy.keys.toList()..sort();
+    for (final k in keys) {
+      final fk = fridge[k];
+      final have = fk?.grams;
+      if (fk != null && (have == null || have >= neededBy[k]!)) {
+        continue; // есть и хватает (или счётная позиция — масса неизвестна)
+      }
+      final missing =
+          fk == null ? neededBy[k]! : (neededBy[k]! - have!).ceil();
+      items.add(PlanShoppingItem(
+        key: k,
+        name: nameBy[k]!,
+        missingGrams: missing > 0 ? missing : null,
+      ));
+    }
+    return items;
   }
 
   List<String> _buildWarnings({

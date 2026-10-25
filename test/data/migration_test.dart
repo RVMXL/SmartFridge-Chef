@@ -11,6 +11,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:smart_fridge_chef/data/database.dart';
 import 'package:smart_fridge_chef/data/models/product.dart';
+import 'package:smart_fridge_chef/data/models/user_profile.dart';
 
 void main() {
   setUpAll(() {
@@ -106,7 +107,7 @@ void main() {
     await v2.close();
 
     final db = await AppDatabase.open(absolutePath: dbPath);
-    expect(await db.getVersion(), 3);
+    expect(await db.getVersion(), AppDatabase.dbVersion);
 
     final tables = (await db.rawQuery(
       "SELECT name FROM sqlite_master WHERE type = 'table'",
@@ -139,7 +140,77 @@ void main() {
     await db.close();
   });
 
-  test('свежая база создаётся сразу с полной схемой (v1+v2+v3)',
+  test('v3 -> v4: единичная диета переносится в список, колонки v4 есть',
+      () async {
+    // База версии 3 (как у пользователя v0.4.x) с профилем-«халяль».
+    final v3 = await databaseFactory.openDatabase(dbPath,
+        options: OpenDatabaseOptions(
+          version: 3,
+          onCreate: (db, version) async {
+            final batch = db.batch();
+            AppDatabase.createV1Tables(batch);
+            AppDatabase.createV2Tables(batch);
+            AppDatabase.createV3Tables(batch);
+            await batch.commit(noResult: true);
+          },
+        ));
+    await v3.insert('user_profile', {
+      'id': 1,
+      'daily_calories': 2200,
+      'protein_g': 160,
+      'fat_g': 70,
+      'carbs_g': 210,
+      'diet': 'halal',
+      'allergies': '[]',
+      'meals_per_day': 3,
+      'onboarded': 1,
+      'created_at': '2026-10-01T10:00:00.000',
+      'updated_at': '2026-10-24T10:00:00.000',
+    });
+    await v3.close();
+
+    final db = await AppDatabase.open(absolutePath: dbPath);
+    expect(await db.getVersion(), AppDatabase.dbVersion);
+
+    // Колонки v4 существуют.
+    final cols = (await db.rawQuery(
+      'PRAGMA table_info(user_profile)',
+    )).map((r) => r['name'] as String).toSet();
+    expect(cols, contains('diets'));
+
+    // Миграция данных: halal → ["halal"].
+    final rows = await db.query('user_profile', limit: 1);
+    expect(rows.first['diets'], '["halal"]');
+
+    // Профиль читается моделью со списком диет.
+    final profile = UserProfile.fromMap(rows.first);
+    expect(profile.diets, [Diet.halal]);
+
+    // Покупки принимают граммы, планы — отчёт фильтра.
+    await db.insert('meal_plans', {
+      'id': 'p1',
+      'created_at': '2026-10-24T10:00:00.000',
+      'start_date': '2026-10-26',
+      'days_count': 1,
+      'kcal_target': 2000,
+      'seed': 1,
+      'source': 'rule_based',
+      'warnings': '[]',
+      'filter_report': '{"counts":{"халяль: свинина":2},"examples":{}}',
+    });
+    await db.insert('shopping_items', {
+      'plan_id': 'p1',
+      'ing_key': 'rice',
+      'name': 'рис',
+      'checked': 0,
+      'missing_grams': 300,
+    });
+    final shopping = await db.query('shopping_items');
+    expect(shopping.first['missing_grams'], 300);
+    await db.close();
+  });
+
+  test('свежая база создаётся сразу с полной схемой (v1..v4)',
       () async {
     final db = await AppDatabase.open(
         absolutePath: '${tmp.path}/fresh.db');
@@ -150,6 +221,11 @@ void main() {
     expect(tables, containsAll(['products', 'user_profile',
       'meal_plans', 'planned_meals', 'shopping_items',
       'barcode_cache']));
+    // Колонки v4 на месте и на свежей базе.
+    final profileCols = (await db.rawQuery(
+      'PRAGMA table_info(user_profile)',
+    )).map((r) => r['name'] as String).toSet();
+    expect(profileCols, contains('diets'));
     await db.close();
   });
 }

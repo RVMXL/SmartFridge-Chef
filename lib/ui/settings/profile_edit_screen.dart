@@ -35,7 +35,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late int _protein;
   late int _fat;
   late int _carbs;
-  late Diet _diet;
+  late Set<Diet> _diets;
   late Set<Allergen> _allergies;
   late int _mealsPerDay;
 
@@ -47,7 +47,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _protein = p.proteinG;
     _fat = p.fatG;
     _carbs = p.carbsG;
-    _diet = p.diet;
+    _diets = {...p.diets};
     _allergies = {...p.allergies};
     _mealsPerDay = p.mealsPerDay;
   }
@@ -75,7 +75,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       proteinG: _protein,
       fatG: _fat,
       carbsG: _carbs,
-      diet: _diet,
+      diets: _diets.where((d) => d != Diet.none).toList(),
       allergies: _allergies.toList(),
       mealsPerDay: _mealsPerDay,
       latitude: null,
@@ -158,14 +158,30 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           const SizedBox(height: 4),
           Wrap(
             spacing: 8,
+            runSpacing: 0,
             children: [
               for (final d in Diet.values)
-                ChoiceChip(
+                FilterChip(
                   label: Text(dietLabel(l, d)),
-                  selected: _diet == d,
-                  onSelected: (_) => setState(() => _diet = d),
+                  selected: _diets.contains(d),
+                  onSelected: (on) => setState(() {
+                    if (d == Diet.none) {
+                      // «Без ограничений» сбрасывает остальные.
+                      _diets.clear();
+                    } else if (on) {
+                      _diets.remove(Diet.none);
+                      _diets.add(d);
+                    } else {
+                      _diets.remove(d);
+                    }
+                  }),
                 ),
             ],
+          ),
+          Text(
+            l.profileDietMultipleHint,
+            style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant),
           ),
 
           SectionHeader(l.profileAllergies),

@@ -574,6 +574,96 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dietHindu => 'No beef (Hindu)';
 
   @override
+  String get profileDietMultipleHint => 'Select several — restrictions combine';
+
+  @override
+  String get planExcludedTitle => 'Why some recipes are not in the menu';
+
+  @override
+  String planExcludedSummary(Object n) {
+    return 'Excluded during planning: $n';
+  }
+
+  @override
+  String get shareMenuTitle => 'Share products';
+
+  @override
+  String get shareShowQr => 'Show QR code';
+
+  @override
+  String get shareShowQrHint => 'Send the list to another phone';
+
+  @override
+  String get shareReceiveQr => 'Receive via QR';
+
+  @override
+  String get shareReceiveQrHint => 'Scan another person\'s codes';
+
+  @override
+  String get shareQrTitle => 'Share products';
+
+  @override
+  String get shareQrHint =>
+      'Point the other phone\'s camera at this screen. Pages advance automatically — keep the devices facing each other until the transfer completes.';
+
+  @override
+  String shareQrPage(Object i, Object n) {
+    return 'Page $i of $n';
+  }
+
+  @override
+  String get shareQrSingle => 'Single code — one scan is enough';
+
+  @override
+  String get shareQrAuto => 'Auto-advance';
+
+  @override
+  String get shareQrEmpty => 'No active products to share';
+
+  @override
+  String get shareQrTooBig =>
+      'Too many products even for a QR series (limit is 255 pages). Remove some items and try again.';
+
+  @override
+  String get receiveQrTitle => 'Receive products';
+
+  @override
+  String get receiveQrWaiting =>
+      'Point the camera at the other phone\'s QR codes. Each code counts once — duplicates are harmless.';
+
+  @override
+  String receiveQrProgress(Object a, Object n) {
+    return 'Received $a of $n';
+  }
+
+  @override
+  String receiveQrConfirmTitle(Object n) {
+    return 'Add $n products?';
+  }
+
+  @override
+  String receiveQrConfirmBody(num more, Object names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      more,
+      locale: localeName,
+      other: ' … and $more more',
+      zero: '',
+    );
+    return 'List starts with: $names$_temp0';
+  }
+
+  @override
+  String receiveQrDone(Object added, Object skipped) {
+    return 'Added: $added. Duplicates skipped: $skipped';
+  }
+
+  @override
+  String get receiveQrBroken => 'QR code is damaged — transfer restarts';
+
+  @override
+  String get receiveQrEmpty => 'The transfer contains no products';
+
+  @override
   String get allergenMilk => 'Milk';
 
   @override

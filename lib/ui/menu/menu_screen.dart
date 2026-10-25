@@ -235,6 +235,10 @@ class _PlanView extends StatelessWidget {
                           color: theme.colorScheme.onSurfaceVariant),
                     ),
                 ],
+                if (plan.hasExclusions) ...[
+                  const SizedBox(height: 8),
+                  _ExclusionsCard(plan: plan),
+                ],
               ],
             ),
           ),
@@ -243,6 +247,62 @@ class _PlanView extends StatelessWidget {
         for (final day in plan.days)
           _DayCard(day: day, localeTag: localeTag),
       ],
+    );
+  }
+}
+
+/// Карточка «почему некоторые рецепты не в меню» (v0.5.0):
+/// причина → сколько исключено + до трёх примеров. По умолчанию
+/// свёрнута — для тех, кому интересно, почему пул сузился.
+class _ExclusionsCard extends StatelessWidget {
+  const _ExclusionsCard({required this.plan});
+
+  final GeneratedPlan plan;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final reasons = plan.excludedCounts.keys.toList()..sort();
+    return ExpansionTile(
+      tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+      childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      leading: const Icon(Icons.rule_outlined),
+      title: Text(l.planExcludedTitle, style: theme.textTheme.titleSmall),
+      subtitle: Text(
+        l.planExcludedSummary(
+            plan.excludedCounts.values.fold<int>(0, (a, b) => a + b)),
+        style: theme.textTheme.bodySmall,
+      ),
+      children: [
+        for (final reason in reasons) _reasonRow(context, reason),
+      ],
+    );
+  }
+
+  Widget _reasonRow(BuildContext context, String reason) {
+    final theme = Theme.of(context);
+    final examples = plan.excludedExamples[reason];
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '$reason — ${plan.excludedCounts[reason]}',
+              style: theme.textTheme.bodyMedium,
+            ),
+            if (examples != null && examples.isNotEmpty)
+              Text(
+                examples.join(', '),
+                style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

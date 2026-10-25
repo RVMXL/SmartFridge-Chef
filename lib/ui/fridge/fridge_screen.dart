@@ -15,6 +15,8 @@ import '../../scan/barcode_lookup.dart';
 import '../../state/product_controller.dart';
 import '../scan/receipt_screen.dart';
 import '../scan/scanner_screen.dart';
+import '../share/receive_qr_screen.dart';
+import '../share/share_qr_screen.dart';
 import '../widgets/common.dart';
 import 'product_edit_sheet.dart';
 
@@ -83,6 +85,45 @@ class _FridgeScreenState extends State<FridgeScreen> {
       case 2:
         await showProductEditSheet(context);
     }
+  }
+
+  Future<void> _openShareMenu() async {
+    final l = AppLocalizations.of(context);
+    final choice = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetCtx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 4),
+              child: Text(
+                l.shareMenuTitle,
+                style: Theme.of(sheetCtx).textTheme.titleSmall,
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.qr_code_2),
+              title: Text(l.shareShowQr),
+              subtitle: Text(l.shareShowQrHint),
+              onTap: () => Navigator.of(sheetCtx).pop(0),
+            ),
+            ListTile(
+              leading: const Icon(Icons.qr_code_scanner),
+              title: Text(l.shareReceiveQr),
+              subtitle: Text(l.shareReceiveQrHint),
+              onTap: () => Navigator.of(sheetCtx).pop(1),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!mounted || choice == null) return;
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) =>
+          choice == 0 ? const ShareQrScreen() : const ReceiveQrScreen(),
+    ));
   }
 
   Future<void> _openScanner() async {
@@ -188,6 +229,11 @@ class _FridgeScreenState extends State<FridgeScreen> {
               )
             : Text(l.fridgeTitle),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.qr_code_2),
+            tooltip: l.shareMenuTitle,
+            onPressed: _openShareMenu,
+          ),
           IconButton(
             icon: Icon(_searching ? Icons.close : Icons.search),
             onPressed: () {

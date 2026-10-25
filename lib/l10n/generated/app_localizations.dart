@@ -1112,6 +1112,144 @@ abstract class AppLocalizations {
   /// **'No beef (Hindu)'**
   String get dietHindu;
 
+  /// No description provided for @profileDietMultipleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select several — restrictions combine'**
+  String get profileDietMultipleHint;
+
+  /// No description provided for @planExcludedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why some recipes are not in the menu'**
+  String get planExcludedTitle;
+
+  /// No description provided for @planExcludedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Excluded during planning: {n}'**
+  String planExcludedSummary(Object n);
+
+  /// No description provided for @shareMenuTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share products'**
+  String get shareMenuTitle;
+
+  /// No description provided for @shareShowQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Show QR code'**
+  String get shareShowQr;
+
+  /// No description provided for @shareShowQrHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the list to another phone'**
+  String get shareShowQrHint;
+
+  /// No description provided for @shareReceiveQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive via QR'**
+  String get shareReceiveQr;
+
+  /// No description provided for @shareReceiveQrHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan another person\'s codes'**
+  String get shareReceiveQrHint;
+
+  /// No description provided for @shareQrTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share products'**
+  String get shareQrTitle;
+
+  /// No description provided for @shareQrHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the other phone\'s camera at this screen. Pages advance automatically — keep the devices facing each other until the transfer completes.'**
+  String get shareQrHint;
+
+  /// No description provided for @shareQrPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {i} of {n}'**
+  String shareQrPage(Object i, Object n);
+
+  /// No description provided for @shareQrSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'Single code — one scan is enough'**
+  String get shareQrSingle;
+
+  /// No description provided for @shareQrAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-advance'**
+  String get shareQrAuto;
+
+  /// No description provided for @shareQrEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No active products to share'**
+  String get shareQrEmpty;
+
+  /// No description provided for @shareQrTooBig.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many products even for a QR series (limit is 255 pages). Remove some items and try again.'**
+  String get shareQrTooBig;
+
+  /// No description provided for @receiveQrTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive products'**
+  String get receiveQrTitle;
+
+  /// No description provided for @receiveQrWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the other phone\'s QR codes. Each code counts once — duplicates are harmless.'**
+  String get receiveQrWaiting;
+
+  /// No description provided for @receiveQrProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Received {a} of {n}'**
+  String receiveQrProgress(Object a, Object n);
+
+  /// No description provided for @receiveQrConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {n} products?'**
+  String receiveQrConfirmTitle(Object n);
+
+  /// No description provided for @receiveQrConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'List starts with: {names}{more, plural, =0{} other{ … and {more} more}}'**
+  String receiveQrConfirmBody(num more, Object names);
+
+  /// No description provided for @receiveQrDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Added: {added}. Duplicates skipped: {skipped}'**
+  String receiveQrDone(Object added, Object skipped);
+
+  /// No description provided for @receiveQrBroken.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code is damaged — transfer restarts'**
+  String get receiveQrBroken;
+
+  /// No description provided for @receiveQrEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The transfer contains no products'**
+  String get receiveQrEmpty;
+
   /// No description provided for @allergenMilk.
   ///
   /// In en, this message translates to:

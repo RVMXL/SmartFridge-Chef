@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants.dart';
+import '../../data/models/user_profile.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../notifications/reminder_scheduler.dart';
 import '../../state/profile_controller.dart';
@@ -46,7 +47,11 @@ class SettingsScreen extends StatelessWidget {
               subtitle: Text(
                 profile.profile == null
                     ? l.onbStart
-                    : dietLabel(l, profile.profile!.diet),
+                    : profile.profile!.diets.isEmpty
+                        ? dietLabel(l, Diet.none)
+                        : profile.profile!.diets
+                            .map((d) => dietLabel(l, d))
+                            .join(', '),
               ),
               trailing: const Icon(Icons.chevron_right),
               onTap: () async {

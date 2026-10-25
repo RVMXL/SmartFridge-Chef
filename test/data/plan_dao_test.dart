@@ -131,6 +131,58 @@ void main() {
   }
 
   group('сохранение и чтение', () {
+    test('roundtrip v0.5.0: отчёт фильтра и граммы покупок', () async {
+      final plan = GeneratedPlan(
+        id: 'p_v50_report',
+        createdAt: DateTime(2026, 10, 24, 19, 0),
+        startDate: DateTime(2026, 10, 26),
+        kcalTarget: 2100,
+        seed: 9,
+        source: 'rule_based',
+        days: const [],
+        shoppingList: const [
+          PlanShoppingItem(
+              key: 'rice', name: 'рис', missingGrams: 320),
+          PlanShoppingItem(key: 'salt', name: 'соль'), // без оценки
+        ],
+        warnings: const [],
+        excludedCounts: const {
+          'халяль: свинина': 20,
+          'кошер: мясо с молочным': 37,
+        },
+        excludedExamples: const {
+          'халяль: свинина': ['Жареная свинина', 'Свиные отбивные'],
+        },
+      );
+      await dao.savePlan(plan);
+      final loaded = await dao.getPlan('p_v50_report');
+
+      expect(loaded, isNotNull);
+      expect(loaded!.excludedCounts, plan.excludedCounts);
+      expect(loaded.excludedExamples, plan.excludedExamples);
+      expect(loaded.hasExclusions, isTrue);
+      expect(loaded.shoppingList.first.missingGrams, 320);
+      expect(loaded.shoppingList.last.missingGrams, isNull);
+    });
+
+    test('план без исключений не пишет отчёт и читается пустым',
+        () async {
+      final plan = GeneratedPlan(
+        id: 'p_v50_clean',
+        createdAt: DateTime(2026, 10, 24, 19, 0),
+        startDate: DateTime(2026, 10, 26),
+        kcalTarget: 2000,
+        seed: 1,
+        source: 'rule_based',
+        days: const [],
+        shoppingList: const [],
+        warnings: const [],
+      );
+      await dao.savePlan(plan);
+      final loaded = await dao.getPlan('p_v50_clean');
+      expect(loaded!.hasExclusions, isFalse);
+    });
+
     test('roundtrip: план восстанавливается со снимками рецептов',
         () async {
       final original = plan();

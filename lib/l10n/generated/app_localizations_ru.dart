@@ -576,6 +576,97 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dietHindu => 'Без говядины (индуизм)';
 
   @override
+  String get profileDietMultipleHint =>
+      'Можно выбрать несколько — ограничения объединятся';
+
+  @override
+  String get planExcludedTitle => 'Почему некоторые рецепты не в меню';
+
+  @override
+  String planExcludedSummary(Object n) {
+    return 'Исключено при подборе: $n';
+  }
+
+  @override
+  String get shareMenuTitle => 'Обмен продуктами';
+
+  @override
+  String get shareShowQr => 'Показать QR-код';
+
+  @override
+  String get shareShowQrHint => 'Передать список второму телефону';
+
+  @override
+  String get shareReceiveQr => 'Принять по QR';
+
+  @override
+  String get shareReceiveQrHint => 'Сканировать коды другого человека';
+
+  @override
+  String get shareQrTitle => 'Поделиться продуктами';
+
+  @override
+  String get shareQrHint =>
+      'Наведите камеру второго телефона на экран. Страницы сменяются сами — держите устройства напротив друг друга, пока приём не завершится.';
+
+  @override
+  String shareQrPage(Object i, Object n) {
+    return 'Страница $i из $n';
+  }
+
+  @override
+  String get shareQrSingle => 'Один код — хватит одного скана';
+
+  @override
+  String get shareQrAuto => 'Автопрокрутка';
+
+  @override
+  String get shareQrEmpty => 'Активных продуктов нет — делиться нечем';
+
+  @override
+  String get shareQrTooBig =>
+      'Продуктов слишком много даже для серии QR (лимит — 255 страниц). Уберите часть позиций и попробуйте снова.';
+
+  @override
+  String get receiveQrTitle => 'Принять продукты';
+
+  @override
+  String get receiveQrWaiting =>
+      'Наведите камеру на QR-коды другого телефона. Каждый код фиксируется один раз — дубликаты не страшны.';
+
+  @override
+  String receiveQrProgress(Object a, Object n) {
+    return 'Принято $a из $n';
+  }
+
+  @override
+  String receiveQrConfirmTitle(Object n) {
+    return 'Добавить $n продуктов?';
+  }
+
+  @override
+  String receiveQrConfirmBody(num more, Object names) {
+    String _temp0 = intl.Intl.pluralLogic(
+      more,
+      locale: localeName,
+      other: ' … и ещё $more',
+      zero: '',
+    );
+    return 'Начало списка: $names$_temp0';
+  }
+
+  @override
+  String receiveQrDone(Object added, Object skipped) {
+    return 'Добавлено: $added. Пропущено дублей: $skipped';
+  }
+
+  @override
+  String get receiveQrBroken => 'QR-код повреждён — передача начнётся заново';
+
+  @override
+  String get receiveQrEmpty => 'В передаче нет ни одного продукта';
+
+  @override
   String get allergenMilk => 'Молоко';
 
   @override

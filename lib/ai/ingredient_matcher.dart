@@ -28,6 +28,7 @@ class FridgeKey {
     required this.key,
     required this.productName,
     required this.daysLeft,
+    this.grams,
   });
 
   final String key;
@@ -36,6 +37,13 @@ class FridgeKey {
   /// Полных дней до истечения срока (может быть отрицательным).
   final int daysLeft;
 
+  /// Сколько продукта в холодильнике в граммах/миллилитрах
+  /// (плотность принимается за 1: 1 мл ≈ 1 г).
+  /// null — счётный товар (штуки/упаковка): масса позиции неизвестна,
+  /// такая позиция считается ДОСТАТОЧНОЙ для любого ингредиента —
+  /// иначе потребовалась бы таблица весов штуки для каждого продукта.
+  final double? grams;
+
   /// Продукт истекает в порог «съесть сейчас» (<= 2 дней).
   bool get isUrgent => daysLeft >= 0 && daysLeft <= 2;
 
@@ -43,7 +51,8 @@ class FridgeKey {
   bool get isSoon => daysLeft >= 0 && daysLeft <= 5;
 
   @override
-  String toString() => 'FridgeKey($key, $productName, $daysLeft дн.)';
+  String toString() => 'FridgeKey($key, $productName, $daysLeft дн., '
+      '${grams == null ? "шт." : "${grams!.round()} г"})';
 }
 
 /// Результат сопоставления рецепта с содержимым холодильника.
@@ -330,6 +339,11 @@ class IngredientMatcher {
   /// Продукты, не распознанные по имени, остаются в индексе под
   /// техническим ключом `raw:<id>` — они не матчатся с рецептами,
   /// но попадают в предупреждения «используйте вне плана».
+  ///
+  /// Несколько продуктов с одним ключом объединяются: граммы
+  /// суммируются, срок берётся самый близкий (самое скоропортящееся),
+  /// если хоть одна позиция счётная (масса неизвестна) — ключ
+  /// считается достаточным (grams = null).
   Map<String, FridgeKey> indexProducts(List<Product> products,
       {DateTime? now}) {
     final today = now ?? DateTime.now();
@@ -337,14 +351,50 @@ class IngredientMatcher {
     for (final p in products) {
       if (p.status != ProductStatus.active) continue;
       final key = matchProduct(p.name) ?? 'raw:${p.id ?? p.name}';
+      final existing = result[key];
+      final grams = _gramsOf(p);
+      if (existing == null) {
+        result[key] = FridgeKey(
+          key: key,
+          productName: p.name,
+          daysLeft: _daysLeft(p.expiryDate, today),
+          grams: grams,
+        );
+        continue;
+      }
+      final mergedGrams = grams == null || existing.grams == null
+          ? null
+          : existing.grams! + grams;
       result[key] = FridgeKey(
         key: key,
-        productName: p.name,
-        daysLeft: _daysLeft(p.expiryDate, today),
+        productName: existing.productName,
+        daysLeft: _minDays(existing.daysLeft, _daysLeft(p.expiryDate, today)),
+        grams: mergedGrams,
       );
     }
     return result;
   }
+
+  /// Масса позиции в граммах/миллилитрах или null для счётных товаров.
+  /// 1 мл ≈ 1 г — допущение для жидкостей (молоко, сливки, масло),
+  /// погрешность несущественна для решения «хватит ли на блюдо».
+  static double? _gramsOf(Product p) {
+    switch (p.unit) {
+      case ProductUnit.gram:
+        return p.quantity;
+      case ProductUnit.kilogram:
+        return p.quantity * 1000;
+      case ProductUnit.milliliter:
+        return p.quantity;
+      case ProductUnit.liter:
+        return p.quantity * 1000;
+      case ProductUnit.pcs:
+      case ProductUnit.pack:
+        return null;
+    }
+  }
+
+  static int _minDays(int a, int b) => a < b ? a : b;
 
   /// Категория приложения для названия товара (автопоиск по штрих-коду).
   ///
@@ -484,6 +534,11 @@ class IngredientMatcher {
   }
 
   /// Сопоставление рецепта с индексом холодильника.
+  ///
+  /// Ингредиент закрыт, если продукт есть И его хватает по массе:
+  /// в холодильнике граммов не меньше, чем нужно рецепту (когда масса
+  /// известна). Счётные позиции (штуки/упаковки) закрывают всегда —
+  /// масса штуки непредсказуема без таблицы весов.
   RecipeMatch matchRecipe(Recipe recipe, Map<String, FridgeKey> fridge) {
     var relevant = 0;
     var matched = 0;
@@ -494,6 +549,8 @@ class IngredientMatcher {
       relevant++;
       final fk = fridge[ing.key];
       if (fk == null) continue;
+      final have = fk.grams;
+      if (have != null && have < ing.grams) continue; // мало — не закрывает
       matched++;
       keys.add(ing.key);
       if (fk.isUrgent) expiring.add(fk.productName);

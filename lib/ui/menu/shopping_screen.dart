@@ -71,7 +71,9 @@ class ShoppingScreen extends StatelessWidget {
                             checked: on ?? false,
                           ),
                           title: Text(
-                            item.name,
+                            item.missingGrams == null
+                                ? item.name
+                                : '${item.name} · ≈${item.missingGrams} г',
                             style: item.checked
                                 ? TextStyle(
                                     decoration: TextDecoration.lineThrough,

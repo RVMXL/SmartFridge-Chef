@@ -36,6 +36,12 @@ class PlanDao {
           'seed': plan.seed,
           'source': plan.source,
           'warnings': jsonEncode(plan.warnings),
+          'filter_report': plan.hasExclusions
+              ? jsonEncode({
+                  'counts': plan.excludedCounts,
+                  'examples': plan.excludedExamples,
+                })
+              : null,
         },
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
@@ -86,6 +92,26 @@ class PlanDao {
       orderBy: 'id',
     );
 
+    // Диагностика «почему исключено» (v0.5.0): у старых планов колонка
+    // пуста — карты остаются пустыми, карточка не показывается.
+    Map<String, int> excludedCounts = const {};
+    Map<String, List<String>> excludedExamples = const {};
+    final rawReport = h['filter_report'] as String?;
+    if (rawReport != null && rawReport.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(rawReport) as Map<String, Object?>;
+        excludedCounts =
+            ((decoded['counts'] as Map<String, Object?>?) ?? const {})
+                .map((k, v) => MapEntry(k, (v as num).toInt()));
+        excludedExamples =
+            ((decoded['examples'] as Map<String, Object?>?) ?? const {})
+                .map((k, v) => MapEntry(
+                    k, (v as List<dynamic>).cast<String>().toList()));
+      } catch (_) {
+        // Битый отчёт не должен ломать открытие плана.
+      }
+    }
+
     return GeneratedPlan(
       id: h['id'] as String,
       createdAt: DateTime.parse(h['created_at'] as String),
@@ -98,6 +124,8 @@ class PlanDao {
       warnings: ((jsonDecode(h['warnings'] as String? ?? '[]')
               as List<dynamic>))
           .cast<String>(),
+      excludedCounts: excludedCounts,
+      excludedExamples: excludedExamples,
     );
   }
 

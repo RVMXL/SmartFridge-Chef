@@ -29,7 +29,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   // Черновик профиля, собирается по шагам.
   int _calories = 2000;
-  Diet _diet = Diet.none;
+  final Set<Diet> _diets = {};
   final Set<Allergen> _allergies = {};
   int _mealsPerDay = 3;
   bool _wantNotifications = true;
@@ -61,7 +61,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final base = PlanDefaults.profile;
     final ok = await profileCtrl.completeOnboarding(base.copyWith(
       dailyCalories: _calories,
-      diet: _diet,
+      diets: _diets.where((d) => d != Diet.none).toList(),
       allergies: _allergies.toList(),
       mealsPerDay: _mealsPerDay,
     ));
@@ -110,9 +110,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     subtitle: l.onbStep2Body,
                     onNext: _next,
                     child: _DietStep(
-                      diet: _diet,
+                      diets: _diets,
                       allergies: _allergies,
-                      onDiet: (d) => setState(() => _diet = d),
+                      onDiet: (d, on) => setState(() {
+                        if (d == Diet.none) {
+                          _diets.clear();
+                        } else if (on) {
+                          _diets.remove(Diet.none);
+                          _diets.add(d);
+                        } else {
+                          _diets.remove(d);
+                        }
+                      }),
                       onAllergen: (a, on) => setState(() {
                         on ? _allergies.add(a) : _allergies.remove(a);
                       }),
@@ -288,15 +297,15 @@ class _CaloriesStep extends StatelessWidget {
 
 class _DietStep extends StatelessWidget {
   const _DietStep({
-    required this.diet,
+    required this.diets,
     required this.allergies,
     required this.onDiet,
     required this.onAllergen,
   });
 
-  final Diet diet;
+  final Set<Diet> diets;
   final Set<Allergen> allergies;
-  final ValueChanged<Diet> onDiet;
+  final void Function(Diet, bool) onDiet;
   final void Function(Allergen, bool) onAllergen;
 
   @override
@@ -307,12 +316,13 @@ class _DietStep extends StatelessWidget {
       children: [
         Wrap(
           spacing: 8,
+          runSpacing: 0,
           children: [
             for (final d in Diet.values)
-              ChoiceChip(
+              FilterChip(
                 label: Text(dietLabel(l, d)),
-                selected: diet == d,
-                onSelected: (_) => onDiet(d),
+                selected: diets.contains(d),
+                onSelected: (on) => onDiet(d, on),
               ),
           ],
         ),

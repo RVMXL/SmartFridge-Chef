@@ -10,6 +10,10 @@
 /// при обновлении встроенной базы.
 /// v3 — `barcode_cache` (Шаг 3.1): локальный кэш автопоиска штрих-кодов —
 /// найденное один раз остаётся доступным офлайн навсегда.
+/// v4 — (v0.5.0): `user_profile.diets` — список диет (несколько сразу,
+/// миграция данных из колонки diet); `shopping_items.missing_grams` —
+/// «не хватает X г» для учёта граммов; `meal_plans.filter_report` —
+/// диагностика «почему рецепты исключены».
 library;
 
 import 'package:path/path.dart' as p;
@@ -19,7 +23,7 @@ class AppDatabase {
   AppDatabase._();
 
   static const String dbName = 'smart_fridge.db';
-  static const int dbVersion = 3;
+  static const int dbVersion = 4;
 
   /// Открывает базу.
   ///
@@ -37,12 +41,13 @@ class AppDatabase {
     );
   }
 
-  /// Полная схема (v1 + v2 + v3) для новой базы.
+  /// Полная схема (v1 + v2 + v3 + v4) для новой базы.
   static Future<void> _onCreate(Database db, int version) async {
     final batch = db.batch();
     createV1Tables(batch);
     createV2Tables(batch);
     createV3Tables(batch);
+    createV4Columns(batch);
     await batch.commit(noResult: true);
   }
 
@@ -66,6 +71,10 @@ class AppDatabase {
       final batch = db.batch();
       createV3Tables(batch);
       await batch.commit(noResult: true);
+    }
+    if (oldVersion < 4) {
+      // v3 -> v4: список диет + граммы в покупках + отчёт фильтра.
+      await upgradeToV4(db, migrateLegacyDiet: true);
     }
     assert(oldVersion >= 1 && newVersion == dbVersion,
         'Неизвестная версия: $oldVersion -> $newVersion');
@@ -199,5 +208,37 @@ class AppDatabase {
         fetched_at    TEXT    NOT NULL
       )
     ''');
+  }
+
+  // ------------------------------------------------------------- схема v4
+
+  /// Колонки версии 4 (v0.5.0): только добавление, данные не трогаются.
+  static void createV4Columns(Batch batch) {
+    batch.execute(
+      "ALTER TABLE user_profile ADD COLUMN diets TEXT NOT NULL DEFAULT '[]'",
+    );
+    batch.execute(
+      'ALTER TABLE shopping_items ADD COLUMN missing_grams INTEGER',
+    );
+    batch.execute(
+      'ALTER TABLE meal_plans ADD COLUMN filter_report TEXT',
+    );
+  }
+
+  /// Накат v4. [migrateLegacyDiet] — перенос старой единичной диеты в
+  /// список (на свежей базе данных данных нет — перенос не нужен).
+  static Future<void> upgradeToV4(
+    Database db, {
+    required bool migrateLegacyDiet,
+  }) async {
+    final batch = db.batch();
+    createV4Columns(batch);
+    await batch.commit(noResult: true);
+    if (migrateLegacyDiet) {
+      await db.execute(
+        "UPDATE user_profile SET diets = '[\"' || diet || '\"]' "
+        "WHERE diet IS NOT NULL AND diet != '' AND diet != 'none'",
+      );
+    }
   }
 }

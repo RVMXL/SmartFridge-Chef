@@ -27,13 +27,13 @@ void main() {
 
   UserProfile profile({
     int calories = 2000,
-    Diet diet = Diet.none,
+    List<Diet> diets = const [],
     List<Allergen> allergies = const [],
     int mealsPerDay = 3,
   }) =>
       UserProfile(
         dailyCalories: calories,
-        diet: diet,
+        diets: diets,
         allergies: allergies,
         mealsPerDay: mealsPerDay,
         createdAt: DateTime(2026, 10, 24),
@@ -46,7 +46,7 @@ void main() {
     int days = 7,
     int seed = 1,
     int mealsPerDay = 3,
-    Diet diet = Diet.none,
+    List<Diet> diets = const [],
     List<Allergen> allergies = const [],
     int maxCookMinutes = 0,
   }) =>
@@ -54,7 +54,7 @@ void main() {
         products: products,
         profile: prof ??
             profile(
-              diet: diet,
+              diets: diets,
               allergies: allergies,
               mealsPerDay: mealsPerDay,
             ),
@@ -126,7 +126,7 @@ void main() {
     });
 
     test('веганский профиль: только веганские рецепты', () async {
-      final plan = await planner.generate(request(diet: Diet.vegan));
+      final plan = await planner.generate(request(diets: [Diet.vegan]));
       final allMeals = plan.days.expand((d) => d.meals);
       expect(allMeals, isNotEmpty);
       for (final meal in allMeals) {
@@ -136,7 +136,7 @@ void main() {
 
     test('пескетарианство: мясо исключено, рыба разрешена', () async {
       final plan = await planner.generate(
-          request(diet: Diet.pescatarian, seed: 3));
+          request(diets: [Diet.pescatarian], seed: 3));
       final allMeals = plan.days.expand((d) => d.meals);
       for (final meal in allMeals) {
         expect(meal.recipe.hasMeat, isFalse,
@@ -158,7 +158,8 @@ void main() {
     test('халяль: свинина и алкоголь исключены, креветки разрешены',
         () async {
       final pool = await repo.loadAll();
-      final allowed = planner.hardFiltered(pool, request(diet: Diet.halal));
+      final allowed =
+          planner.hardFiltered(pool, request(diets: [Diet.halal]));
       final allowedIds = allowed.map((r) => r.id).toSet();
       for (final r in pool) {
         if (r.hasPork || r.hasAlcohol) {
@@ -176,7 +177,8 @@ void main() {
     test('кошер: свинина, алкоголь, моллюски и мясо+молочное исключены',
         () async {
       final pool = await repo.loadAll();
-      final allowed = planner.hardFiltered(pool, request(diet: Diet.kosher));
+      final allowed =
+          planner.hardFiltered(pool, request(diets: [Diet.kosher]));
       expect(allowed.length, lessThan(pool.length),
           reason: 'кошерный пул обязан сузиться');
       for (final r in allowed) {
@@ -199,7 +201,7 @@ void main() {
       expect(fishDairy, isNotEmpty,
           reason: 'в базе есть рыбные блюда с молочным — они не «мясо»');
       final allowed = planner
-          .hardFiltered(pool, request(diet: Diet.kosher))
+          .hardFiltered(pool, request(diets: [Diet.kosher]))
           .map((r) => r.id)
           .toSet();
       for (final r in fishDairy) {
@@ -210,7 +212,8 @@ void main() {
 
     test('индуизм: говядина исключена, свинина не трогается', () async {
       final pool = await repo.loadAll();
-      final allowed = planner.hardFiltered(pool, request(diet: Diet.hindu));
+      final allowed =
+          planner.hardFiltered(pool, request(diets: [Diet.hindu]));
       final allowedIds = allowed.map((r) => r.id).toSet();
       for (final r in pool) {
         if (r.hasBeef) {
@@ -230,22 +233,23 @@ void main() {
       // неделя 7д x 3 приёма = 21 уникальное блюдо; пул обязан
       // многократно перекрывать потребность
       expect(
-        planner.hardFiltered(pool, request(diet: Diet.halal)).length,
+        planner.hardFiltered(pool, request(diets: [Diet.halal])).length,
         greaterThan(100),
       );
       expect(
-        planner.hardFiltered(pool, request(diet: Diet.kosher)).length,
+        planner.hardFiltered(pool, request(diets: [Diet.kosher])).length,
         greaterThan(100),
       );
       expect(
-        planner.hardFiltered(pool, request(diet: Diet.hindu)).length,
+        planner.hardFiltered(pool, request(diets: [Diet.hindu])).length,
         greaterThan(100),
       );
     });
 
     test('планы на религиозных диетах уважают фильтры', () async {
       for (final diet in [Diet.halal, Diet.kosher, Diet.hindu]) {
-        final plan = await planner.generate(request(diet: diet, seed: 8));
+        final plan =
+            await planner.generate(request(diets: [diet], seed: 8));
         final allMeals = plan.days.expand((d) => d.meals);
         expect(allMeals, isNotEmpty, reason: diet.key);
         for (final meal in allMeals) {
@@ -406,6 +410,147 @@ void main() {
       final plan = await planner.generate(request(days: 3, seed: 21));
       expect(plan.daysCount, 3);
       expect(plan.days.last.date, DateTime(2026, 10, 28));
+    });
+  });
+
+  group('несколько диет одновременно (v0.5.0)', () {
+    test('халяль + веган: применяются оба ограничения', () async {
+      final plan = await planner.generate(
+          request(diets: [Diet.halal, Diet.vegan], seed: 11));
+      final allMeals = plan.days.expand((d) => d.meals);
+      expect(allMeals, isNotEmpty);
+      for (final meal in allMeals) {
+        expect(meal.recipe.vegan, isTrue, reason: meal.recipe.titleRu);
+        expect(meal.recipe.hasPork, isFalse, reason: meal.recipe.titleRu);
+        expect(meal.recipe.hasAlcohol, isFalse,
+            reason: meal.recipe.titleRu);
+      }
+    });
+
+    test('кошер + индуизм: и свинина/моллюски, и говядина исключены',
+        () async {
+      final pool = await repo.loadAll();
+      final allowed = planner
+          .hardFiltered(pool, request(diets: [Diet.kosher, Diet.hindu]));
+      for (final r in allowed) {
+        expect(r.hasBeef, isFalse, reason: r.titleRu);
+        expect(r.hasPork, isFalse, reason: r.titleRu);
+        expect(r.hasShellfish, isFalse, reason: r.titleRu);
+        if (r.hasMeat) expect(r.hasDairy, isFalse, reason: r.titleRu);
+      }
+      // Составное правило отсекает больше, чем каждая диета отдельно.
+      final onlyKosher =
+          planner.hardFiltered(pool, request(diets: [Diet.kosher]));
+      final onlyHindu =
+          planner.hardFiltered(pool, request(diets: [Diet.hindu]));
+      expect(allowed.length, lessThan(onlyKosher.length));
+      expect(allowed.length, lessThan(onlyHindu.length));
+    });
+  });
+
+  group('диагностика «почему исключено» (v0.5.0)', () {
+    test('без диет и аллергий исключений нет', () async {
+      final plan = await planner.generate(request(seed: 12));
+      expect(plan.hasExclusions, isFalse);
+    });
+
+    test('халяль: счётчик свинины = 20, примеры приложены', () async {
+      final pool = await repo.loadAll();
+      final diag = planner
+          .hardFilteredDetailed(pool, request(diets: [Diet.halal]));
+      expect(diag.excludedCounts['халяль: свинина'], 20);
+      expect(diag.excludedExamples['халяль: свинина'], isNotEmpty);
+      expect(diag.excludedExamples['халяль: свинина']!.length,
+          lessThanOrEqualTo(3));
+      // Сумма исключённых + пул = вся база (причина у рецепта одна).
+      final excluded =
+          diag.excludedCounts.values.fold<int>(0, (a, b) => a + b);
+      expect(diag.allowed.length + excluded, pool.length);
+    });
+
+    test('кошер: причины свинина/моллюски/мясо+молочное все присутствуют',
+        () async {
+      final pool = await repo.loadAll();
+      final diag = planner
+          .hardFilteredDetailed(pool, request(diets: [Diet.kosher]));
+      expect(
+        diag.excludedCounts.keys.toSet(),
+        containsAll(<String>[
+          'кошер: свинина',
+          'кошер: морепродукты без чешуи',
+          'кошер: мясо с молочным',
+        ]),
+      );
+      final excluded =
+          diag.excludedCounts.values.fold<int>(0, (a, b) => a + b);
+      expect(diag.allowed.length + excluded, pool.length);
+    });
+
+    test('аллергия приоритетнее диеты (первая сработавшая причина)',
+        () async {
+      final pool = await repo.loadAll();
+      final diag = planner.hardFilteredDetailed(
+        pool,
+        request(diets: [Diet.vegan], allergies: [Allergen.milk]),
+      );
+      // Не-веганский рецепт с молоком: причина — аллергия, не диета.
+      final dairyNonVegan = pool
+          .where((r) => r.allergens.contains(Allergen.milk) && !r.vegan)
+          .toList();
+      expect(dairyNonVegan, isNotEmpty);
+      final reason = diag.excludedExamples.entries
+          .firstWhere((e) => e.value.contains(dairyNonVegan.first.titleRu))
+          .key;
+      expect(reason, startsWith('аллергия:'));
+    });
+
+    test('ограничение времени готовки попадает в отчёт', () async {
+      final pool = await repo.loadAll();
+      final diag = planner.hardFilteredDetailed(
+          pool, request(maxCookMinutes: 20));
+      expect(diag.excludedCounts.containsKey('готовка дольше 20 мин'),
+          isTrue, reason: diag.excludedCounts.keys.join(', '));
+    });
+  });
+
+  group('граммы в списке покупок (v0.5.0)', () {
+    Product gramProduct(String name, double grams) => Product(
+          name: name,
+          category: ProductCategory.other,
+          quantity: grams,
+          unit: ProductUnit.gram,
+          expiryDate: DateTime(2026, 11, 10),
+          addedAt: DateTime(2026, 10, 24),
+        );
+
+    test('на пустом холодильнике каждая позиция несёт оценку в граммах',
+        () async {
+      final plan = await planner.generate(request(seed: 13));
+      expect(plan.shoppingList, isNotEmpty);
+      for (final item in plan.shoppingList) {
+        expect(item.missingGrams, isNotNull,
+            reason: '${item.key}: ${item.name}');
+        expect(item.missingGrams!, greaterThan(0));
+      }
+    });
+
+    test('не хватает по массе — в покупке недостача, хватает — позиции нет',
+        () async {
+      final draft = await planner.generate(request(seed: 7));
+      expect(draft.shoppingList.length,
+          greaterThan(draft.shoppingList.where((i) => i.missingGrams == null).length));
+      // Закупаем ровно недостающее в граммах.
+      final covered = <Product>[
+        for (final item in draft.shoppingList)
+          gramProduct(item.name, item.missingGrams!.toDouble()),
+      ];
+      final full = await planner
+          .generate(request(products: covered, seed: 7));
+      // Каждая оставшаяся позиция — тоже с граммовой оценкой.
+      for (final item in full.shoppingList) {
+        expect(item.missingGrams, isNotNull,
+            reason: '${item.key}: ${item.name}');
+      }
     });
   });
 }

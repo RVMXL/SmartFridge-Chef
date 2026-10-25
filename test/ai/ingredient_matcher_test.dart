@@ -255,6 +255,132 @@ void main() {
       expect(match.matchedKeys, isEmpty);
     });
   });
+
+  group('учёт граммов (v0.5.0)', () {
+    Product gramProduct(String name, double quantity, ProductUnit unit) =>
+        Product(
+          name: name,
+          category: ProductCategory.other,
+          quantity: quantity,
+          unit: unit,
+          expiryDate: DateTime(2026, 11, 5),
+          addedAt: DateTime(2026, 10, 25),
+        );
+
+    Recipe recipeWithGrams(String key, int grams) => Recipe(
+          id: 'r_test_$key',
+          titleRu: 'Тест $key',
+          titleEn: 'Test $key',
+          category: 'main',
+          minutes: 20,
+          servings: 2,
+          kcal: 400,
+          protein: 20,
+          fat: 10,
+          carbs: 40,
+          vegetarian: true,
+          vegan: true,
+          glutenFree: true,
+          lowCarb: false,
+          hasMeat: false,
+          hasFish: false,
+          allergens: const [],
+          family: key,
+          secondFamily: '',
+          ingredients: [
+            RecipeIngredient(
+                key: key, ru: key, en: key, grams: grams, pantry: false),
+            RecipeIngredient(
+                key: 'salt', ru: 'соль', en: 'salt', grams: 5, pantry: true),
+          ],
+          stepsRu: const ['готовить'],
+          stepsEn: const ['cook'],
+        );
+
+    test('граммы конвертируются: кг → г, л → мл≈г', () {
+      const matcher = IngredientMatcher();
+      final fridge = matcher.indexProducts([
+        gramProduct('Мука', 1.5, ProductUnit.kilogram),
+        gramProduct('Молоко', 0.9, ProductUnit.liter),
+      ], now: DateTime(2026, 10, 26));
+      expect(fridge['flour']!.grams, 1500);
+      expect(fridge['milk']!.grams, 900);
+    });
+
+    test('штуки и упаковки — масса неизвестна (null), закрывают всегда',
+        () {
+      const matcher = IngredientMatcher();
+      final fridge = matcher.indexProducts([
+        gramProduct('Огурцы', 3, ProductUnit.pcs),
+        gramProduct('Гречка', 1, ProductUnit.pack),
+      ], now: DateTime(2026, 10, 26));
+      expect(fridge['cucumber']!.grams, isNull);
+      expect(fridge['buckwheat']!.grams, isNull);
+      // Счётная позиция закрывает ингредиент любого веса.
+      final match =
+          matcher.matchRecipe(recipeWithGrams('cucumber', 500), fridge);
+      expect(match.coverage, 1.0);
+    });
+
+    test('хватает по массе — закрыто; не хватает — не закрыто', () {
+      const matcher = IngredientMatcher();
+      final fridge = matcher.indexProducts([
+        gramProduct('Рис', 400, ProductUnit.gram),
+      ], now: DateTime(2026, 10, 26));
+      expect(
+        matcher.matchRecipe(recipeWithGrams('rice', 300), fridge).coverage,
+        1.0,
+        reason: '400 г риса >= 300 г нужно',
+      );
+      expect(
+        matcher.matchRecipe(recipeWithGrams('rice', 500), fridge).coverage,
+        0.0,
+        reason: '400 г риса < 500 г нужно',
+      );
+    });
+
+    test('одинаковые ключи суммируются, срок — самый близкий', () {
+      const matcher = IngredientMatcher();
+      final fridge = matcher.indexProducts([
+        Product(
+          name: 'Мука',
+          category: ProductCategory.grains,
+          quantity: 300,
+          unit: ProductUnit.gram,
+          expiryDate: DateTime(2026, 10, 28), // скоро истекает
+          addedAt: DateTime(2026, 10, 25),
+        ),
+        Product(
+          name: 'Мука пшеничная',
+          category: ProductCategory.grains,
+          quantity: 400,
+          unit: ProductUnit.gram,
+          expiryDate: DateTime(2026, 12, 1),
+          addedAt: DateTime(2026, 10, 25),
+        ),
+      ], now: DateTime(2026, 10, 26));
+      final fk = fridge['flour']!;
+      expect(fk.grams, 700);
+      expect(fk.daysLeft, 2);
+      expect(fk.isUrgent, isTrue);
+    });
+
+    test('счётная + весовая позиция одного ключа = достаточна', () {
+      const matcher = IngredientMatcher();
+      final fridge = matcher.indexProducts([
+        gramProduct('Рис', 100, ProductUnit.gram),
+        Product(
+          name: 'Рис в пакетиках',
+          category: ProductCategory.grains,
+          quantity: 2,
+          unit: ProductUnit.pcs,
+          expiryDate: DateTime(2026, 12, 1),
+          addedAt: DateTime(2026, 10, 25),
+        ),
+      ], now: DateTime(2026, 10, 26));
+      expect(fridge['rice']!.grams, isNull);
+    });
+  });
 }
 
 // ------------------------------------------------------------- помощники

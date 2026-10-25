@@ -94,6 +94,7 @@ class PlanShoppingItem {
     required this.key,
     required this.name,
     this.checked = false,
+    this.missingGrams,
   });
 
   /// Канонический ключ IngredientMatcher (для будущих подсказок при вводе).
@@ -101,11 +102,17 @@ class PlanShoppingItem {
   final String name;
   final bool checked;
 
+  /// Сколько докупить в граммах (v0.5.0, учёт граммов): суммарная
+  /// потребность выбранных рецептов минус то, что есть в холодильнике.
+  /// null — позиция без массовой оценки (раньше такого поля не было).
+  final int? missingGrams;
+
   Map<String, Object?> toMap(String planId) => {
         'plan_id': planId,
         'ing_key': key,
         'name': name,
         'checked': checked ? 1 : 0,
+        'missing_grams': missingGrams,
       };
 
   static PlanShoppingItem fromMap(Map<String, Object?> map) =>
@@ -113,10 +120,12 @@ class PlanShoppingItem {
         key: map['ing_key'] as String? ?? '',
         name: map['name'] as String? ?? '',
         checked: ((map['checked'] as num?) ?? 0) == 1,
+        missingGrams: (map['missing_grams'] as num?)?.toInt(),
       );
 
   @override
-  String toString() => 'PlanShoppingItem($name${checked ? " ✓" : ""})';
+  String toString() =>
+      'PlanShoppingItem($name${missingGrams == null ? "" : " ~$missingGramsг"}${checked ? " ✓" : ""})';
 }
 
 /// Итоговый план на N дней — результат MealPlanner.generate.
@@ -131,6 +140,8 @@ class GeneratedPlan {
     required this.days,
     required this.shoppingList,
     required this.warnings,
+    this.excludedCounts = const {},
+    this.excludedExamples = const {},
   });
 
   /// Идентификатор вида `p<millis>-<seed>`; генерирует планировщик.
@@ -147,6 +158,16 @@ class GeneratedPlan {
   final List<PlanDay> days;
   final List<PlanShoppingItem> shoppingList;
   final List<String> warnings;
+
+  /// Диагностика фильтра (v0.5.0): почему рецепты не попали в подбор.
+  /// Причина → количество исключённых; примеры — до трёх названий на
+  /// причину. Пустые карты — фильтры ничего не отсекли (или план из
+  /// старой версии без отчёта).
+  final Map<String, int> excludedCounts;
+  final Map<String, List<String>> excludedExamples;
+
+  /// Есть ли что показать в карточке «почему исключено».
+  bool get hasExclusions => excludedCounts.isNotEmpty;
 
   int get daysCount => days.length;
 

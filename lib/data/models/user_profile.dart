@@ -71,7 +71,7 @@ class UserProfile {
     this.proteinG = 150,
     this.fatG = 67,
     this.carbsG = 200,
-    this.diet = Diet.none,
+    this.diets = const [],
     this.allergies = const [],
     this.mealsPerDay = 3,
     this.regionName,
@@ -93,7 +93,11 @@ class UserProfile {
   final int fatG;
   final int carbsG;
 
-  final Diet diet;
+  /// Диеты (v0.5.0 — список: халяль + кошер и т.п.). Ограничения
+  /// комбинируются: рецепт обязан удовлетворять КАЖДОЙ выбранной диете.
+  /// Пустой список = без ограничений (раньше это был Diet.none).
+  /// [Diet.none] внутри списка не хранится.
+  final List<Diet> diets;
 
   /// Аллергены — исключаются при генерации меню.
   final List<Allergen> allergies;
@@ -112,6 +116,9 @@ class UserProfile {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  /// Выбрана ли конкретная диета.
+  bool hasDiet(Diet d) => d != Diet.none && diets.contains(d);
+
   /// Дефолтные БЖУ для [calories] по формуле 30/30/40.
   static ({int protein, int fat, int carbs}) defaultsForCalories(
     int calories,
@@ -127,7 +134,7 @@ class UserProfile {
     int? proteinG,
     int? fatG,
     int? carbsG,
-    Diet? diet,
+    List<Diet>? diets,
     List<Allergen>? allergies,
     int? mealsPerDay,
     String? regionName,
@@ -143,7 +150,7 @@ class UserProfile {
       proteinG: proteinG ?? this.proteinG,
       fatG: fatG ?? this.fatG,
       carbsG: carbsG ?? this.carbsG,
-      diet: diet ?? this.diet,
+      diets: diets ?? this.diets,
       allergies: allergies ?? this.allergies,
       mealsPerDay: mealsPerDay ?? this.mealsPerDay,
       regionName: regionName ?? this.regionName,
@@ -161,7 +168,10 @@ class UserProfile {
         'protein_g': proteinG,
         'fat_g': fatG,
         'carbs_g': carbsG,
-        'diet': diet.key,
+        // Старое поле остаётся заполненным (первая диета) для совместимости
+        // с прежними версиями приложения и запросами отладки.
+        'diet': diets.isEmpty ? Diet.none.key : diets.first.key,
+        'diets': jsonEncode(diets.map((d) => d.key).toList()),
         'allergies': jsonEncode(allergies.map((a) => a.key).toList()),
         'meals_per_day': mealsPerDay,
         'region_name': regionName,
@@ -175,13 +185,26 @@ class UserProfile {
   static UserProfile fromMap(Map<String, Object?> map) {
     final rawAllergies =
         jsonDecode(map['allergies'] as String? ?? '[]') as List<dynamic>;
+    // v0.5.0: источник истины — колонка diets (JSON-массив).
+    // Старые записи (до миграции данных) читаются по колонке diet.
+    final rawDiets = map['diets'] as String?;
+    final List<Diet> diets;
+    if (rawDiets != null && rawDiets.isNotEmpty && rawDiets != '[]') {
+      diets = (jsonDecode(rawDiets) as List<dynamic>)
+          .map((k) => Diet.fromKey(k as String))
+          .where((d) => d != Diet.none)
+          .toList();
+    } else {
+      final legacy = Diet.fromKey(map['diet'] as String? ?? 'none');
+      diets = legacy == Diet.none ? const [] : [legacy];
+    }
     return UserProfile(
       id: (map['id'] as int?) ?? 1,
       dailyCalories: (map['daily_calories'] as int?) ?? 2000,
       proteinG: (map['protein_g'] as int?) ?? 150,
       fatG: (map['fat_g'] as int?) ?? 67,
       carbsG: (map['carbs_g'] as int?) ?? 200,
-      diet: Diet.fromKey(map['diet'] as String? ?? 'none'),
+      diets: diets,
       allergies:
           rawAllergies.map((k) => Allergen.fromKey(k as String)).toList(),
       mealsPerDay: (map['meals_per_day'] as int?) ?? 3,
@@ -196,6 +219,8 @@ class UserProfile {
 
   @override
   String toString() => 'UserProfile(ккал: $dailyCalories, Б/Ж/У: '
-      '$proteinG/$fatG/$carbsG, ${diet.key}, аллергии: '
-      '${allergies.map((a) => a.key).join(",")}, приёмов: $mealsPerDay)';
+      '$proteinG/$fatG/$carbsG, диеты: '
+      '${diets.isEmpty ? "нет" : diets.map((d) => d.key).join("+")}, '
+      'аллергии: ${allergies.map((a) => a.key).join(",")}, '
+      'приёмов: $mealsPerDay)';
 }
