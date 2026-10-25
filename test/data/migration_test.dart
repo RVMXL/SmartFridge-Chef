@@ -43,12 +43,16 @@ void main() {
             await batch.commit(noResult: true);
           },
         ));
-    await v1.insert('products', Product(
-      name: 'Молоко',
-      category: ProductCategory.dairy,
-      expiryDate: DateTime(2026, 10, 26),
-      addedAt: DateTime(2026, 10, 24),
-    ).toMap());
+    // Вставляем сырой картой (схема v1 ещё без колонок цены из Product.toMap).
+    await v1.insert('products', {
+      'name': 'Молоко',
+      'category_key': 'dairy',
+      'quantity': 1.0,
+      'unit_key': 'pcs',
+      'expiry_date': '2026-10-26',
+      'added_at': DateTime(2026, 10, 24).toIso8601String(),
+      'status': 'active',
+    });
     await v1.close();
 
     // 2. Открываем текущей версией — сработает миграция 1 -> 2 -> 3.
@@ -98,12 +102,15 @@ void main() {
             await batch.commit(noResult: true);
           },
         ));
-    await v2.insert('products', Product(
-      name: 'Кефир',
-      category: ProductCategory.dairy,
-      expiryDate: DateTime(2026, 10, 28),
-      addedAt: DateTime(2026, 10, 24),
-    ).toMap());
+    await v2.insert('products', {
+      'name': 'Кефир',
+      'category_key': 'dairy',
+      'quantity': 1.0,
+      'unit_key': 'pcs',
+      'expiry_date': '2026-10-28',
+      'added_at': DateTime(2026, 10, 24).toIso8601String(),
+      'status': 'active',
+    });
     await v2.close();
 
     final db = await AppDatabase.open(absolutePath: dbPath);
@@ -232,6 +239,11 @@ void main() {
       'PRAGMA table_info(planned_meals)',
     )).map((r) => r['name'] as String).toSet();
     expect(mealCols, contains('minor_dislikes'));
+    // Колонки v6 (v0.5.5, цена Пятёрочки) — в products.
+    final productCols = (await db.rawQuery(
+      'PRAGMA table_info(products)',
+    )).map((r) => r['name'] as String).toSet();
+    expect(productCols, containsAll(['price', 'price_updated_at', 'price_source']));
     await db.close();
   });
 
@@ -277,6 +289,56 @@ void main() {
     final profile = UserProfile.fromMap(rows.first);
     expect(profile.dislikes, isEmpty);
     expect(profile.allergies, isEmpty);
+    await db.close();
+  });
+
+  test('миграция v5 -> v6: колонки цены в products, данные живы', () async {
+    final v6Path = '${tmp.path}/v5to6.db';
+    // База версии 5 (как у пользователя v0.5.4) с продуктом.
+    final v5 = await openDatabase(v6Path, version: 5);
+    final b5 = v5.batch();
+    AppDatabase.createV1Tables(b5);
+    AppDatabase.createV2Tables(b5);
+    AppDatabase.createV3Tables(b5);
+    AppDatabase.createV4Columns(b5);
+    AppDatabase.createV5Columns(b5);
+    await b5.commit(noResult: true);
+    // Сырой картой: база v5 ещё без колонок цены (их добавит миграция).
+    await v5.insert('products', {
+      'name': 'Печенье Посиделкино овсяное',
+      'category_key': 'sweets',
+      'barcode': '4607011262302',
+      'quantity': 1.0,
+      'unit_key': 'pcs',
+      'expiry_date': '2026-12-01',
+      'added_at': DateTime(2026, 10, 25).toIso8601String(),
+      'status': 'active',
+    });
+    await v5.close();
+
+    final db = await AppDatabase.open(absolutePath: v6Path);
+    expect(await db.getVersion(), AppDatabase.dbVersion);
+
+    final productCols = (await db.rawQuery(
+      'PRAGMA table_info(products)',
+    )).map((r) => r['name'] as String).toSet();
+    expect(productCols, containsAll(['price', 'price_updated_at', 'price_source']));
+
+    // Продукт жив, цена пока null; запись с ценой принимается и читается
+    // моделью со всеми тремя полями.
+    final rows = await db.query('products');
+    expect(rows, hasLength(1));
+    expect(rows.first['price'], isNull);
+    await db.update('products', {
+      'price': 89.99,
+      'price_updated_at': '2026-10-26T12:00:00.000',
+      'price_source': 'pyaterochka',
+    }, where: 'id = ?', whereArgs: [rows.first['id']]);
+    final priced = Product.fromMap(
+        (await db.query('products', limit: 1)).first);
+    expect(priced.price, 89.99);
+    expect(priced.priceSource, 'pyaterochka');
+    expect(priced.priceUpdatedAt, DateTime.parse('2026-10-26T12:00:00.000'));
     await db.close();
   });
 }

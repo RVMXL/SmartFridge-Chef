@@ -15,6 +15,7 @@ import 'l10n/generated/app_localizations.dart';
 import 'notifications/reminder_scheduler.dart';
 import 'notifications/reminder_sync.dart';
 import 'scan/barcode_lookup.dart';
+import 'scan/pyaterochka_lookup.dart';
 import 'state/plan_controller.dart';
 import 'state/product_controller.dart';
 import 'state/profile_controller.dart';
@@ -63,6 +64,9 @@ void main() async {
     openDb: AppDataStore.instance.database,
   );
 
+  // Цены Пятёрочки (v0.5.5, эксперимент): запросы только с устройства.
+  final pyaterochka = PyaterochkaService();
+
   runApp(SmartFridgeApp(
     settings: settings,
     recipeRepository: recipeRepository,
@@ -71,6 +75,7 @@ void main() async {
     profileController: profileController,
     scheduler: scheduler,
     barcodeLookup: barcodeLookup,
+    pyaterochka: pyaterochka,
   ));
 }
 
@@ -84,6 +89,7 @@ class SmartFridgeApp extends StatelessWidget {
     required this.profileController,
     required this.scheduler,
     required this.barcodeLookup,
+    required this.pyaterochka,
   });
 
   final SettingsController settings;
@@ -93,6 +99,7 @@ class SmartFridgeApp extends StatelessWidget {
   final ProfileController profileController;
   final LocalReminderScheduler scheduler;
   final BarcodeLookupService barcodeLookup;
+  final PyaterochkaService pyaterochka;
 
   /// Семенной цвет обеих тем — зелёный «свежести» (#2E7D32).
   static const Color seedColor = Color(0xFF2E7D32);
@@ -108,6 +115,7 @@ class SmartFridgeApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: profileController),
         Provider<ReminderScheduler>.value(value: scheduler),
         Provider<BarcodeLookupService>.value(value: barcodeLookup),
+        Provider<PyaterochkaService>.value(value: pyaterochka),
       ],
       child: Consumer<SettingsController>(
         builder: (context, s, _) => MaterialApp(

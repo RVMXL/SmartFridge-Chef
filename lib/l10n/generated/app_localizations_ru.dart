@@ -912,4 +912,47 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get dislikesEmpty =>
       'Пока ничего не отмечено — добавьте из пресетов ниже или впишите своё';
+
+  @override
+  String get pyatSectionTitle => 'Цены Пятёрочки (эксперимент)';
+
+  @override
+  String get pyatEnable => 'Подставлять цены Пятёрочки';
+
+  @override
+  String get pyatStoreCode => 'Код магазина (SAP)';
+
+  @override
+  String get pyatStoreHint =>
+      'Код — 4 символа, например 35XY. Возьмите его на 5ka.ru: выберите свой магазин в доставке и найдите sapCode в адресе любого запроса каталога (DevTools → Network → …/stores/КОД/…). Цены подставляются как в этом магазине.';
+
+  @override
+  String get pyatVpnNote =>
+      'Запросы идут прямо с устройства, ключи и аккаунты не нужны. Пятёрочка блокирует VPN и серверные IP: при включённом VPN цена просто не подставится — всё остальное работает.';
+
+  @override
+  String get pyatRefresh => 'Найти цену в Пятёрочке';
+
+  @override
+  String get pyatSearching => 'Ищем в Пятёрочке…';
+
+  @override
+  String pyatMatched(String name) {
+    return 'Совпало: $name';
+  }
+
+  @override
+  String get pyatNotFound => 'В каталоге Пятёрочки не нашлось';
+
+  @override
+  String get pyatUnavailable => 'Пятёрочка недоступна: VPN или блокировка IP';
+
+  @override
+  String get pyatNoNetwork => 'Сеть недоступна — цена не получена';
+
+  @override
+  String get pyatStoreRequired => 'Укажите код магазина в настройках';
+
+  @override
+  String get productFieldPrice => 'Цена';
 }

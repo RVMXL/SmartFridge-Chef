@@ -105,6 +105,29 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ------------------------------------ цены Пятёрочки (v0.5.5, эксп.)
+
+  static const String _kPyatEnabled = 'pref_pyat_enabled';
+  static const String _kPyatStoreCode = 'pref_pyat_store_code';
+
+  /// Подставлять цены Пятёрочки при добавлении продукта. Выключено по
+  /// умолчанию: фича экспериментальная и требует кода магазина.
+  bool get pyaterochkaEnabled => _prefs.getBool(_kPyatEnabled) ?? false;
+
+  Future<void> setPyaterochkaEnabled(bool on) async {
+    await _prefs.setBool(_kPyatEnabled, on);
+    notifyListeners();
+  }
+
+  /// SAP-код магазина Пятёрочки (4 символа, напр. «35XY») — цены этого
+  /// магазина. Пусто — автоподстановка не работает.
+  String get pyaterochkaStoreCode => _prefs.getString(_kPyatStoreCode) ?? '';
+
+  Future<void> setPyaterochkaStoreCode(String code) async {
+    await _prefs.setString(_kPyatStoreCode, code.trim());
+    notifyListeners();
+  }
+
   /// Загрузка предпочтений до runApp, чтобы не мигать темой при старте.
   static Future<SettingsController> load() async {
     final prefs = await SharedPreferences.getInstance();

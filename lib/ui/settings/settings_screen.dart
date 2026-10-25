@@ -138,6 +138,53 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
 
+          // ---------------- Цены Пятёрочки (эксперимент, v0.5.5)
+          SectionHeader(l.pyatSectionTitle),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    secondary: const Icon(Icons.sell_outlined),
+                    title: Text(l.pyatEnable),
+                    value: settings.pyaterochkaEnabled,
+                    onChanged: (on) => settings.setPyaterochkaEnabled(on),
+                  ),
+                  if (settings.pyaterochkaEnabled) ...[
+                    TextFormField(
+                      initialValue: settings.pyaterochkaStoreCode,
+                      decoration: InputDecoration(
+                        labelText: l.pyatStoreCode,
+                        hintText: '35XY',
+                      ),
+                      onChanged: settings.setPyaterochkaStoreCode,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8, bottom: 4),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(l.pyatStoreHint,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant)),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 8),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(l.pyatVpnNote,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant)),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+
           // ---------------- Оформление
           SectionHeader(l.settingsAppearance),
           SegmentedButton<ThemeMode>(

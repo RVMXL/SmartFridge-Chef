@@ -17,6 +17,10 @@
 /// v5 — (v0.5.4): `user_profile.dislikes` — нелюбимые продукты (JSON-список
 /// правил с режимом «всегда / только основа блюда»);
 /// `planned_meals.minor_dislikes` — пометки «содержит лук и т.п.» в плане.
+/// v6 — (v0.5.5): цены Пятёрочки в `products`: `price` (₽ за упаковку/шт),
+/// `price_updated_at`, `price_source`. Цена опциональна — продукт без неё
+/// остаётся полноценным; запросы к каталогу делаются только с устройства
+/// пользователя по явному действию.
 library;
 
 import 'package:path/path.dart' as p;
@@ -26,7 +30,7 @@ class AppDatabase {
   AppDatabase._();
 
   static const String dbName = 'smart_fridge.db';
-  static const int dbVersion = 5;
+  static const int dbVersion = 6;
 
   /// Открывает базу.
   ///
@@ -52,6 +56,7 @@ class AppDatabase {
     createV3Tables(batch);
     createV4Columns(batch);
     createV5Columns(batch);
+    createV6Columns(batch);
     await batch.commit(noResult: true);
   }
 
@@ -84,6 +89,12 @@ class AppDatabase {
       // v4 -> v5: нелюбимые продукты + пометки в плане.
       final batch = db.batch();
       createV5Columns(batch);
+      await batch.commit(noResult: true);
+    }
+    if (oldVersion < 6) {
+      // v5 -> v6: цена продукта (Пятёрочка, v0.5.5).
+      final batch = db.batch();
+      createV6Columns(batch);
       await batch.commit(noResult: true);
     }
     assert(oldVersion >= 1 && newVersion == dbVersion,
@@ -263,5 +274,15 @@ class AppDatabase {
     batch.execute(
       "ALTER TABLE planned_meals ADD COLUMN minor_dislikes TEXT NOT NULL DEFAULT '[]'",
     );
+  }
+
+  // ------------------------------------------------------------- схема v6
+
+  /// Колонки версии 6 (v0.5.5): цена продукта из каталога Пятёрочки.
+  /// NULL — цену не искали/пользователь её убрал; данные не трогаются.
+  static void createV6Columns(Batch batch) {
+    batch.execute('ALTER TABLE products ADD COLUMN price REAL');
+    batch.execute('ALTER TABLE products ADD COLUMN price_updated_at TEXT');
+    batch.execute('ALTER TABLE products ADD COLUMN price_source TEXT');
   }
 }

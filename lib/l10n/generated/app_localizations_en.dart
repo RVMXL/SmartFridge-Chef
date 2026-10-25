@@ -907,4 +907,47 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get dislikesEmpty =>
       'Nothing marked yet — add from the presets below or type your own';
+
+  @override
+  String get pyatSectionTitle => 'Pyaterochka prices (experimental)';
+
+  @override
+  String get pyatEnable => 'Fill in Pyaterochka prices';
+
+  @override
+  String get pyatStoreCode => 'Store code (SAP)';
+
+  @override
+  String get pyatStoreHint =>
+      'The code is 4 characters, e.g. 35XY. Get it on 5ka.ru: pick your store for delivery and find the sapCode in any catalog request URL (DevTools → Network → …/stores/CODE/…). Prices will match that store.';
+
+  @override
+  String get pyatVpnNote =>
+      'Requests go straight from the device — no keys, no accounts. Pyaterochka blocks VPN and datacenter IPs: with VPN on, the price simply won\'t be filled — everything else keeps working.';
+
+  @override
+  String get pyatRefresh => 'Find price in Pyaterochka';
+
+  @override
+  String get pyatSearching => 'Searching Pyaterochka…';
+
+  @override
+  String pyatMatched(String name) {
+    return 'Matched: $name';
+  }
+
+  @override
+  String get pyatNotFound => 'Not found in the Pyaterochka catalog';
+
+  @override
+  String get pyatUnavailable => 'Pyaterochka unavailable: VPN or IP blocked';
+
+  @override
+  String get pyatNoNetwork => 'Network unavailable — no price';
+
+  @override
+  String get pyatStoreRequired => 'Set the store code in settings';
+
+  @override
+  String get productFieldPrice => 'Price';
 }

@@ -408,5 +408,25 @@
       }
     }
   },
-  "dislikesEmpty": "Nothing marked yet — add from the presets below or type your own"
+  "dislikesEmpty": "Nothing marked yet — add from the presets below or type your own",
+  "pyatSectionTitle": "Pyaterochka prices (experimental)",
+  "pyatEnable": "Fill in Pyaterochka prices",
+  "pyatStoreCode": "Store code (SAP)",
+  "pyatStoreHint": "The code is 4 characters, e.g. 35XY. Get it on 5ka.ru: pick your store for delivery and find the sapCode in any catalog request URL (DevTools → Network → …/stores/CODE/…). Prices will match that store.",
+  "pyatVpnNote": "Requests go straight from the device — no keys, no accounts. Pyaterochka blocks VPN and datacenter IPs: with VPN on, the price simply won't be filled — everything else keeps working.",
+  "pyatRefresh": "Find price in Pyaterochka",
+  "pyatSearching": "Searching Pyaterochka…",
+  "pyatMatched": "Matched: {name}",
+  "pyatNotFound": "Not found in the Pyaterochka catalog",
+  "pyatUnavailable": "Pyaterochka unavailable: VPN or IP blocked",
+  "pyatNoNetwork": "Network unavailable — no price",
+  "pyatStoreRequired": "Set the store code in settings",
+  "productFieldPrice": "Price",
+  "@pyatMatched": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

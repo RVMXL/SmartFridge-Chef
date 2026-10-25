@@ -624,7 +624,8 @@ class _ProductCard extends StatelessWidget {
                 ),
                 subtitle: Text(
                   '${categoryLabel(l, product.category)} · '
-                  '${quantityText(l, product)}\n'
+                  '${quantityText(l, product)}'
+                  '${product.price == null ? '' : ' · ${product.price!.toStringAsFixed(2)} ₽'}\n'
                   '${l.expiryOn(dateFmt.format(product.expiryDate))} — '
                   '${freshness == Freshness.expired ? l.freshnessExpired : l.daysLeft(left)}',
                   maxLines: 2,

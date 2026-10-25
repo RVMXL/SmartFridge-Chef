@@ -1681,6 +1681,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing marked yet — add from the presets below or type your own'**
   String get dislikesEmpty;
+
+  /// No description provided for @pyatSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pyaterochka prices (experimental)'**
+  String get pyatSectionTitle;
+
+  /// No description provided for @pyatEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in Pyaterochka prices'**
+  String get pyatEnable;
+
+  /// No description provided for @pyatStoreCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Store code (SAP)'**
+  String get pyatStoreCode;
+
+  /// No description provided for @pyatStoreHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The code is 4 characters, e.g. 35XY. Get it on 5ka.ru: pick your store for delivery and find the sapCode in any catalog request URL (DevTools → Network → …/stores/CODE/…). Prices will match that store.'**
+  String get pyatStoreHint;
+
+  /// No description provided for @pyatVpnNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests go straight from the device — no keys, no accounts. Pyaterochka blocks VPN and datacenter IPs: with VPN on, the price simply won\'t be filled — everything else keeps working.'**
+  String get pyatVpnNote;
+
+  /// No description provided for @pyatRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Find price in Pyaterochka'**
+  String get pyatRefresh;
+
+  /// No description provided for @pyatSearching.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching Pyaterochka…'**
+  String get pyatSearching;
+
+  /// No description provided for @pyatMatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Matched: {name}'**
+  String pyatMatched(String name);
+
+  /// No description provided for @pyatNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found in the Pyaterochka catalog'**
+  String get pyatNotFound;
+
+  /// No description provided for @pyatUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Pyaterochka unavailable: VPN or IP blocked'**
+  String get pyatUnavailable;
+
+  /// No description provided for @pyatNoNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Network unavailable — no price'**
+  String get pyatNoNetwork;
+
+  /// No description provided for @pyatStoreRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the store code in settings'**
+  String get pyatStoreRequired;
+
+  /// No description provided for @productFieldPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get productFieldPrice;
 }
 
 class _AppLocalizationsDelegate

@@ -85,6 +85,9 @@ class Product {
     this.carbsPer100,
     this.notes,
     this.status = ProductStatus.active,
+    this.price,
+    this.priceUpdatedAt,
+    this.priceSource,
   });
 
   final int? id;
@@ -116,6 +119,17 @@ class Product {
   final String? notes;
   final ProductStatus status;
 
+  /// Цена за упаковку/шт в рублях (каталог Пятёрочки, v0.5.5) или null.
+  /// Заполняется только с устройства пользователя: поиск по названию
+  /// в каталоге магазина; без сети продукт остаётся полноценным.
+  final double? price;
+
+  /// Момент последнего обновления цены (для показа «актуально на…»).
+  final DateTime? priceUpdatedAt;
+
+  /// Откуда цена: 'pyaterochka' (автопоиск) или 'manual' (ввёл сам).
+  final String? priceSource;
+
   /// Имя пользователя сделал вводимым обязательно; пустые строки запрещаем
   /// на уровне DAO перед вставкой (trim + непусто).
   bool get isValid => name.trim().isNotEmpty;
@@ -138,6 +152,12 @@ class Product {
     String? notes,
     ProductStatus? status,
     bool clearNotes = false,
+    double? price,
+    bool clearPrice = false,
+    DateTime? priceUpdatedAt,
+    bool clearPriceUpdatedAt = false,
+    String? priceSource,
+    bool clearPriceSource = false,
   }) {
     return Product(
       id: id ?? this.id,
@@ -154,6 +174,11 @@ class Product {
       carbsPer100: carbsPer100 ?? this.carbsPer100,
       notes: clearNotes ? null : (notes ?? this.notes),
       status: status ?? this.status,
+      price: clearPrice ? null : (price ?? this.price),
+      priceUpdatedAt: clearPriceUpdatedAt
+          ? null
+          : (priceUpdatedAt ?? this.priceUpdatedAt),
+      priceSource: clearPriceSource ? null : (priceSource ?? this.priceSource),
     );
   }
 
@@ -172,6 +197,9 @@ class Product {
         'carbs_per_100': carbsPer100,
         'notes': notes,
         'status': status.key,
+        'price': price,
+        'price_updated_at': priceUpdatedAt?.toIso8601String(),
+        'price_source': priceSource,
       };
 
   static Product fromMap(Map<String, Object?> map) => Product(
@@ -189,6 +217,11 @@ class Product {
         carbsPer100: (map['carbs_per_100'] as num?)?.toDouble(),
         notes: map['notes'] as String?,
         status: ProductStatus.fromKey(map['status'] as String? ?? 'active'),
+        price: (map['price'] as num?)?.toDouble(),
+        priceUpdatedAt: map['price_updated_at'] == null
+            ? null
+            : DateTime.parse(map['price_updated_at'] as String),
+        priceSource: map['price_source'] as String?,
       );
 
   /// Дата в виде `yyyy-MM-dd` — лексикографический порядок строк

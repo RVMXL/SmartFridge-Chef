@@ -11,10 +11,13 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/freshness.dart';
 import '../../data/models/product.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../scan/pyaterochka_lookup.dart';
+import '../../state/settings_controller.dart';
 import '../widgets/common.dart';
 
 Future<Product?> showProductEditSheet(
@@ -60,10 +63,21 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
   late final TextEditingController _quantity;
   late final TextEditingController _barcode;
   late final TextEditingController _notes;
+  late final TextEditingController _price;
   late ProductCategory _category;
   late ProductUnit _unit;
   late DateTime _expiry;
   bool _triedSave = false;
+
+  // Цены Пятёрочки (v0.5.5): состояние автоподстановки.
+  PyaterochkaHit? _pyatHit;
+  bool _pyatLoading = false;
+  bool _pyatMissed = false;
+  bool _pyatStoreMissing = false;
+  PyaterochkaFailReason? _pyatFail;
+
+  /// Пользователь правил цену руками после последней автоподстановки.
+  bool _priceTouched = false;
 
   @override
   void initState() {
@@ -75,11 +89,18 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
     _barcode =
         TextEditingController(text: p?.barcode ?? widget.initialBarcode ?? '');
     _notes = TextEditingController(text: p?.notes ?? '');
+    _price = TextEditingController(
+        text: p?.price == null ? '' : _fmtPrice(p!.price!));
     _category =
         p?.category ?? widget.initialCategory ?? ProductCategory.other;
     _unit = p?.unit ?? ProductUnit.pcs;
     _expiry = p?.expiryDate ??
         DateTime.now().add(Duration(days: _category.defaultShelfLifeDays));
+    // Автоподстановка цены (если включена и цены ещё нет) — после кадра,
+    // чтобы context.read был легален.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _maybeAutoFetchPrice();
+    });
   }
 
   static String _fmtQty(double q) =>
@@ -91,10 +112,140 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
     _quantity.dispose();
     _barcode.dispose();
     _notes.dispose();
+    _price.dispose();
     super.dispose();
   }
 
   bool get _nameValid => _name.text.trim().isNotEmpty;
+
+  /// Автопоиск цены включён и магазин выбран?
+  bool get _pyatActive {
+    final settings = context.read<SettingsController>();
+    return settings.pyaterochkaEnabled &&
+        settings.pyaterochkaStoreCode.trim().isNotEmpty;
+  }
+
+  /// Тихая автоподстановка: только если фича включена, цены ещё нет
+  /// и имя уже заполнено (сканером/OFF). Никаких диалогов — не вышло,
+  /// значит поле остаётся пустым.
+  void _maybeAutoFetchPrice() {
+    final hasPrice = widget.existing?.price != null ||
+        _price.text.trim().isNotEmpty;
+    if (!_pyatActive || hasPrice || !_nameValid) return;
+    _fetchPrice();
+  }
+
+  Future<void> _fetchPrice() async {
+    final settings = context.read<SettingsController>();
+    final service = context.read<PyaterochkaService>();
+    final store = settings.pyaterochkaStoreCode.trim();
+    if (store.isEmpty) {
+      setState(() {
+        _pyatStoreMissing = true;
+        _pyatMissed = false;
+        _pyatFail = null;
+      });
+      return;
+    }
+    setState(() {
+      _pyatLoading = true;
+      _pyatStoreMissing = false;
+      _pyatMissed = false;
+      _pyatFail = null;
+    });
+    try {
+      final hits = await service.search(
+        storeCode: store,
+        query: _name.text.trim(),
+      );
+      if (!mounted) return;
+      final best = pickBestPyaterochkaHit(hits, _name.text.trim());
+      setState(() {
+        _pyatLoading = false;
+        if (best == null) {
+          _pyatMissed = true;
+        } else {
+          _pyatHit = best;
+          _price.text = _fmtPrice(best.price);
+        }
+      });
+    } on PyaterochkaUnavailable catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _pyatLoading = false;
+        _pyatFail = e.reason;
+      });
+    }
+  }
+
+  static String _fmtPrice(double v) => v == v.roundToDouble()
+      ? v.toStringAsFixed(0)
+      : v.toStringAsFixed(2);
+
+  /// Поле цены: ручной ввод всегда доступен; кнопка автоподстановки,
+  /// статусы и подсказки — только при включённой экспериментальной фиче
+  /// «Цены Пятёрочки».
+  Widget _buildPriceField(AppLocalizations l, ThemeData theme) {
+    final pyatOn = context.read<SettingsController>().pyaterochkaEnabled;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: _price,
+          keyboardType:
+              const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+            labelText: l.productFieldPrice,
+            suffixText: '₽',
+            suffixIcon: pyatOn
+                ? IconButton(
+                    icon: _pyatLoading
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child:
+                                CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.refresh),
+                    tooltip: l.pyatRefresh,
+                    onPressed: _pyatLoading ? null : _fetchPrice,
+                  )
+                : null,
+          ),
+          onChanged: (_) => _priceTouched = true,
+        ),
+        if (pyatOn) ...[
+          const SizedBox(height: 4),
+          if (_pyatLoading)
+            Text(l.pyatSearching,
+                style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant))
+          else if (_pyatHit != null)
+            Text(l.pyatMatched(_pyatHit!.name),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant))
+          else if (_pyatFail != null)
+            Text(
+              _pyatFail == PyaterochkaFailReason.blocked
+                  ? l.pyatUnavailable
+                  : l.pyatNoNetwork,
+              style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.error),
+            )
+          else if (_pyatStoreMissing)
+            Text(l.pyatStoreRequired,
+                style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.error))
+          else if (_pyatMissed)
+            Text(l.pyatNotFound,
+                style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant)),
+        ],
+      ],
+    );
+  }
 
   Future<void> _pickDate() async {
     final now = dateOnly(DateTime.now());
@@ -112,12 +263,20 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
     if (!_nameValid) return;
     final qty = double.tryParse(_quantity.text.replaceAll(',', '.')) ?? 1.0;
     final barcode = _barcode.text.trim();
-    final product = (widget.existing ?? Product(
-      name: '',
-      category: _category,
-      expiryDate: _expiry,
-      addedAt: DateTime.now(),
-    )).copyWith(
+    final price = double.tryParse(_price.text.replaceAll(',', '.').trim());
+    final base = widget.existing ??
+        Product(
+          name: '',
+          category: _category,
+          expiryDate: _expiry,
+          addedAt: DateTime.now(),
+        );
+    // Источник цены этой сессии: правка руками сильнее автоподстановки;
+    // null — цену не трогали, прежние метаданные сохраняются как есть.
+    final String? freshSource = _priceTouched
+        ? 'manual'
+        : (_pyatHit != null ? 'pyaterochka' : null);
+    final product = base.copyWith(
       name: _name.text.trim(),
       category: _category,
       barcode: barcode.isEmpty ? null : barcode,
@@ -125,6 +284,14 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
       unit: _unit,
       expiryDate: _expiry,
       notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
+      clearPrice: price == null,
+      clearPriceUpdatedAt: price == null,
+      clearPriceSource: price == null,
+      price: price,
+      priceUpdatedAt: price != null && freshSource != null
+          ? DateTime.now()
+          : null,
+      priceSource: freshSource,
     );
     Navigator.of(context).pop(product);
   }
@@ -216,6 +383,8 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
                 ),
               ],
             ),
+            const SizedBox(height: 16),
+            _buildPriceField(l, theme),
             const SizedBox(height: 16),
             Card(
               child: Padding(
