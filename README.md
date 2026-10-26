@@ -103,6 +103,7 @@
 | `test/` | 338 тестов: данные, планировщик, напоминания, парсер чеков, автопоиски, контроллеры (реальная SQLite через sqflite_common_ffi) |
 | `.github/workflows/ci.yml` | CI: analyze --fatal-infos + test --coverage |
 | `.github/workflows/release.yml` | Релиз по тегу `v*`: analyze + тесты → APK `SmartFridge-<версия>.apk` → GitHub Release (пре-релиз) |
+| `.github/workflows/codeql.yaml` | CodeQL (code scanning): security-анализ воркфлоу Actions, еженедельно + на пуш; Dart не поддерживается CodeQL и проверяется `flutter analyze` в CI |
 
 ## Сборка из исходников
 

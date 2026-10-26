@@ -1,0 +1,48 @@
+name: CodeQL
+
+# Статический анализ безопасности (GitHub code scanning; результаты —
+# Security → Code scanning alerts).
+#
+# ВАЖНО: CodeQL НЕ поддерживает Dart/Flutter (языки CodeQL: C/C++, C#,
+# Go, Java/Kotlin, JavaScript/TypeScript, Python, Ruby, Swift). Поэтому
+# здесь анализируется то единственное, что в этом репозитории реально
+# можно и нужно:
+#   actions — собственные воркфлоу .github/workflows/*.y*ml: скрипт-инъекции
+#   через ${{ github.event.* }} в run:, опасные pull_request_target и т.п.
+# Сам Dart-код статически проверяется в CI: flutter analyze --fatal-infos
+# (.github/workflows/ci.yml). Усилить набор запросов можно опцией
+# queries: security-extended — пока хватит стандартного security-набора.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Еженедельно по понедельникам, 03:17 UTC (06:17 МСК). Некруглая минута —
+    # чтобы не попадать в top-of-hour пик загрузки раннеров (рекомендация GitHub).
+    - cron: '17 3 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Анализ (actions)
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write   # выгрузка SARIF в Security → Code scanning
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Инициализация CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: actions
+          build-mode: none
+
+      - name: Анализ
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: '/language:actions'
