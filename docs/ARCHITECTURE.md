@@ -220,7 +220,7 @@ applyCookedDeductions применяет изменения одним паке�
 | `data/data_store.dart` | Ленивый доступ UI к DAO |
 | `ai/` | RuleBasedPlanner, IngredientMatcher, RecipeRepository, каркас LLM |
 | `notifications/` | reminder_logic (чистая), reminder_scheduler (контракт + плагин), reminder_sync (сверка desired/pending) |
-| `scan/` | receipt_parser — эвристики разбора текста чека; barcode_lookup — автопоиск OFF с кэшем; price_source — общий контракт источников цен (PriceHit, матчинг); pyaterochka_lookup, kroger_lookup, openprices_lookup — три источника цен (запросы только с устройства, фолбэки без сети) |
+| `scan/` | receipt_parser — эвристики разбора текста чека; barcode_lookup — автопоиск OFF с кэшем; price_source — общий контракт источников цен (PriceHit, матчинг); pyaterochka_lookup, kroger_lookup, openprices_lookup, mercadona_lookup (индекс-кэш каталога), aldi_lookup, wegmans_lookup — шесть источников цен (запросы только с устройства, фолбэки без сети) |
 | `state/` | SettingsController (тема/язык/напоминания), ProductController, ProfileController, PlanController |
 | `ui/fridge/` `ui/scan/` `ui/menu/` `ui/settings/` `ui/onboarding/` | Экраны Шага 3 |
 | `ui/widgets/common.dart` | Маппинги доменных ключей в локализованные названия, EmptyState и др. |

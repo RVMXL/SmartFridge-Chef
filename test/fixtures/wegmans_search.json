@@ -1,0 +1,24 @@
+{
+  "results": [
+    {
+      "sku": 484208,
+      "name": "Wegmans Organic 2% Milk"
+    },
+    {
+      "sku": 5891,
+      "name": "Wegmans Whole Milk, gal"
+    },
+    {
+      "sku": 100200,
+      "name": ""
+    },
+    {
+      "sku": null,
+      "name": "No SKU Item"
+    },
+    {
+      "sku": 300300,
+      "name": "Wegmans Lactose Free Milk, half gal"
+    }
+  ]
+}

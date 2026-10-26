@@ -1002,6 +1002,47 @@ class AppLocalizationsRu extends AppLocalizations {
       'Цена подставляется по отсканированному штрихкоду из открытой базы Open Prices (проект Open Food Facts): без ключей и регистрации. Покрытие краудсорсное и неравномерное — для части товаров цен пока нет.';
 
   @override
+  String get priceSourceMercadona => 'Mercadona — Испания';
+
+  @override
+  String get priceSourceAldi => 'Aldi Süd — Германия';
+
+  @override
+  String get priceSourceWegmans => 'Wegmans — США';
+
+  @override
+  String get priceMercadonaNote =>
+      'Каталог собирается один раз прямо с устройства при первом поиске (около минуты), затем кэшируется и отвечает мгновенно; раз в несколько дней обновляется в фоне. Цены — складские (без выбора магазина), поиск по названию — штрихкодов в этом каталоге нет.';
+
+  @override
+  String get priceAldiNote =>
+      'Поиск по всему ассортименту Aldi Süd (цены полки, без выбора магазина), запрос — прямо с устройства. При включённом VPN Aldi может блокировать запрос — тогда цена просто не подставится. Поиск по названию, штрихкодов нет.';
+
+  @override
+  String get wegmansKeyLabel => 'Subscription key (developer.wegmans.io)';
+
+  @override
+  String get wegmansFindStores => 'Найти магазины';
+
+  @override
+  String wegmansSelected(String name) {
+    return 'Выбрано: $name';
+  }
+
+  @override
+  String get wegmansPickTitle => 'Магазины Wegmans';
+
+  @override
+  String get wegmansNeedCredentials => 'Сначала укажите subscription key';
+
+  @override
+  String get wegmansStoresEmpty => 'Для этого ключа магазины не нашлись';
+
+  @override
+  String get wegmansHint =>
+      'Создайте бесплатный ключ на developer.wegmans.io и вставьте сюда; хранится только на устройстве. Магазины Wegmans — около 110 на северо-востоке США; цена подставляется как в выбранном магазине.';
+
+  @override
   String get pyatStoreCode => 'Код магазина (SAP)';
 
   @override

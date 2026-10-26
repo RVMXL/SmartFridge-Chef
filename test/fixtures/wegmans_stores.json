@@ -1,0 +1,27 @@
+{
+  "stores": [
+    {
+      "store": 68,
+      "name": "Pittsford",
+      "address": {
+        "addressLine1": "3195 Monroe Ave",
+        "city": "Rochester",
+        "state": "NY"
+      }
+    },
+    {
+      "store": 110,
+      "name": "Ithaca",
+      "address": {
+        "addressLine1": "610 South Meadow St",
+        "city": "Ithaca",
+        "state": "NY"
+      }
+    },
+    {
+      "storeNumber": 42,
+      "name": "Broken Number Schema",
+      "address": "100 Main St, Lancaster, NY"
+    }
+  ]
+}

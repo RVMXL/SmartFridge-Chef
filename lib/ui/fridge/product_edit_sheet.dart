@@ -16,10 +16,13 @@ import 'package:provider/provider.dart';
 import '../../core/freshness.dart';
 import '../../data/models/product.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../scan/aldi_lookup.dart';
 import '../../scan/kroger_lookup.dart';
+import '../../scan/mercadona_lookup.dart';
 import '../../scan/openprices_lookup.dart';
 import '../../scan/price_source.dart';
 import '../../scan/pyaterochka_lookup.dart';
+import '../../scan/wegmans_lookup.dart';
 import '../../state/settings_controller.dart';
 import '../widgets/common.dart';
 
@@ -189,6 +192,23 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
                 clientId: settings.krogerClientId,
                 clientSecret: settings.krogerClientSecret,
                 locationId: settings.krogerLocationId,
+                query: _name.text.trim(),
+              );
+          break;
+        case 'mercadona':
+          hits = await context
+              .read<MercadonaService>()
+              .search(query: _name.text.trim());
+          break;
+        case 'aldi':
+          hits = await context
+              .read<AldiService>()
+              .search(query: _name.text.trim());
+          break;
+        case 'wegmans':
+          hits = await context.read<WegmansService>().search(
+                subscriptionKey: settings.wegmansKey,
+                storeNumber: settings.wegmansStoreNumber,
                 query: _name.text.trim(),
               );
           break;

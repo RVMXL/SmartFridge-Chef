@@ -117,6 +117,10 @@ class SettingsController extends ChangeNotifier {
   static const String _kKrogerLocationId = 'pref_kroger_location_id';
   static const String _kKrogerLocationLabel = 'pref_kroger_location_label';
 
+  static const String _kWegmansKey = 'pref_wegmans_key';
+  static const String _kWegmansStoreNumber = 'pref_wegmans_store_number';
+  static const String _kWegmansStoreLabel = 'pref_wegmans_store_label';
+
   /// Подставлять цены при добавлении продукта (источник — [priceSourceKind]).
   /// Выключено по умолчанию: фича экспериментальная.
   bool get priceLookupEnabled => _prefs.getBool(_kPriceEnabled) ?? false;
@@ -126,13 +130,21 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Выбранный источник цены: 'pyaterochka' | 'kroger' | 'open_prices'.
-  /// По умолчанию 'pyaterochka' (наследует поведение пользователей 0.5.5,
-  /// у которых был включён pref_pyat_enabled).
+  /// Выбранный источник цены: 'pyaterochka' | 'kroger' | 'open_prices' |
+  /// 'mercadona' | 'aldi' | 'wegmans'. По умолчанию 'pyaterochka'
+  /// (наследует поведение пользователей 0.5.5, у которых был включён
+  /// pref_pyat_enabled).
   String get priceSourceKind => _prefs.getString(_kPriceSource) ?? 'pyaterochka';
 
   Future<void> setPriceSourceKind(String kind) async {
-    assert(['pyaterochka', 'kroger', 'open_prices'].contains(kind));
+    assert([
+      'pyaterochka',
+      'kroger',
+      'open_prices',
+      'mercadona',
+      'aldi',
+      'wegmans',
+    ].contains(kind));
     await _prefs.setString(_kPriceSource, kind);
     notifyListeners();
   }
@@ -182,9 +194,32 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Человекочитаемое описание выбранного магазина («RALPHS — Ralphs…, …»).
+  /// Человекочитаемое описание выбранного магазина («RALPHS — Ralphs…, …»).  
   String get krogerLocationLabel =>
       _prefs.getString(_kKrogerLocationLabel) ?? '';
+
+  // ------------------------------- Wegmans (США): ключ пользователя
+
+  /// Subscription key приложения пользователя (developer.wegmans.io).
+  String get wegmansKey => _prefs.getString(_kWegmansKey) ?? '';
+
+  Future<void> setWegmansKey(String v) async {
+    await _prefs.setString(_kWegmansKey, v.trim());
+    notifyListeners();
+  }
+
+  /// Номер выбранного магазина Wegmans (в путях цен). Пусто — не выбран.
+  String get wegmansStoreNumber =>
+      _prefs.getString(_kWegmansStoreNumber) ?? '';
+
+  Future<void> setWegmansStore(String number, String label) async {
+    await _prefs.setString(_kWegmansStoreNumber, number.trim());
+    await _prefs.setString(_kWegmansStoreLabel, label);
+    notifyListeners();
+  }
+
+  /// Человекочитаемое описание выбранного магазина («Wegmans — Pittsford…»).  
+  String get wegmansStoreLabel => _prefs.getString(_kWegmansStoreLabel) ?? '';
 
   /// Готов ли источник цены к работе (без диалогов в форме продукта).
   bool get priceSourceReady {
@@ -196,7 +231,12 @@ class SettingsController extends ChangeNotifier {
             krogerClientSecret.trim().isNotEmpty &&
             krogerLocationId.trim().isNotEmpty;
       case 'open_prices':
+      case 'mercadona':
+      case 'aldi':
         return true; // ключей и настроек не требует
+      case 'wegmans':
+        return wegmansKey.trim().isNotEmpty &&
+            wegmansStoreNumber.trim().isNotEmpty;
     }
     return false;
   }

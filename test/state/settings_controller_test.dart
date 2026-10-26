@@ -57,4 +57,31 @@ void main() {
     await s.setNotificationHour(22);
     expect(s.notificationHour, 22);
   });
+
+  // ------------------------------------ источники цен (v0.5.6–v0.5.8)
+
+  test('источник цены: новые виды сохраняются, готовность по настройкам',
+      () async {
+    final prefs = await SharedPreferences.getInstance();
+    final s = SettingsController(prefs);
+
+    // Новые источники v0.5.8 принимаются без настроек (кроме Wegmans).
+    await s.setPriceSourceKind('mercadona');
+    expect(s.priceSourceKind, 'mercadona');
+    expect(s.priceSourceReady, isTrue);
+
+    await s.setPriceSourceKind('aldi');
+    expect(s.priceSourceKind, 'aldi');
+    expect(s.priceSourceReady, isTrue);
+
+    // Wegmans готов только с ключом и магазином.
+    await s.setPriceSourceKind('wegmans');
+    expect(s.priceSourceReady, isFalse);
+    await s.setWegmansKey(' key-123 ');
+    await s.setWegmansStore('68', 'Pittsford (#68)');
+    expect(s.wegmansKey, 'key-123'); // trim
+    expect(s.wegmansStoreNumber, '68');
+    expect(s.wegmansStoreLabel, 'Pittsford (#68)');
+    expect(s.priceSourceReady, isTrue);
+  });
 }

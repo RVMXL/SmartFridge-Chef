@@ -10,7 +10,7 @@ import '../../data/models/user_profile.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../notifications/reminder_scheduler.dart';
 import '../../scan/kroger_lookup.dart';
-import '../../scan/price_source.dart';
+import '../../scan/wegmans_lookup.dart';
 import '../../state/profile_controller.dart';
 import '../../state/product_controller.dart';
 import '../../state/settings_controller.dart';
@@ -172,6 +172,18 @@ class SettingsScreen extends StatelessWidget {
                           value: 'open_prices',
                           child: Text(l.priceSourceOpenPrices),
                         ),
+                        DropdownMenuItem(
+                          value: 'mercadona',
+                          child: Text(l.priceSourceMercadona),
+                        ),
+                        DropdownMenuItem(
+                          value: 'aldi',
+                          child: Text(l.priceSourceAldi),
+                        ),
+                        DropdownMenuItem(
+                          value: 'wegmans',
+                          child: Text(l.priceSourceWegmans),
+                        ),
                       ],
                       onChanged: (kind) {
                         if (kind != null) settings.setPriceSourceKind(kind);
@@ -192,6 +204,13 @@ class SettingsScreen extends StatelessWidget {
                                       theme.colorScheme.onSurfaceVariant)),
                         ),
                       ),
+                    if (settings.priceSourceKind == 'mercadona')
+                      _buildNoteOnly(
+                          l.priceMercadonaNote, theme),
+                    if (settings.priceSourceKind == 'aldi')
+                      _buildNoteOnly(l.priceAldiNote, theme),
+                    if (settings.priceSourceKind == 'wegmans')
+                      _buildWegmansConfig(context, l, theme, settings),
                   ],
                 ],
               ),
@@ -294,6 +313,144 @@ class SettingsScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  /// Заметка без настроек (Open Prices, Mercadona, Aldi).
+  Widget _buildNoteOnly(String note, ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(note,
+            style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant)),
+      ),
+    );
+  }
+
+  /// Конфиг Wegmans: subscription key пользователя и выбор магазина.
+  Widget _buildWegmansConfig(BuildContext context, AppLocalizations l,
+      ThemeData theme, SettingsController settings) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFormField(
+          initialValue: settings.wegmansKey,
+          decoration:
+              InputDecoration(labelText: l.wegmansKeyLabel),
+          onChanged: settings.setWegmansKey,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: OutlinedButton.icon(
+            icon: const Icon(Icons.storefront_outlined),
+            label: Text(l.wegmansFindStores),
+            onPressed: () => _pickWegmansStore(context),
+          ),
+        ),
+        if (settings.wegmansStoreNumber.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              l.wegmansSelected(
+                  settings.wegmansStoreLabel.isEmpty
+                      ? settings.wegmansStoreNumber
+                      : settings.wegmansStoreLabel),
+              style: theme.textTheme.bodySmall,
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(l.wegmansHint,
+                style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Диалог выбора магазина Wegmans по subscription key: FutureBuilder
+  /// над Stores API; тап сохраняет номер + человекочитаемый label.
+  Future<void> _pickWegmansStore(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    final settings = context.read<SettingsController>();
+    final wegmans = context.read<WegmansService>();
+
+    if (settings.wegmansKey.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.wegmansNeedCredentials)),
+      );
+      return;
+    }
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l.wegmansPickTitle),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: FutureBuilder<List<WegmansStore>>(
+            future: wegmans.stores(
+              subscriptionKey: settings.wegmansKey,
+            ),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+              if (snapshot.hasError) {
+                final reason = snapshot.error is PriceUnavailable
+                    ? (snapshot.error as PriceUnavailable).reason
+                    : PriceFailReason.network;
+                return Text(
+                  switch (reason) {
+                    PriceFailReason.auth => l.priceAuthError,
+                    PriceFailReason.blocked => l.priceUnavailable,
+                    PriceFailReason.network => l.priceNoNetwork,
+                  },
+                );
+              }
+              final stores = snapshot.data ?? const <WegmansStore>[];
+              if (stores.isEmpty) {
+                return Text(l.wegmansStoresEmpty);
+              }
+              return ListView.builder(
+                shrinkWrap: true,
+                itemCount: stores.length,
+                itemBuilder: (context, i) {
+                  final store = stores[i];
+                  return ListTile(
+                    dense: true,
+                    title: Text(
+                        '${store.name} (#${store.storeNumber})'),
+                    subtitle: Text(store.shortAddress),
+                    onTap: () {
+                      settings.setWegmansStore(
+                        store.storeNumber,
+                        '${store.name} (#${store.storeNumber})'
+                        '${store.shortAddress.isEmpty ? '' : ', ${store.shortAddress}'}',
+                      );
+                      Navigator.of(dialogContext).pop();
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+          ),
+        ],
+      ),
     );
   }
 

@@ -1,0 +1,155 @@
+{
+  "meta": {
+    "pagination": {
+      "offset": 0,
+      "limit": 12,
+      "totalCount": 3
+    },
+    "facets": [
+      {
+        "name": "category-tree",
+        "localizedName": "Kategorie",
+        "config": {
+          "parameterName": "categoryTree"
+        },
+        "values": []
+      }
+    ]
+  },
+  "data": [
+    {
+      "sku": "000000000000591248",
+      "name": "Vollmilch 3,5%",
+      "brandName": "MILSANI",
+      "urlSlugText": "milsani-vollmilch-35",
+      "sellingSize": "1 l",
+      "quantityUnit": "ea",
+      "notForSale": false,
+      "discontinued": false,
+      "isAbstract": false,
+      "abstractSku": "",
+      "price": {
+        "amount": 119,
+        "amountRelevant": 119,
+        "comparison": 119,
+        "bottleDeposit": 25,
+        "bottleDepositType": "MEHRWEG",
+        "amountRelevantDisplay": "1,19 €",
+        "comparisonDisplay": "1,19 €/1 l",
+        "bottleDepositDisplay": "0,25 €",
+        "perUnitDisplay": "",
+        "currencyCode": "EUR",
+        "currencySymbol": "€",
+        "wasPriceDisplay": "",
+        "savingsDisplay": "",
+        "additionalInfo": "",
+        "feeText": ""
+      },
+      "categories": [
+        {
+          "id": "milchprodukte",
+          "name": "Milchprodukte",
+          "urlSlugText": "milchprodukte"
+        }
+      ],
+      "assets": [],
+      "badges": []
+    },
+    {
+      "sku": "000000000000297348",
+      "name": "Orangensaft 1 l",
+      "brandName": "VALENSINA",
+      "urlSlugText": "valensina-orangensaft-1-l",
+      "sellingSize": "1 l",
+      "quantityUnit": "ea",
+      "notForSale": false,
+      "discontinued": false,
+      "isAbstract": false,
+      "abstractSku": "",
+      "price": {
+        "amount": 129,
+        "amountRelevant": 129,
+        "comparison": 129,
+        "bottleDeposit": 0,
+        "bottleDepositType": "",
+        "amountRelevantDisplay": "1,29 €",
+        "comparisonDisplay": "1,29 €/1 l",
+        "bottleDepositDisplay": "",
+        "perUnitDisplay": "",
+        "currencyCode": "EUR",
+        "currencySymbol": "€",
+        "wasPriceDisplay": "1,99 €",
+        "savingsDisplay": "35 %",
+        "additionalInfo": "",
+        "feeText": ""
+      },
+      "categories": [],
+      "assets": [],
+      "badges": []
+    },
+    {
+      "sku": "000000000000801001",
+      "name": "Hackfleisch gemischt",
+      "brandName": "GUT BIO",
+      "urlSlugText": "gut-bio-hackfleisch",
+      "sellingSize": "500 g",
+      "quantityUnit": "kg",
+      "notForSale": true,
+      "discontinued": false,
+      "isAbstract": false,
+      "abstractSku": "",
+      "price": {
+        "amount": 549,
+        "amountRelevant": 549,
+        "comparison": 1098,
+        "bottleDeposit": 0,
+        "bottleDepositType": "",
+        "amountRelevantDisplay": "5,49 €",
+        "comparisonDisplay": "10,98 €/1 kg",
+        "bottleDepositDisplay": "",
+        "perUnitDisplay": "",
+        "currencyCode": "EUR",
+        "currencySymbol": "€",
+        "wasPriceDisplay": "",
+        "savingsDisplay": "",
+        "additionalInfo": "",
+        "feeText": ""
+      },
+      "categories": [],
+      "assets": [],
+      "badges": []
+    },
+    {
+      "sku": "000000000000111222",
+      "name": "Alter Artikel",
+      "brandName": "ALT",
+      "urlSlugText": "alter-artikel",
+      "sellingSize": "1 St",
+      "quantityUnit": "ea",
+      "notForSale": true,
+      "discontinued": true,
+      "isAbstract": false,
+      "abstractSku": "",
+      "price": {
+        "amount": 999,
+        "amountRelevant": 999,
+        "comparison": 999,
+        "bottleDeposit": 0,
+        "bottleDepositType": "",
+        "amountRelevantDisplay": "9,99 €",
+        "comparisonDisplay": "9,99 €/1 St",
+        "bottleDepositDisplay": "",
+        "perUnitDisplay": "",
+        "currencyCode": "EUR",
+        "currencySymbol": "€",
+        "wasPriceDisplay": "",
+        "savingsDisplay": "",
+        "additionalInfo": "",
+        "feeText": ""
+      },
+      "categories": [],
+      "assets": [],
+      "badges": []
+    }
+  ]
+}

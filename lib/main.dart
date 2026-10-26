@@ -14,10 +14,13 @@ import 'data/data_store.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'notifications/reminder_scheduler.dart';
 import 'notifications/reminder_sync.dart';
+import 'scan/aldi_lookup.dart';
 import 'scan/barcode_lookup.dart';
 import 'scan/kroger_lookup.dart';
+import 'scan/mercadona_lookup.dart';
 import 'scan/openprices_lookup.dart';
 import 'scan/pyaterochka_lookup.dart';
+import 'scan/wegmans_lookup.dart';
 import 'state/plan_controller.dart';
 import 'state/product_controller.dart';
 import 'state/profile_controller.dart';
@@ -66,11 +69,14 @@ void main() async {
     openDb: AppDataStore.instance.database,
   );
 
-  // Источники цен (v0.5.5–v0.5.6, эксперимент): запросы только
-  // с устройства; ключи Kroger — свои у каждого пользователя.
+  // Источники цен (v0.5.5–v0.5.8, эксперимент): запросы только
+  // с устройства; ключи Kroger/Wegmans — свои у каждого пользователя.
   final pyaterochka = PyaterochkaService();
   final kroger = KrogerService();
   final openPrices = OpenPricesService();
+  final mercadona = MercadonaService();
+  final aldi = AldiService();
+  final wegmans = WegmansService();
 
   runApp(SmartFridgeApp(
     settings: settings,
@@ -83,6 +89,9 @@ void main() async {
     pyaterochka: pyaterochka,
     kroger: kroger,
     openPrices: openPrices,
+    mercadona: mercadona,
+    aldi: aldi,
+    wegmans: wegmans,
   ));
 }
 
@@ -99,6 +108,9 @@ class SmartFridgeApp extends StatelessWidget {
     required this.pyaterochka,
     required this.kroger,
     required this.openPrices,
+    required this.mercadona,
+    required this.aldi,
+    required this.wegmans,
   });
 
   final SettingsController settings;
@@ -111,6 +123,9 @@ class SmartFridgeApp extends StatelessWidget {
   final PyaterochkaService pyaterochka;
   final KrogerService kroger;
   final OpenPricesService openPrices;
+  final MercadonaService mercadona;
+  final AldiService aldi;
+  final WegmansService wegmans;
 
   /// Семенной цвет обеих тем — зелёный «свежести» (#2E7D32).
   static const Color seedColor = Color(0xFF2E7D32);
@@ -129,6 +144,9 @@ class SmartFridgeApp extends StatelessWidget {
         Provider<PyaterochkaService>.value(value: pyaterochka),
         Provider<KrogerService>.value(value: kroger),
         Provider<OpenPricesService>.value(value: openPrices),
+        Provider<MercadonaService>.value(value: mercadona),
+        Provider<AldiService>.value(value: aldi),
+        Provider<WegmansService>.value(value: wegmans),
       ],
       child: Consumer<SettingsController>(
         builder: (context, s, _) => MaterialApp(

@@ -997,6 +997,47 @@ class AppLocalizationsEn extends AppLocalizations {
       'The price is filled from the open Open Prices database (Open Food Facts project) by the scanned barcode: no keys, no registration. Coverage is crowdsourced and uneven — some products have no prices yet.';
 
   @override
+  String get priceSourceMercadona => 'Mercadona — Spain';
+
+  @override
+  String get priceSourceAldi => 'Aldi Süd — Germany';
+
+  @override
+  String get priceSourceWegmans => 'Wegmans — USA';
+
+  @override
+  String get priceMercadonaNote =>
+      'The catalog is fetched once straight from the device on the first search (about a minute), then cached and answered instantly; it refreshes in the background every few days. Prices are warehouse prices (no store selection), name-based search — no barcodes in this catalog.';
+
+  @override
+  String get priceAldiNote =>
+      'Search across the whole Aldi Süd assortment (shelf prices, no store selection), straight from the device. With VPN on, Aldi may block the request — then the price simply won\'t be filled. Search by name, no barcodes.';
+
+  @override
+  String get wegmansKeyLabel => 'Subscription key (developer.wegmans.io)';
+
+  @override
+  String get wegmansFindStores => 'Find stores';
+
+  @override
+  String wegmansSelected(String name) {
+    return 'Selected: $name';
+  }
+
+  @override
+  String get wegmansPickTitle => 'Wegmans stores';
+
+  @override
+  String get wegmansNeedCredentials => 'Fill in the subscription key first';
+
+  @override
+  String get wegmansStoresEmpty => 'No stores found for this key';
+
+  @override
+  String get wegmansHint =>
+      'Create a free key at developer.wegmans.io and paste it here; it is stored only on the device. Wegmans operates ~110 stores in the northeastern USA — the price matches the selected store.';
+
+  @override
   String get pyatStoreCode => 'Store code (SAP)';
 
   @override

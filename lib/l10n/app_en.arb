@@ -437,6 +437,18 @@
   "priceNotConfigured": "Price source not configured — see Settings",
   "priceBarcodeRequired": "Open Prices needs the product barcode",
   "priceOpenPricesNote": "The price is filled from the open Open Prices database (Open Food Facts project) by the scanned barcode: no keys, no registration. Coverage is crowdsourced and uneven — some products have no prices yet.",
+  "priceSourceMercadona": "Mercadona — Spain",
+  "priceSourceAldi": "Aldi Süd — Germany",
+  "priceSourceWegmans": "Wegmans — USA",
+  "priceMercadonaNote": "The catalog is fetched once straight from the device on the first search (about a minute), then cached and answered instantly; it refreshes in the background every few days. Prices are warehouse prices (no store selection), name-based search — no barcodes in this catalog.",
+  "priceAldiNote": "Search across the whole Aldi Süd assortment (shelf prices, no store selection), straight from the device. With VPN on, Aldi may block the request — then the price simply won't be filled. Search by name, no barcodes.",
+  "wegmansKeyLabel": "Subscription key (developer.wegmans.io)",
+  "wegmansFindStores": "Find stores",
+  "wegmansSelected": "Selected: {name}",
+  "wegmansPickTitle": "Wegmans stores",
+  "wegmansNeedCredentials": "Fill in the subscription key first",
+  "wegmansStoresEmpty": "No stores found for this key",
+  "wegmansHint": "Create a free key at developer.wegmans.io and paste it here; it is stored only on the device. Wegmans operates ~110 stores in the northeastern USA — the price matches the selected store.",
   "pyatStoreCode": "Store code (SAP)",
   "pyatStoreHint": "The code is 4 characters, e.g. 35XY. Get it on 5ka.ru: pick your store for delivery and find the sapCode in any catalog request URL (DevTools → Network → …/stores/CODE/…). Prices will match that store.",
   "pyatVpnNote": "Requests go straight from the device — no keys, no accounts. Pyaterochka blocks VPN and datacenter IPs: with VPN on, the price simply won't be filled — everything else keeps working.",
@@ -458,6 +470,13 @@
     }
   },
   "@krogerSelected": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@wegmansSelected": {
     "placeholders": {
       "name": {
         "type": "String"

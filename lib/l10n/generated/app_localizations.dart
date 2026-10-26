@@ -1850,6 +1850,78 @@ abstract class AppLocalizations {
   /// **'The price is filled from the open Open Prices database (Open Food Facts project) by the scanned barcode: no keys, no registration. Coverage is crowdsourced and uneven — some products have no prices yet.'**
   String get priceOpenPricesNote;
 
+  /// No description provided for @priceSourceMercadona.
+  ///
+  /// In en, this message translates to:
+  /// **'Mercadona — Spain'**
+  String get priceSourceMercadona;
+
+  /// No description provided for @priceSourceAldi.
+  ///
+  /// In en, this message translates to:
+  /// **'Aldi Süd — Germany'**
+  String get priceSourceAldi;
+
+  /// No description provided for @priceSourceWegmans.
+  ///
+  /// In en, this message translates to:
+  /// **'Wegmans — USA'**
+  String get priceSourceWegmans;
+
+  /// No description provided for @priceMercadonaNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The catalog is fetched once straight from the device on the first search (about a minute), then cached and answered instantly; it refreshes in the background every few days. Prices are warehouse prices (no store selection), name-based search — no barcodes in this catalog.'**
+  String get priceMercadonaNote;
+
+  /// No description provided for @priceAldiNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Search across the whole Aldi Süd assortment (shelf prices, no store selection), straight from the device. With VPN on, Aldi may block the request — then the price simply won\'t be filled. Search by name, no barcodes.'**
+  String get priceAldiNote;
+
+  /// No description provided for @wegmansKeyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription key (developer.wegmans.io)'**
+  String get wegmansKeyLabel;
+
+  /// No description provided for @wegmansFindStores.
+  ///
+  /// In en, this message translates to:
+  /// **'Find stores'**
+  String get wegmansFindStores;
+
+  /// No description provided for @wegmansSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected: {name}'**
+  String wegmansSelected(String name);
+
+  /// No description provided for @wegmansPickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wegmans stores'**
+  String get wegmansPickTitle;
+
+  /// No description provided for @wegmansNeedCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the subscription key first'**
+  String get wegmansNeedCredentials;
+
+  /// No description provided for @wegmansStoresEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No stores found for this key'**
+  String get wegmansStoresEmpty;
+
+  /// No description provided for @wegmansHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a free key at developer.wegmans.io and paste it here; it is stored only on the device. Wegmans operates ~110 stores in the northeastern USA — the price matches the selected store.'**
+  String get wegmansHint;
+
   /// No description provided for @pyatStoreCode.
   ///
   /// In en, this message translates to:
