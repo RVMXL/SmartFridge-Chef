@@ -1622,6 +1622,72 @@ abstract class AppLocalizations {
   /// **'Lupin'**
   String get allergenLupin;
 
+  /// No description provided for @allergenHoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Honey'**
+  String get allergenHoney;
+
+  /// No description provided for @allergenChocolate.
+  ///
+  /// In en, this message translates to:
+  /// **'Chocolate, cocoa, coffee'**
+  String get allergenChocolate;
+
+  /// No description provided for @allergenRedProduce.
+  ///
+  /// In en, this message translates to:
+  /// **'Red and orange produce'**
+  String get allergenRedProduce;
+
+  /// No description provided for @allergenMushrooms.
+  ///
+  /// In en, this message translates to:
+  /// **'Mushrooms'**
+  String get allergenMushrooms;
+
+  /// No description provided for @allergenSpices.
+  ///
+  /// In en, this message translates to:
+  /// **'Garlic, cinnamon, spices'**
+  String get allergenSpices;
+
+  /// No description provided for @allergenPoultry.
+  ///
+  /// In en, this message translates to:
+  /// **'Poultry (chicken, turkey)'**
+  String get allergenPoultry;
+
+  /// No description provided for @allergenBeef.
+  ///
+  /// In en, this message translates to:
+  /// **'Beef'**
+  String get allergenBeef;
+
+  /// No description provided for @allergenPork.
+  ///
+  /// In en, this message translates to:
+  /// **'Pork'**
+  String get allergenPork;
+
+  /// No description provided for @allergenMildFruits.
+  ///
+  /// In en, this message translates to:
+  /// **'Peaches, apricots, grapes'**
+  String get allergenMildFruits;
+
+  /// No description provided for @allergenMildCereals.
+  ///
+  /// In en, this message translates to:
+  /// **'Rice, buckwheat, corn'**
+  String get allergenMildCereals;
+
+  /// No description provided for @allergenMildVegetables.
+  ///
+  /// In en, this message translates to:
+  /// **'Peppers, potatoes, peas'**
+  String get allergenMildVegetables;
+
   /// No description provided for @onbDislikesTitle.
   ///
   /// In en, this message translates to:

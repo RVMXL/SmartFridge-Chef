@@ -75,33 +75,92 @@ void main() {
     // Инвариант той же карты, что в scripts/fix_recipe_allergens.py:
     // генератор недопоставил метки (например, манка без «wheat» ловилась
     // жёстким фильтром аллергий только частично). Тест не даёт регрессии.
-    const requiredByKey = <String, String>{
-      'flour': 'wheat', 'bread': 'wheat', 'bread_rye': 'wheat',
-      'pasta': 'wheat', 'semolina': 'wheat', 'bulgur_cooked': 'wheat',
-      'couscous_cooked': 'wheat', 'pearl_barley': 'wheat',
-      'barley_cooked': 'wheat', 'soy_sauce': 'wheat',
-      'mayo': 'eggs', 'egg': 'eggs',
-      'milk': 'milk', 'kefir': 'milk', 'yogurt': 'milk',
-      'sour_cream': 'milk', 'cottage_cheese': 'milk', 'cheese': 'milk',
-      'butter': 'milk', 'cream': 'milk',
-      'salmon': 'fish', 'cod': 'fish', 'pollock': 'fish',
-      'herring': 'fish', 'tuna_can': 'fish', 'minced_fish': 'fish',
-      'shrimp': 'shellfish', 'squid': 'shellfish',
-      'walnut': 'nuts', 'almond': 'nuts',
-      'peanut_butter': 'peanuts', 'tofu': 'soy',
+    // v0.5.7: карта дополнена деривациями расширенного списка аллергенов
+    // (мёд, шоколад, грибы, красные плоды, пряности, птица, говядина,
+    // свинина, крупы/овощи умеренной аллергенности, овсянка → глютен,
+    // соевый соус/тофу → соя).
+    // Значения — множества: один ингредиент может требовать нескольких
+    // меток (соевый соус — это и соя, и пшеница).
+    const requiredByKey = <String, Set<String>>{
+      'flour': {'wheat'}, 'bread': {'wheat'}, 'bread_rye': {'wheat'},
+      'pasta': {'wheat'}, 'semolina': {'wheat'},
+      'bulgur_cooked': {'wheat'},
+      'couscous_cooked': {'wheat'}, 'pearl_barley': {'wheat'},
+      'barley_cooked': {'wheat'}, 'soy_sauce': {'wheat', 'soy'},
+      'oat_flakes': {'wheat'},
+      'mayo': {'eggs'}, 'egg': {'eggs'},
+      'milk': {'milk'}, 'kefir': {'milk'}, 'yogurt': {'milk'},
+      'sour_cream': {'milk'}, 'cottage_cheese': {'milk'},
+      'cheese': {'milk'},
+      'butter': {'milk'}, 'cream': {'milk'},
+      'salmon': {'fish'}, 'cod': {'fish'}, 'pollock': {'fish'},
+      'herring': {'fish'}, 'tuna_can': {'fish'}, 'minced_fish': {'fish'},
+      'shrimp': {'shellfish'}, 'squid': {'shellfish'},
+      'walnut': {'nuts'}, 'almond': {'nuts'},
+      'peanut_butter': {'peanuts'},
+      'tofu': {'soy'},
+      'honey': {'honey'}, 'chocolate': {'chocolate'},
+      'mushroom': {'mushrooms'},
+      'orange': {'red_produce'}, 'lemon': {'red_produce'},
+      'cherry': {'red_produce'}, 'berries': {'red_produce'},
+      'tomato': {'red_produce'}, 'tomato_paste': {'red_produce'},
+      'carrot': {'red_produce'}, 'beetroot': {'red_produce'},
+      'pumpkin': {'red_produce'},
+      'garlic': {'spices'}, 'cinnamon': {'spices'}, 'pepper': {'spices'},
+      'spices': {'spices'}, 'herbs_dried': {'spices'},
+      'bay_leaf': {'spices'},
+      'chicken_breast': {'poultry'}, 'chicken_thigh': {'poultry'},
+      'turkey': {'poultry'}, 'minced_chicken': {'poultry'},
+      'minced_turkey': {'poultry'}, 'chicken_liver': {'poultry'},
+      'beef': {'beef'}, 'minced_beef': {'beef'}, 'pork': {'pork'},
+      'raisins': {'mild_fruits'},
+      'rice': {'mild_cereals'}, 'buckwheat': {'mild_cereals'},
+      'corn': {'mild_cereals'},
+      'bell_pepper': {'mild_vegetables'}, 'potato': {'mild_vegetables'},
+      'green_peas': {'mild_vegetables'},
+      'split_peas': {'mild_vegetables'},
     };
     final problems = <String>[];
     for (final r in recipes) {
       for (final ing in r.ingredients) {
         final required = requiredByKey[ing.key];
         if (required == null) continue;
-        final have = r.allergens.map((a) => a.key);
-        if (!have.contains(required)) {
-          problems.add('${r.id}: ключ ${ing.key} требует "$required"');
+        final have = r.allergens.map((a) => a.key).toSet();
+        for (final need in required) {
+          if (!have.contains(need)) {
+            problems.add('${r.id}: ключ ${ing.key} требует "$need"');
+          }
         }
       }
     }
     expect(problems, isEmpty, reason: problems.join('; '));
+  });
+
+  test('расширенные аллергены v0.5.7 реально покрыты базой', () {
+    // Каждый новый пункт должен что-то исключать: иначе чип в профиле
+    // вводит в заблуждение. Исключения — «на будущее» (как люпин):
+    // кунжута и люпина в составе рецептов нет.
+    const covered = <String, int>{
+      'honey': 1, 'chocolate': 1, 'mushrooms': 1, 'red_produce': 10,
+      'spices': 10, 'poultry': 10, 'beef': 1, 'pork': 1,
+      'mild_fruits': 1, 'mild_cereals': 10, 'mild_vegetables': 10,
+    };
+    final counts = <String, int>{};
+    for (final r in recipes) {
+      for (final a in r.allergens) {
+        counts[a.key] = (counts[a.key] ?? 0) + 1;
+      }
+    }
+    for (final entry in covered.entries) {
+      expect(counts[entry.key] ?? 0, greaterThanOrEqualTo(entry.value),
+          reason: 'аллерген ${entry.key} почти не покрыт базой');
+    }
+    // Крупы/овощи/красные плоды/пряности/птица — самые массовые группы:
+    // проверяем нижнюю границу, чтобы деривация не «истончилась».
+    expect(counts['poultry'], greaterThanOrEqualTo(50),
+        reason: 'птица должна закрывать все куриные/индюшиные рецепты');
+    expect(counts['mild_vegetables'], greaterThanOrEqualTo(100),
+        reason: 'картофель в четверти базы');
   });
 
   test('безопасность: религиозные флаги согласованы с составом', () {

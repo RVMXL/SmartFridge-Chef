@@ -874,6 +874,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allergenLupin => 'Lupin';
 
   @override
+  String get allergenHoney => 'Honey';
+
+  @override
+  String get allergenChocolate => 'Chocolate, cocoa, coffee';
+
+  @override
+  String get allergenRedProduce => 'Red and orange produce';
+
+  @override
+  String get allergenMushrooms => 'Mushrooms';
+
+  @override
+  String get allergenSpices => 'Garlic, cinnamon, spices';
+
+  @override
+  String get allergenPoultry => 'Poultry (chicken, turkey)';
+
+  @override
+  String get allergenBeef => 'Beef';
+
+  @override
+  String get allergenPork => 'Pork';
+
+  @override
+  String get allergenMildFruits => 'Peaches, apricots, grapes';
+
+  @override
+  String get allergenMildCereals => 'Rice, buckwheat, corn';
+
+  @override
+  String get allergenMildVegetables => 'Peppers, potatoes, peas';
+
+  @override
   String get onbDislikesTitle => 'What don\'t you like?';
 
   @override

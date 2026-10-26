@@ -213,9 +213,10 @@ class Recipe {
   }
 
   /// Аллергены рецепта: список из JSON (9 базовых, считается генератором
-  /// базы) ОБЪЕДИНЯЕТСЯ с аллергенами, выводимыми по ключам ингредиентов
-  /// для новых пунктов «большой 14» (v0.5.4: сельдерей, горчица, сульфиты).
-  /// Так новые аллергены не требуют перегенерации recipes.json.
+  /// базы) ОБЪЕДИНЯЕТСЯ с аллергенами, выводимыми по ключам ингредиентов —
+  /// для «большой 14» (v0.5.4: сельдерей, горчица, сульфиты) и для
+  /// расширенного списка частых аллергенов (v0.5.7). Так новые аллергены
+  /// не требуют перегенерации recipes.json.
   static List<Allergen> _allergensOf(Map<String, Object?> j) {
     final result =
         (j['allergens'] as List<dynamic>? ?? const [])
@@ -232,10 +233,74 @@ class Recipe {
 
   /// Ключ ингредиента → аллерген (вывод по составу). Уксус помечается
   /// сульфитами консервативно: винный/бальзамический уксус их содержит.
+  ///
+  /// v0.5.7 — расширенный список частых аллергенов:
+  ///  • wheat дополнен овсяными хлопьями (рожь/ячмень и пшеничные крупы —
+  ///    манка, булгур, кускус — генератор уже пометил, а овсянку нет);
+  ///  • мёд, шоколад, грибы, красные/оранжевые плоды, пряности, птица,
+  ///    говядина, свинина, крупы и овощи умеренной аллергенности
+  ///    выводятся из ключей ингредиентов;
+  ///  • группа «персики, абрикосы, виноград» покрывается изюмом (сушёный
+  ///    виноград); свежих персиков/абрикосов/ананасов в базе нет.
   static const Map<String, Allergen> _allergenByKey = {
     'celery': Allergen.celery,
     'mustard': Allergen.mustard,
     'vinegar': Allergen.sulphites,
+    // Злаки с глютеном: овёс (рожь/ячмень уже помечены генератором).
+    'oat_flakes': Allergen.wheat,
+    // Мёд и продукты пчеловодства.
+    'honey': Allergen.honey,
+    // Шоколад/какао (кофе в рецептах не встречается).
+    'chocolate': Allergen.chocolate,
+    // Красные и оранжевые плоды: цитрусовые, красные ягоды, томаты,
+    // морковь, свёкла, тыква. Общие «ягоды» — консервативно сюда же.
+    'orange': Allergen.redProduce,
+    'lemon': Allergen.redProduce,
+    'strawberry': Allergen.redProduce,
+    'raspberry': Allergen.redProduce,
+    'cherry': Allergen.redProduce,
+    'berries': Allergen.redProduce,
+    'tomato': Allergen.redProduce,
+    'tomato_paste': Allergen.redProduce,
+    'carrot': Allergen.redProduce,
+    'beetroot': Allergen.redProduce,
+    'pumpkin': Allergen.redProduce,
+    // Грибы.
+    'mushroom': Allergen.mushrooms,
+    // Пряности: чеснок, корица, чёрный перец, смеси, травы, лавр.
+    'garlic': Allergen.spices,
+    'cinnamon': Allergen.spices,
+    'spices': Allergen.spices,
+    'pepper': Allergen.spices,
+    'herbs_dried': Allergen.spices,
+    'bay_leaf': Allergen.spices,
+    // Курица и другая птица.
+    'chicken_breast': Allergen.poultry,
+    'chicken_thigh': Allergen.poultry,
+    'minced_chicken': Allergen.poultry,
+    'turkey': Allergen.poultry,
+    'minced_turkey': Allergen.poultry,
+    'chicken_liver': Allergen.poultry,
+    // Говядина.
+    'beef': Allergen.beef,
+    'minced_beef': Allergen.beef,
+    // Свинина.
+    'pork': Allergen.pork,
+    // Фрукты умеренной аллергенности (виноград = изюм).
+    'raisins': Allergen.mildFruits,
+    // Крупы умеренной аллергенности.
+    'rice': Allergen.mildCereals,
+    'buckwheat': Allergen.mildCereals,
+    'corn': Allergen.mildCereals,
+    // Овощи умеренной аллергенности.
+    'bell_pepper': Allergen.mildVegetables,
+    'potato': Allergen.mildVegetables,
+    'green_peas': Allergen.mildVegetables,
+    'split_peas': Allergen.mildVegetables,
+    // Соя и её производные: соевый соус содержит сою (и пшеницу —
+    // её уже помечает генератор), тофу — соевый творог.
+    'soy_sauce': Allergen.soy,
+    'tofu': Allergen.soy,
   };
 
   Map<String, Object?> toJson() => {

@@ -879,6 +879,39 @@ class AppLocalizationsRu extends AppLocalizations {
   String get allergenLupin => 'Люпин';
 
   @override
+  String get allergenHoney => 'Мёд';
+
+  @override
+  String get allergenChocolate => 'Шоколад, какао, кофе';
+
+  @override
+  String get allergenRedProduce => 'Красные и оранжевые плоды';
+
+  @override
+  String get allergenMushrooms => 'Грибы';
+
+  @override
+  String get allergenSpices => 'Чеснок, корица, пряности';
+
+  @override
+  String get allergenPoultry => 'Курица и другая птица';
+
+  @override
+  String get allergenBeef => 'Говядина';
+
+  @override
+  String get allergenPork => 'Свинина';
+
+  @override
+  String get allergenMildFruits => 'Персики, абрикосы, виноград';
+
+  @override
+  String get allergenMildCereals => 'Рис, гречка, кукуруза';
+
+  @override
+  String get allergenMildVegetables => 'Перец, картофель, горох';
+
+  @override
   String get onbDislikesTitle => 'Что вы не любите?';
 
   @override

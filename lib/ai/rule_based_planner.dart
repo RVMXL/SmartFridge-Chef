@@ -272,6 +272,17 @@ class RuleBasedPlanner implements MealPlanner {
     Allergen.soy: 'соя',
     Allergen.wheat: 'пшеница (глютен)',
     Allergen.sesame: 'кунжут',
+    Allergen.honey: 'мёд',
+    Allergen.chocolate: 'шоколад, какао',
+    Allergen.redProduce: 'красные и оранжевые плоды',
+    Allergen.mushrooms: 'грибы',
+    Allergen.spices: 'чеснок и пряности',
+    Allergen.poultry: 'курица и птица',
+    Allergen.beef: 'говядина',
+    Allergen.pork: 'свинина',
+    Allergen.mildFruits: 'персики, абрикосы, виноград',
+    Allergen.mildCereals: 'рис, гречка, кукуруза',
+    Allergen.mildVegetables: 'перец, картофель, горох',
   };
 
   /// Человеческая причина исключения рецепта диетой (или null).
