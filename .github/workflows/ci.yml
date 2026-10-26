@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read   # минимальные права GITHUB_TOKEN (CodeQL: missing-workflow-permissions)
+
 jobs:
   analyze-and-test:
     runs-on: ubuntu-latest
