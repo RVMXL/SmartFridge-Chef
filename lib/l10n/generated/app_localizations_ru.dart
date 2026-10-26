@@ -475,6 +475,29 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileAllergies => 'Аллергии и непереносимости';
 
   @override
+  String get profileMedicalDiets => 'Лечебные столы (Певзнер)';
+
+  @override
+  String get profileMedicalDietsHint =>
+      'Меню исключит блюда с запрещёнными продуктами. Стол назначает врач — согласуйте выбор с ним';
+
+  @override
+  String get profileMedicalDietsAbout => 'Что означают столы';
+
+  @override
+  String get medicalDietsDialogTitle => 'Лечебные столы по Певзнеру';
+
+  @override
+  String get medicalDietsForbiddenLabel => 'Исключает:';
+
+  @override
+  String get medicalDietsNoRestrictions => 'Ограничений в базе рецептов нет';
+
+  @override
+  String get medicalDietsDialogFooter =>
+      'Описания справочные и не заменяют указаний лечащего врача';
+
+  @override
   String get profileMealsPerDay => 'Приёмов пищи в день';
 
   @override

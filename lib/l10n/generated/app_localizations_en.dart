@@ -473,6 +473,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileAllergies => 'Allergies and intolerances';
 
   @override
+  String get profileMedicalDiets => 'Medical diets (Pevzner tables)';
+
+  @override
+  String get profileMedicalDietsHint =>
+      'The menu will exclude meals with restricted foods. A table is prescribed by a doctor — confirm your choice with them';
+
+  @override
+  String get profileMedicalDietsAbout => 'What the tables mean';
+
+  @override
+  String get medicalDietsDialogTitle => 'Pevzner dietary tables';
+
+  @override
+  String get medicalDietsForbiddenLabel => 'Excludes:';
+
+  @override
+  String get medicalDietsNoRestrictions => 'No restrictions in the recipe base';
+
+  @override
+  String get medicalDietsDialogFooter =>
+      'Descriptions are for reference only and do not replace your doctor\'s instructions';
+
+  @override
   String get profileMealsPerDay => 'Meals per day';
 
   @override

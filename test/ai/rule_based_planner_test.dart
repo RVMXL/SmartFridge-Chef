@@ -553,4 +553,85 @@ void main() {
       }
     });
   });
+
+  group('лечебные столы (v0.5.9)', () {
+    PlanRequest medicalRequest(List<String> tables, {int seed = 1}) {
+      final p = profile().copyWith(medicalDiets: tables);
+      return request(prof: p, seed: seed);
+    }
+
+    test('стол 9 исключает рецепты с сахаром и мёдом, причина в отчёте',
+        () async {
+      final all = await repo.loadAll();
+      final diagnostics = planner.hardFilteredDetailed(
+        all,
+        medicalRequest(['table9']),
+      );
+      // В базе есть сладкие рецепты — часть точно исключена.
+      expect(diagnostics.excludedCounts.keys,
+          anyElement(contains('стол №9')));
+      // Ничего запрещённого в пуле не осталось.
+      for (final r in diagnostics.allowed) {
+        expect(
+          r.ingredients.any((i) =>
+              i.key == 'sugar' || i.key == 'honey' || i.key == 'jam'),
+          isFalse,
+          reason: r.titleRu,
+        );
+      }
+    });
+
+    test('стол 4 (4Б) серьёзно сужает пул, но план на неделю строится',
+        () async {
+      final plan = await planner.generate(medicalRequest(['table4'],
+          seed: 3));
+      expect(plan.days.length, 7);
+      for (final day in plan.days) {
+        expect(day.meals.length, 3);
+      }
+      // Свежие салаты (огурцы+помидоры) не должны попасть в план.
+      for (final day in plan.days) {
+        for (final meal in day.meals) {
+          expect(
+            meal.recipe.ingredients.any((i) =>
+                i.key == 'cucumber' ||
+                i.key == 'tomato' ||
+                i.key == 'lettuce'),
+            isFalse,
+            reason: meal.recipe.titleRu,
+          );
+        }
+      }
+    });
+
+    test('комбинация столов объединяет запреты', () async {
+      final all = await repo.loadAll();
+      final both = planner.hardFilteredDetailed(
+        all,
+        medicalRequest(['table3', 'table9']),
+      );
+      final only3 = planner.hardFilteredDetailed(
+        all,
+        medicalRequest(['table3']),
+      );
+      expect(both.allowed.length, lessThanOrEqualTo(only3.allowed.length));
+      for (final r in both.allowed) {
+        expect(
+          r.ingredients.any((i) => i.key == 'rice' || i.key == 'sugar'),
+          isFalse,
+          reason: r.titleRu,
+        );
+      }
+    });
+
+    test('расширяющие столы не меняют пул', () async {
+      final all = await repo.loadAll();
+      final baseline = planner.hardFilteredDetailed(all, medicalRequest([]));
+      final widened = planner.hardFilteredDetailed(
+        all,
+        medicalRequest(['table11', 'table15']),
+      );
+      expect(widened.allowed.length, baseline.allowed.length);
+    });
+  });
 }

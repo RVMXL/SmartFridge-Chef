@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import '../../ai/dislikes.dart';
 import '../../ai/ingredient_matcher.dart';
+import '../../data/models/medical_diet.dart';
 import '../../data/models/user_profile.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../state/profile_controller.dart';
@@ -39,6 +40,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late int _carbs;
   late Set<Diet> _diets;
   late Set<Allergen> _allergies;
+  late Set<String> _medicalDiets;
   late List<DislikeRule> _dislikes;
   late int _mealsPerDay;
 
@@ -52,6 +54,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _carbs = p.carbsG;
     _diets = {...p.diets};
     _allergies = {...p.allergies};
+    _medicalDiets = {...p.medicalDiets};
     _dislikes = [...p.dislikes];
     _mealsPerDay = p.mealsPerDay;
   }
@@ -82,6 +85,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       diets: _diets.where((d) => d != Diet.none).toList(),
       allergies: _allergies.toList(),
       dislikes: _dislikes,
+      medicalDiets: _medicalDiets.toList(),
       mealsPerDay: _mealsPerDay,
       latitude: null,
       longitude: null,
@@ -100,6 +104,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final localeTag = Localizations.localeOf(context).languageCode;
 
     return Scaffold(
       appBar: AppBar(
@@ -205,6 +210,41 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             ],
           ),
 
+          // Лечебные столы по Певзнеру (v0.5.9): чипы выбора + диалог
+          // со справкой «что означает каждый стол».
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: SectionHeader(l.profileMedicalDiets)),
+              IconButton(
+                tooltip: l.profileMedicalDietsAbout,
+                icon: const Icon(Icons.help_outline, size: 20),
+                onPressed: _showMedicalDietsInfo,
+              ),
+            ],
+          ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 0,
+            children: [
+              for (final d in medicalDiets)
+                FilterChip(
+                  label: Text('№${d.number} · ${d.shortLabel(localeTag)}'),
+                  selected: _medicalDiets.contains(d.key),
+                  onSelected: (on) => setState(() {
+                    on ? _medicalDiets.add(d.key)
+                       : _medicalDiets.remove(d.key);
+                  }),
+                ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l.profileMedicalDietsHint,
+            style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant),
+          ),
+
           SectionHeader(l.profileDislikes),
           Text(
             l.profileDislikesHint,
@@ -253,6 +293,55 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       onFieldSubmitted: (v) => setState(() {
         onChanged(int.tryParse(v)?.clamp(0, 500) ?? value);
       }),
+    );
+  }
+
+  /// Справка о столах: полный каталог с показаниями и запретами.
+  void _showMedicalDietsInfo() {
+    final l = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final localeTag = Localizations.localeOf(context).languageCode;
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l.medicalDietsDialogTitle),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 420,
+          child: ListView(
+            children: [
+              for (final d in medicalDiets)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(d.title(localeTag),
+                          style: theme.textTheme.titleSmall),
+                      const SizedBox(height: 2),
+                      Text(d.indications(localeTag),
+                          style: theme.textTheme.bodySmall),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${l.medicalDietsForbiddenLabel} '
+                        '${d.forbiddenSummary(localeTag)}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l.commonClose),
+          ),
+        ],
+      ),
     );
   }
 }

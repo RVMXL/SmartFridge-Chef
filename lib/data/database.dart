@@ -21,6 +21,9 @@
 /// `price_updated_at`, `price_source`. Цена опциональна — продукт без неё
 /// остаётся полноценным; запросы к каталогу делаются только с устройства
 /// пользователя по явному действию.
+/// v7 — (v0.5.9): `user_profile.medical_diets` — лечебные столы по
+/// Певзнеру (JSON-массив ключей table1…table15), жёсткий фильтр планера
+/// наравне с аллергиями.
 library;
 
 import 'package:path/path.dart' as p;
@@ -30,7 +33,7 @@ class AppDatabase {
   AppDatabase._();
 
   static const String dbName = 'smart_fridge.db';
-  static const int dbVersion = 6;
+  static const int dbVersion = 7;
 
   /// Открывает базу.
   ///
@@ -57,6 +60,7 @@ class AppDatabase {
     createV4Columns(batch);
     createV5Columns(batch);
     createV6Columns(batch);
+    createV7Columns(batch);
     await batch.commit(noResult: true);
   }
 
@@ -95,6 +99,12 @@ class AppDatabase {
       // v5 -> v6: цена продукта (Пятёрочка, v0.5.5).
       final batch = db.batch();
       createV6Columns(batch);
+      await batch.commit(noResult: true);
+    }
+    if (oldVersion < 7) {
+      // v6 -> v7: лечебные столы по Певзнеру в профиле (v0.5.9).
+      final batch = db.batch();
+      createV7Columns(batch);
       await batch.commit(noResult: true);
     }
     assert(oldVersion >= 1 && newVersion == dbVersion,
@@ -284,5 +294,16 @@ class AppDatabase {
     batch.execute('ALTER TABLE products ADD COLUMN price REAL');
     batch.execute('ALTER TABLE products ADD COLUMN price_updated_at TEXT');
     batch.execute('ALTER TABLE products ADD COLUMN price_source TEXT');
+  }
+
+  // ------------------------------------------------------------- схема v7
+
+  /// Колонки версии 7 (v0.5.9): лечебные столы по Певзнеру в профиле —
+  /// JSON-массив ключей (table1 … table15), по умолчанию пусто.
+  static void createV7Columns(Batch batch) {
+    batch.execute(
+      "ALTER TABLE user_profile ADD COLUMN medical_diets TEXT"
+      " NOT NULL DEFAULT '[]'",
+    );
   }
 }

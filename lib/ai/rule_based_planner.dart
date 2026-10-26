@@ -2,7 +2,9 @@
 ///
 /// Алгоритм на каждый слот дня:
 ///  1. Жёсткие фильтры: аллергии (исключают рецепт целиком), диета,
-///     максимальное время готовки.
+///     лечебные столы по Певзнеру (v0.5.9 — наравне с аллергиями:
+///     это назначение врача, а не предпочтение), максимальное время
+///     готовки.
 ///  2. Категория рецепта должна подходить слоту (завтрак — завтраки,
 ///     обед — супы/основные/салаты, ужин — основные/салаты, перекус —
 ///     перекусы/десерты).
@@ -19,6 +21,7 @@ library;
 import 'dart:math';
 
 import '../data/models/meal_plan.dart';
+import '../data/models/medical_diet.dart';
 import '../data/models/recipe.dart';
 import '../data/models/user_profile.dart';
 import 'calorie_target.dart';
@@ -206,13 +209,14 @@ class RuleBasedPlanner implements MealPlanner {
 
   /// Та же фильтрация с отчётом «почему исключено» (v0.5.0).
   /// Причина у рецепта — первая сработавшая: аллергии → диеты в порядке
-  /// выбора → нелюбимые (v0.5.4) → время готовки.
+  /// выбора → лечебные столы (v0.5.9) → нелюбимые (v0.5.4) → время готовки.
   FilterDiagnostics hardFilteredDetailed(
     List<Recipe> all,
     PlanRequest request,
   ) {
     final allergens = request.profile.allergies.toSet();
     final diets = request.profile.diets;
+    final medicalTables = request.profile.medicalDiets;
     final dislikes = request.profile.dislikes;
     final maxMinutes = request.maxCookMinutes;
     final allowed = <Recipe>[];
@@ -232,6 +236,8 @@ class RuleBasedPlanner implements MealPlanner {
           if (reason != null) break;
         }
       }
+      // Лечебные столы — безопасность наравне с аллергиями (v0.5.9).
+      reason ??= MedicalDiet.exclusionReason(r, medicalTables);
       reason ??= DislikeEngine.evaluate(r, dislikes).exclusionReason;
       if (reason == null && maxMinutes > 0 && r.minutes > maxMinutes) {
         reason = 'готовка дольше $maxMinutes мин';

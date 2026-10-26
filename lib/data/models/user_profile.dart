@@ -6,6 +6,8 @@ library;
 
 import 'dart:convert';
 
+import 'medical_diet.dart';
+
 /// Диета пользователя: ограничение на целые группы продуктов.
 enum Diet {
   none('none'),
@@ -179,6 +181,7 @@ class UserProfile {
     this.diets = const [],
     this.allergies = const [],
     this.dislikes = const [],
+    this.medicalDiets = const [],
     this.mealsPerDay = 3,
     this.regionName,
     this.latitude,
@@ -213,6 +216,12 @@ class UserProfile {
   /// «основа блюда» исключается, «приправа для вкуса» — допустима
   /// с пометкой в плане.
   final List<DislikeRule> dislikes;
+
+  /// Лечебные столы по Певзнеру (v0.5.9) — ключи каталога
+  /// [medicalDiets] (table1 … table15). Ограничения комбинируются:
+  /// рецепт обязан соответствовать КАЖДОМУ выбранному столу.
+  /// Неизвестные ключи (из старых версий) отбрасываются при чтении.
+  final List<String> medicalDiets;
 
   /// Количество приёмов пищи в день (2–6).
   final int mealsPerDay;
@@ -249,6 +258,7 @@ class UserProfile {
     List<Diet>? diets,
     List<Allergen>? allergies,
     List<DislikeRule>? dislikes,
+    List<String>? medicalDiets,
     int? mealsPerDay,
     String? regionName,
     double? latitude,
@@ -266,6 +276,7 @@ class UserProfile {
       diets: diets ?? this.diets,
       allergies: allergies ?? this.allergies,
       dislikes: dislikes ?? this.dislikes,
+      medicalDiets: medicalDiets ?? this.medicalDiets,
       mealsPerDay: mealsPerDay ?? this.mealsPerDay,
       regionName: regionName ?? this.regionName,
       latitude: latitude ?? this.latitude,
@@ -289,6 +300,7 @@ class UserProfile {
         'allergies': jsonEncode(allergies.map((a) => a.key).toList()),
         'dislikes':
             jsonEncode(dislikes.map((d) => d.toJson()).toList()),
+        'medical_diets': jsonEncode(medicalDiets),
         'meals_per_day': mealsPerDay,
         'region_name': regionName,
         'latitude': latitude,
@@ -303,6 +315,8 @@ class UserProfile {
         jsonDecode(map['allergies'] as String? ?? '[]') as List<dynamic>;
     final rawDislikes =
         jsonDecode(map['dislikes'] as String? ?? '[]') as List<dynamic>;
+    final rawMedicalDiets =
+        jsonDecode(map['medical_diets'] as String? ?? '[]') as List<dynamic>;
     // v0.5.0: источник истины — колонка diets (JSON-массив).
     // Старые записи (до миграции данных) читаются по колонке diet.
     final rawDiets = map['diets'] as String?;
@@ -329,6 +343,7 @@ class UserProfile {
           .map((d) =>
               DislikeRule.fromJson(d as Map<String, Object?>))
           .toList(),
+      medicalDiets: MedicalDiet.keysFromStorage(rawMedicalDiets),
       mealsPerDay: (map['meals_per_day'] as int?) ?? 3,
       regionName: map['region_name'] as String?,
       latitude: (map['latitude'] as num?)?.toDouble(),
@@ -345,5 +360,6 @@ class UserProfile {
       '${diets.isEmpty ? "нет" : diets.map((d) => d.key).join("+")}, '
       'аллергии: ${allergies.map((a) => a.key).join(",")}, '
       'не любит: ${dislikes.map((d) => d.key).join(",")}, '
+      'столы: ${medicalDiets.join(",")}, '
       'приёмов: $mealsPerDay)';
 }

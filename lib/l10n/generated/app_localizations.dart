@@ -920,6 +920,48 @@ abstract class AppLocalizations {
   /// **'Allergies and intolerances'**
   String get profileAllergies;
 
+  /// No description provided for @profileMedicalDiets.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical diets (Pevzner tables)'**
+  String get profileMedicalDiets;
+
+  /// No description provided for @profileMedicalDietsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The menu will exclude meals with restricted foods. A table is prescribed by a doctor — confirm your choice with them'**
+  String get profileMedicalDietsHint;
+
+  /// No description provided for @profileMedicalDietsAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'What the tables mean'**
+  String get profileMedicalDietsAbout;
+
+  /// No description provided for @medicalDietsDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pevzner dietary tables'**
+  String get medicalDietsDialogTitle;
+
+  /// No description provided for @medicalDietsForbiddenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Excludes:'**
+  String get medicalDietsForbiddenLabel;
+
+  /// No description provided for @medicalDietsNoRestrictions.
+  ///
+  /// In en, this message translates to:
+  /// **'No restrictions in the recipe base'**
+  String get medicalDietsNoRestrictions;
+
+  /// No description provided for @medicalDietsDialogFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Descriptions are for reference only and do not replace your doctor\'s instructions'**
+  String get medicalDietsDialogFooter;
+
   /// No description provided for @profileMealsPerDay.
   ///
   /// In en, this message translates to:

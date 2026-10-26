@@ -76,6 +76,33 @@ void main() {
     expect(loaded.onboarded, isTrue);
   });
 
+  test('roundtrip: лечебные столы сохраняются и читаются (v0.5.9)',
+      () async {
+    await dao.save(profile().copyWith(
+      medicalDiets: const ['table5', 'table9'],
+    ));
+    final loaded = (await dao.getProfile())!;
+    expect(loaded.medicalDiets, ['table5', 'table9']);
+
+    // Перезапись: старые значения не «прилипают».
+    await dao.save(profile(calories: 1900));
+    final cleared = (await dao.getProfile())!;
+    expect(cleared.medicalDiets, isEmpty);
+  });
+
+  test('чтение: неизвестные ключи столов отбрасываются, валидные остаются',
+      () async {
+    await dao.save(profile());
+    // Пишем в базу сырой JSON с мусорным ключом (как из старой версии).
+    await db.update(
+      'user_profile',
+      {'medical_diets': '["table6","table42","garbage"]'},
+      where: 'id = 1',
+    );
+    final loaded = (await dao.getProfile())!;
+    expect(loaded.medicalDiets, ['table6']);
+  });
+
   test('upsert: повторное save обновляет ту же строку', () async {
     await dao.save(profile(calories: 2100));
     await dao.save(profile(calories: 1800, diets: [Diet.lent]));
