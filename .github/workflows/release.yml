@@ -1,6 +1,6 @@
 name: Release
 
-# Релиз по тегу: analyze + тесты → подписанный APK → GitHub Release.
+# Релиз по тегу: analyze + тесты → подписанные per-ABI APK → GitHub Release.
 # Ключ подписи не хранится в репозитории — он приходит из секретов
 # KEYSTORE_BASE64 / KEYSTORE_PASSWORD / KEYSTORE_KEY_ALIAS / KEYSTORE_KEY_PASSWORD.
 # Тело релиза — секция версии из CHANGELOG.md (шаг «Тело релиза из CHANGELOG.md»).
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   build:
-    name: Сборка подписанного APK
+    name: Сборка подписанных APK (per-ABI)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -65,7 +65,7 @@ jobs:
           keytool -list -v -keystore android/app/upload-keystore.jks \
             -storepass "$KEYSTORE_PASSWORD" | grep 'SHA256:'
 
-      - name: Сборка подписанного APK
+      - name: Сборка подписанных APK (per-ABI)
         env:
           # ВАЖНО: KEYSTORE_BASE64 нужен именно здесь — Gradle читает его
           # через System.getenv() на этапе конфигурации. Без этой переменной
@@ -74,27 +74,33 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEYSTORE_KEY_ALIAS: ${{ secrets.KEYSTORE_KEY_ALIAS }}
           KEYSTORE_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
-        run: flutter build apk --release
+        # --split-per-abi: один APK на архитектуру (~28–39 МБ) вместо
+        # универсального на все три (~104 МБ): устройство ставит только
+        # свою архитектуру, остальные две в файле не нужны.
+        run: flutter build apk --release --split-per-abi
 
       - name: Проверка подписи APK (не debug!)
         run: |
-          APK=build/app/outputs/flutter-apk/app-release.apk
           APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
-          "$APKSIGNER" verify --print-certs "$APK" | sed -n '1,6p'
           # Отпечаток должен совпадать с сертификатом из Secrets,
           # а не со случайным debug-ключом раннера
           EXPECTED=$(keytool -list -v -keystore android/app/upload-keystore.jks \
             -storepass "$KEYSTORE_PASSWORD" 2>/dev/null | grep 'SHA256:' \
             | head -1 | sed 's/.*SHA256: *//; s/\r//; s/[ :]*//g' | tr 'A-F' 'a-f')
-          ACTUAL=$("$APKSIGNER" verify --print-certs "$APK" \
-            | grep 'SHA-256 digest' | head -1 \
-            | sed 's/.*SHA-256 digest: *//; s/\r//; s/ //g' | tr 'A-F' 'a-f')
-          echo "ожидался: $EXPECTED"
-          echo "фактический: $ACTUAL"
-          if [ -z "$EXPECTED" ] || [ "$EXPECTED" != "$ACTUAL" ]; then
-            echo "::error::APK подписан НЕ тем ключом — прерываю релиз"
-            exit 1
-          fi
+          # Каждый из трёх per-ABI APK
+          for APK in build/app/outputs/flutter-apk/app-*-release.apk; do
+            echo "== $APK =="
+            "$APKSIGNER" verify --print-certs "$APK" | sed -n '1,6p'
+            ACTUAL=$("$APKSIGNER" verify --print-certs "$APK" \
+              | grep 'SHA-256 digest' | head -1 \
+              | sed 's/.*SHA-256 digest: *//; s/\r//; s/ //g' | tr 'A-F' 'a-f')
+            echo "ожидался: $EXPECTED"
+            echo "фактический: $ACTUAL"
+            if [ -z "$EXPECTED" ] || [ "$EXPECTED" != "$ACTUAL" ]; then
+              echo "::error::$APK подписан НЕ тем ключом — прерываю релиз"
+              exit 1
+            fi
+          done
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
@@ -120,16 +126,30 @@ jobs:
               echo "**Full Changelog**: https://github.com/${GITHUB_REPOSITORY}/compare/${PREV_TAG}...${GITHUB_REF_NAME}"
             } >> body.md
           fi
+          # Подсказка: какой из трёх per-ABI APK качать
+          {
+            echo
+            echo "### Какой APK скачать"
+            echo "- \`SmartFridge-${VERSION}-arm64-v8a.apk\` — большинство телефонов (2016+)"
+            echo "- \`SmartFridge-${VERSION}-armeabi-v7a.apk\` — старые устройства"
+            echo "- \`SmartFridge-${VERSION}-x86_64.apk\` — эмуляторы и ПК"
+          } >> body.md
 
       - name: Публикация GitHub Release (пре-релиз)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          APK="build/app/outputs/flutter-apk/app-release.apk"
-          NAME="SmartFridge-${GITHUB_REF_NAME#v}.apk"
-          mv "$APK" "build/app/outputs/flutter-apk/$NAME"
-          gh release create "$GITHUB_REF_NAME" \
-            "build/app/outputs/flutter-apk/$NAME" \
+          VERSION="${GITHUB_REF_NAME#v}"
+          # Отчёт в лог: три per-ABI APK вместо одного универсального
+          ls -lh build/app/outputs/flutter-apk/app-*-release.apk
+          ASSETS=()
+          for APK in build/app/outputs/flutter-apk/app-*-release.apk; do
+            ABI=$(basename "$APK" | sed -E 's/^app-(.+)-release\.apk$/\1/')
+            NAME="SmartFridge-${VERSION}-${ABI}.apk"
+            cp "$APK" "build/app/outputs/flutter-apk/$NAME"
+            ASSETS+=("build/app/outputs/flutter-apk/$NAME")
+          done
+          gh release create "$GITHUB_REF_NAME" "${ASSETS[@]}" \
             --title "Умный Холодильник $GITHUB_REF_NAME" \
             --notes-file body.md \
             --prerelease

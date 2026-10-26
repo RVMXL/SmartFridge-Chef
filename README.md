@@ -8,7 +8,7 @@
 целиком на устройстве. Android · iOS · offline-first · без аналитики,
 серверов и аккаунтов.
 
-**Статус:** активная разработка, v0.5.9 (все релизы — пре-релизы). Релиз идёт поэтапно по ТЗ:
+**Статус:** активная разработка, v0.5.10 (все релизы — пре-релизы). Релиз идёт поэтапно по ТЗ:
 Шаг 1 (архитектура + база данных), Шаг 2 (AI-слой: встроенная база
 рецептов + локальный планировщик меню) и Шаг 3 (экраны, сканер штрих-кодов
 + OCR чеков, локальные пуши о сроках) — готовы. Детали —
@@ -118,7 +118,7 @@
 | `docs/DATABASE.md` | Схема БД v7: таблицы, индексы, даты, миграции |
 | `test/` | 386 тестов: данные, планировщик, напоминания, парсер чеков, автопоиски, контроллеры (реальная SQLite через sqflite_common_ffi) |
 | `.github/workflows/ci.yml` | CI: analyze --fatal-infos + test --coverage |
-| `.github/workflows/release.yml` | Релиз по тегу `v*`: analyze + тесты → APK `SmartFridge-<версия>.apk` → GitHub Release (пре-релиз) |
+| `.github/workflows/release.yml` | Релиз по тегу `v*`: analyze + тесты → три per-ABI APK `SmartFridge-<версия>-<архитектура>.apk` → GitHub Release (пре-релиз) |
 | `.github/workflows/codeql.yaml` | CodeQL (code scanning): security-анализ воркфлоу Actions, еженедельно + на пуш; Dart не поддерживается CodeQL и проверяется `flutter analyze` в CI |
 | `.github/social_preview.png` | Social preview репозитория (1280×640; загружается вручную: Settings → General → Social preview) |
 
@@ -155,8 +155,17 @@ recognition). Разрешения запрашиваются по мере по
 
 Новая версия: поднять `version` в `pubspec.yaml` → коммит → тег `v*` →
 пуш тега. Сборка и публикация пре-релиза происходят автоматически
-(Actions → Release): analyze и тесты, затем APK `SmartFridge-<версия>.apk`
-в GitHub Release.
+(Actions → Release): analyze и тесты, затем три APK по архитектурам
+в GitHub Release — качайте под своё устройство:
+
+| Файл | Для чего | Размер |
+|------|----------|--------|
+| `SmartFridge-<версия>-arm64-v8a.apk` | большинство телефонов (2016+) | ~36 МБ |
+| `SmartFridge-<версия>-armeabi-v7a.apk` | старые устройства | ~28 МБ |
+| `SmartFridge-<версия>-x86_64.apk` | эмуляторы и ПК | ~39 МБ |
+
+С 0.5.10 универсальный APK (~104 МБ, все архитектуры сразу) больше не
+собирается: `--split-per-abi` кладёт в каждый файл только одну архитектуру.
 
 ```bash
 git tag v0.5.5
