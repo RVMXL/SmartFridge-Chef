@@ -21,7 +21,7 @@ jobs:
         # [main] с первого коммита. Шаг оставлен как страховка от настоящих
         # синтаксических дефектов воркфлоу.
         run: |
-          curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash | bash -s -- -b /tmp v1.7.7
+          curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash | bash -s -- v1.7.7 /tmp
           /tmp/actionlint -color
 
       - uses: subosito/flutter-action@v2
