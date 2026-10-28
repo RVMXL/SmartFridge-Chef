@@ -45,14 +45,19 @@ class PlanDao {
         },
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
+      // DATA-2 (аудит 2026-10-28): batch вместо построчных await insert —
+      // тот же паттерн, что при создании схемы: 21–42 приёма и позиции
+      // покупок уезжают одним батчем внутри транзакции.
+      final batch = txn.batch();
       for (final day in plan.days) {
         for (final meal in day.meals) {
-          await txn.insert('planned_meals', meal.toMap(plan.id));
+          batch.insert('planned_meals', meal.toMap(plan.id));
         }
       }
       for (final item in plan.shoppingList) {
-        await txn.insert('shopping_items', item.toMap(plan.id));
+        batch.insert('shopping_items', item.toMap(plan.id));
       }
+      await batch.commit(noResult: true);
     });
   }
 
