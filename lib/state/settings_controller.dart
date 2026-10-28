@@ -7,12 +7,22 @@ library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show Locale, ThemeMode;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsController extends ChangeNotifier {
-  SettingsController(this._prefs);
+  SettingsController(this._prefs, {FlutterSecureStorage? secureStorage})
+      : _secure = secureStorage;
 
   final SharedPreferences _prefs;
+
+  /// KEYS-1 (аудит 2026-10-28): секреты пользователя (client secret
+  /// Kroger, subscription-key Wegmans) не должны лежать в plaintext-
+  /// prefs. Хранятся во flutter_secure_storage (Android Keystore /
+  /// iOS Keychain); в памяти держатся только в runtime-кэше [_secrets].
+  /// null (тесты без плагина) — прозрачный фолбэк на prefs.
+  final FlutterSecureStorage? _secure;
+  final Map<String, String> _secrets = <String, String>{};
 
   static const String _kThemeMode = 'pref_theme_mode';
   static const String _kLanguage = 'pref_language';
@@ -161,21 +171,18 @@ class SettingsController extends ChangeNotifier {
   // ------------------------------- Kroger (США): ключи пользователя
 
   /// Client ID приложения пользователя (developer.kroger.com).
-  String get krogerClientId => _prefs.getString(_kKrogerClientId) ?? '';
+  String get krogerClientId => _secretOrPref(_kKrogerClientId);
 
-  Future<void> setKrogerClientId(String v) async {
-    await _prefs.setString(_kKrogerClientId, v.trim());
-    notifyListeners();
-  }
+  Future<void> setKrogerClientId(String v) =>
+      _writeSecret(_kKrogerClientId, v.trim());
 
-  /// Client Secret приложения пользователя. Хранится только локально,
-  /// никуда не отправляется кроме api.kroger.com (обмен на токен).
-  String get krogerClientSecret => _prefs.getString(_kKrogerClientSecret) ?? '';
+  /// Client Secret приложения пользователя. KEYS-1: хранится в
+  /// flutter_secure_storage (не в plaintext-prefs), отправляется только
+  /// на api.kroger.com (обмен на токен).
+  String get krogerClientSecret => _secretOrPref(_kKrogerClientSecret);
 
-  Future<void> setKrogerClientSecret(String v) async {
-    await _prefs.setString(_kKrogerClientSecret, v.trim());
-    notifyListeners();
-  }
+  Future<void> setKrogerClientSecret(String v) =>
+      _writeSecret(_kKrogerClientSecret, v.trim());
 
   /// ZIP-код района пользователя (только запрос списка магазинов Kroger).
   String get krogerZip => _prefs.getString(_kKrogerZip) ?? '';
@@ -201,12 +208,10 @@ class SettingsController extends ChangeNotifier {
   // ------------------------------- Wegmans (США): ключ пользователя
 
   /// Subscription key приложения пользователя (developer.wegmans.io).
-  String get wegmansKey => _prefs.getString(_kWegmansKey) ?? '';
+  /// KEYS-1: хранится во flutter_secure_storage (не в plaintext-prefs).
+  String get wegmansKey => _secretOrPref(_kWegmansKey);
 
-  Future<void> setWegmansKey(String v) async {
-    await _prefs.setString(_kWegmansKey, v.trim());
-    notifyListeners();
-  }
+  Future<void> setWegmansKey(String v) => _writeSecret(_kWegmansKey, v.trim());
 
   /// Номер выбранного магазина Wegmans (в путях цен). Пусто — не выбран.
   String get wegmansStoreNumber =>
@@ -244,6 +249,63 @@ class SettingsController extends ChangeNotifier {
   /// Загрузка предпочтений до runApp, чтобы не мигать темой при старте.
   static Future<SettingsController> load() async {
     final prefs = await SharedPreferences.getInstance();
-    return SettingsController(prefs);
+    final controller = SettingsController(
+      prefs,
+      secureStorage: const FlutterSecureStorage(),
+    );
+    await controller._loadSecrets();
+    return controller;
+  }
+
+  // ------------------------- секреты: чтение/запись/миграция (KEYS-1)
+
+  String _secretOrPref(String key) {
+    final inMemory = _secrets[key];
+    if (inMemory != null) return inMemory;
+    // До миграции (или в тестовом фолбэке) значение может быть в prefs.
+    return _prefs.getString(key) ?? '';
+  }
+
+  Future<void> _writeSecret(String key, String value) async {
+    _secrets[key] = value;
+    final secure = _secure;
+    if (secure != null) {
+      if (value.isEmpty) {
+        await secure.delete(key: key);
+      } else {
+        await secure.write(key: key, value: value);
+      }
+      // Смыть plaintext-остаток из prefs (миграция/защита от возврата).
+      if (_prefs.containsKey(key)) await _prefs.remove(key);
+    } else {
+      // Тестовый фолбэк без плагина: поведение как раньше.
+      await _prefs.setString(key, value);
+    }
+    notifyListeners();
+  }
+
+  /// Однократная миграция при старте: секреты из prefs переезжают в
+  /// secure storage, plaintext-копии удаляются.
+  Future<void> _loadSecrets() async {
+    final secure = _secure;
+    if (secure == null) return;
+    for (final key in const [
+      _kKrogerClientId,
+      _kKrogerClientSecret,
+      _kWegmansKey,
+    ]) {
+      final stored = await secure.read(key: key);
+      if (stored != null) {
+        _secrets[key] = stored;
+        if (_prefs.containsKey(key)) await _prefs.remove(key);
+        continue;
+      }
+      final legacy = _prefs.getString(key);
+      if (legacy != null && legacy.isNotEmpty) {
+        _secrets[key] = legacy;
+        await secure.write(key: key, value: legacy);
+      }
+      if (_prefs.containsKey(key)) await _prefs.remove(key);
+    }
   }
 }

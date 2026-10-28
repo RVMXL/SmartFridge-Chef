@@ -190,6 +190,17 @@ class KrogerService {
   /// Закрыть собственный клиент (инжектированный извне не наш — не трогаем).
   void dispose() => _ownClient?.close();
 
+  /// NET-2 (аудит 2026-10-28): .timeout() лишь перестаёт ждать —
+  /// подвисший запрос продолжает качаться в фоне и жечь батарею.
+  /// Закрываем собственный клиент (обрываем сокеты); следующий запрос
+  /// создаст свежий. Инжектированный извне клиент (тесты) не наш —
+  /// его не трогаем.
+  void _cancelStuck() {
+    if (_client != null) return;
+    _ownClient?.close();
+    _ownClient = null;
+  }
+
   /// Сервисный Bearer-токен (client_credentials) с кэшем в памяти.
   /// Бросает [PriceUnavailable] с reason auth при 401/403.
   Future<String> _accessToken(String clientId, String clientSecret) async {
@@ -214,6 +225,7 @@ class KrogerService {
           )
           .timeout(timeout);
     } on Exception catch (e) {
+      _cancelStuck(); // NET-2: обрываем подвисший запрос
       throwNetwork(e);
     }
 
@@ -308,6 +320,7 @@ class KrogerService {
           })
           .timeout(timeout);
     } on Exception catch (e) {
+      _cancelStuck(); // NET-2: обрываем подвисший запрос
       throwNetwork(e);
     }
 

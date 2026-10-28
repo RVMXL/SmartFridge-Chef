@@ -92,7 +92,7 @@ void main() {
   });
 
   group('WegmansService — двухшаговый поиск', () {
-    test('search → цены первых sku; версии и ключ в URL', () async {
+    test('search → цены первых sku; SEC-2: ключ в заголовке, не в URL', () async {
       final requests = <http.Request>[];
       final stores = await _fixture('wegmans_stores.json');
       final search = await _fixture('wegmans_search.json');
@@ -132,11 +132,20 @@ void main() {
       expect(searchUri.queryParameters['q'], 'milk');
       expect(searchUri.queryParameters['store'], '68');
       expect(searchUri.queryParameters['api-version'], '2018-10-18');
-      expect(searchUri.queryParameters['subscription-key'], 'KEY-1');
+      // SEC-2 (аудит 2026-10-28): ключ в заголовке
+      // Ocp-Apim-Subscription-Key (стандарт Azure APIM) — в URL его быть
+      // не должно: URL попадает в серверные/прокси-логи и дампы.
+      expect(searchUri.queryParameters['subscription-key'], isNull);
+      expect(requests[1].headers['Ocp-Apim-Subscription-Key'], 'KEY-1');
+      // И в /stores — тоже заголовок, не URL.
+      expect(requests[0].url.queryParameters['subscription-key'], isNull);
+      expect(requests[0].headers['Ocp-Apim-Subscription-Key'], 'KEY-1');
 
       final priceUri = requests[2].url;
       expect(priceUri.path, '/products/484208/prices/68');
       expect(priceUri.queryParameters['api-version'], '2018-10-18');
+      expect(priceUri.queryParameters['subscription-key'], isNull);
+      expect(requests[2].headers['Ocp-Apim-Subscription-Key'], 'KEY-1');
 
       expect(hits, hasLength(3));
       expect(hits.first.name, 'Wegmans Organic 2% Milk');

@@ -154,15 +154,29 @@ class WegmansService {
   /// Закрыть собственный клиент (инжектированный извне не наш — не трогаем).
   void dispose() => _ownClient?.close();
 
+  /// NET-2 (аудит 2026-10-28): .timeout() лишь перестаёт ждать —
+  /// подвисший запрос продолжает качаться в фоне и жечь батарею.
+  /// Закрываем собственный клиент (обрываем сокеты); следующий запрос
+  /// создаст свежий. Инжектированный извне клиент (тесты) не наш —
+  /// его не трогаем.
+  void _cancelStuck() {
+    if (_client != null) return;
+    _ownClient?.close();
+    _ownClient = null;
+  }
+
 
   /// Магазины для выбора в настройках.
   Future<List<WegmansStore>> stores({required String subscriptionKey}) async {
     if (subscriptionKey.trim().isEmpty) return const [];
     final uri = Uri.https(_host, '/stores', {
       'api-version': _apiVersion,
-      'subscription-key': subscriptionKey.trim(),
     });
-    final body = await _getJson(uri);
+    // SEC-2 (аудит 2026-10-28): ключ в заголовке Ocp-Apim-Subscription-Key
+    // (стандарт Azure APIM), а не в query-string — URL попадает в
+    // серверные/прокси-логи и дампы диагностики.
+    final body = await _getJson(uri,
+        subscriptionKey: subscriptionKey.trim());
     return parseWegmansStoresJson(body);
   }
 
@@ -178,25 +192,25 @@ class WegmansService {
     final cleanQuery = query.trim();
     if (key.isEmpty || store.isEmpty || cleanQuery.isEmpty) return const [];
 
+    // SEC-2: ключ в заголовке, не в query-string.
     final searchUri = Uri.https(_host, '/products/search', {
       'q': cleanQuery,
       'store': store,
       'api-version': _apiVersion,
-      'subscription-key': key,
     });
-    final searchBody = await _getJson(searchUri);
+    final searchBody = await _getJson(searchUri, subscriptionKey: key);
     final found = parseWegmansSearchJson(searchBody);
     if (found.isEmpty) return const [];
 
     final hits = <PriceHit>[];
     for (final entry in found.take(pricedResults)) {
+      // SEC-2: ключ в заголовке, не в query-string.
       final priceUri = Uri.https(
           _host, '/products/${entry.sku}/prices/$store', {
         'api-version': _apiVersion,
-        'subscription-key': key,
       });
       try {
-        final priceBody = await _getJson(priceUri);
+        final priceBody = await _getJson(priceUri, subscriptionKey: key);
         final price = parseWegmansPriceJson(priceBody);
         if (price == null) continue;
         hits.add(PriceHit(
@@ -213,14 +227,20 @@ class WegmansService {
     return hits;
   }
 
-  /// GET с subscription-key; 401/403 → auth, HTML/не-200 → blocked.
-  Future<Map<String, dynamic>> _getJson(Uri uri) async {
+  /// GET с ключом в заголовке Ocp-Apim-Subscription-Key (SEC-2,
+  /// аудит 2026-10-28); 401/403 → auth, HTML/не-200 → blocked.
+  Future<Map<String, dynamic>> _getJson(
+    Uri uri, {
+    String? subscriptionKey,
+  }) async {
     final http.Response response;
     try {
       response = await _effectiveClient.get(uri, headers: {
         'Accept': 'application/json',
+        'Ocp-Apim-Subscription-Key': ?subscriptionKey,
       }).timeout(timeout);
     } on Exception catch (e) {
+      _cancelStuck(); // NET-2: обрываем подвисший запрос
       throwNetwork(e);
     }
 

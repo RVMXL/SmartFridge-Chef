@@ -139,6 +139,17 @@ class AldiService {
   /// Закрыть собственный клиент (инжектированный извне не наш — не трогаем).
   void dispose() => _ownClient?.close();
 
+  /// NET-2 (аудит 2026-10-28): .timeout() лишь перестаёт ждать —
+  /// подвисший запрос продолжает качаться в фоне и жечь батарею.
+  /// Закрываем собственный клиент (обрываем сокеты); следующий запрос
+  /// создаст свежий. Инжектированный извне клиент (тесты) не наш —
+  /// его не трогаем.
+  void _cancelStuck() {
+    if (_client != null) return;
+    _ownClient?.close();
+    _ownClient = null;
+  }
+
   final Duration timeout;
 
   /// Поиск по названию по всей сети Aldi Süd (магазины через
@@ -167,6 +178,7 @@ class AldiService {
           .get(uri, headers: {'Accept': 'application/json'})
           .timeout(timeout);
     } on Exception catch (e) {
+      _cancelStuck(); // NET-2: обрываем подвисший запрос
       throwNetwork(e);
     }
 

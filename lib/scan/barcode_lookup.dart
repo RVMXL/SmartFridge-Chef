@@ -64,6 +64,17 @@ class BarcodeLookupService {
   /// Закрыть собственный клиент (инжектированный извне не наш — не трогаем).
   void dispose() => _ownClient?.close();
 
+  /// NET-2 (аудит 2026-10-28): .timeout() лишь перестаёт ждать —
+  /// подвисший запрос продолжает качаться в фоне и жечь батарею.
+  /// Закрываем собственный клиент (обрываем сокеты); следующий запрос
+  /// создаст свежий. Инжектированный извне клиент (тесты) не наш —
+  /// его не трогаем.
+  void _cancelStuck() {
+    if (client != null) return; // инжектированный клиент — не наш
+    _ownClient?.close();
+    _ownClient = null;
+  }
+
 
   final Future<Database> Function() _openDb;
   final Duration timeout;
@@ -133,6 +144,7 @@ class BarcodeLookupService {
       if (json is! Map<String, dynamic>) return null;
       return parseOpenFoodFactsJson(json, langCode: langCode);
     } on TimeoutException {
+      _cancelStuck(); // NET-2: обрываем подвисший запрос
       return null;
     } on SocketException {
       return null;

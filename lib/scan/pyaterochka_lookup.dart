@@ -118,11 +118,30 @@ class PyaterochkaService {
   /// Закрыть собственный клиент (инжектированный извне не наш — не трогаем).
   void dispose() => _ownClient?.close();
 
+  /// NET-2 (аудит 2026-10-28): .timeout() лишь перестаёт ждать —
+  /// подвисший запрос продолжает качаться в фоне и жечь батарею.
+  /// Закрываем собственный клиент (обрываем сокеты); следующий запрос
+  /// создаст свежий. Инжектированный извне клиент (тесты) не наш —
+  /// его не трогаем.
+  void _cancelStuck() {
+    if (_client != null) return;
+    _ownClient?.close();
+    _ownClient = null;
+  }
+
   final Duration timeout;
 
   /// Анонимный идентификатор устройства, как у веб-фронта: генерируется
   /// один раз и хранится локально. Наружу не передаётся ничего, кроме
   /// самого запроса поиска (это часть протокола 5ka.ru).
+  /// SEC-4 (аудит 2026-10-28): опция сброса анонимного идентификатора —
+  /// новый UUID при следующем запросе; X5 теряет связность истории
+  /// запросов устройства. Вызывается из настроек.
+  Future<void> resetDeviceId() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_deviceIdPref);
+  }
+
   Future<String> ensureDeviceId() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -172,6 +191,7 @@ class PyaterochkaService {
           })
           .timeout(timeout);
     } on Exception catch (e) {
+      _cancelStuck(); // NET-2: обрываем подвисший запрос
       throwNetwork(e);
     }
 

@@ -299,6 +299,18 @@
   "priceSourceOpenPrices": "Open Prices — по штрихкоду (весь мир)",
   "priceRefresh": "Найти цену",
   "priceSearching": "Ищем цену…",
+  "priceIndexProgress": "Собираю индекс каталога: {done} из {total}",
+  "@priceIndexProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "priceIndexCancel": "Остановить сборку",
   "priceMatched": "Совпало: {name}",
   "priceNotFound": "В выбранном магазине не нашлось",
   "priceBarcodeNotFound": "Цены этого штрихкода в Open Prices пока нет",

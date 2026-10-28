@@ -299,11 +299,45 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
         ),
         if (priceOn) ...[
           const SizedBox(height: 4),
-          if (_priceLoading)
+          if (_priceLoading) ...[
             Text(l.priceSearching,
                 style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant))
-          else if (_priceHit != null)
+                    color: theme.colorScheme.onSurfaceVariant)),
+            // UI-8 (аудит 2026-10-28): сборка индекса Mercadona — до 60 с
+            // даже с бюджетом NET-7; вместо молчащего спиннера — прогресс
+            // «N из 152» и возможность остановить (скачанное сохранится).
+            ValueListenableBuilder<(int, int)?>(
+              valueListenable:
+                  context.read<MercadonaService>().buildProgress,
+              builder: (context, progress, _) {
+                if (progress == null) return const SizedBox.shrink();
+                final (done, total) = progress;
+                if (total <= 0) return const SizedBox.shrink();
+                return Row(
+                  children: [
+                    Expanded(
+                      child: LinearProgressIndicator(
+                        value: done / total,
+                        minHeight: 2,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      l.priceIndexProgress(done, total),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                    TextButton(
+                      onPressed: context
+                          .read<MercadonaService>()
+                          .requestCancelBuild,
+                      child: Text(l.priceIndexCancel),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ] else if (_priceHit != null)
             Text(l.priceMatched(_priceHit!.name),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

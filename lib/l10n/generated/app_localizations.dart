@@ -1850,6 +1850,18 @@ abstract class AppLocalizations {
   /// **'Searching for a price…'**
   String get priceSearching;
 
+  /// No description provided for @priceIndexProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Building catalog index: {done} of {total}'**
+  String priceIndexProgress(int done, int total);
+
+  /// No description provided for @priceIndexCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop indexing'**
+  String get priceIndexCancel;
+
   /// No description provided for @priceMatched.
   ///
   /// In en, this message translates to:

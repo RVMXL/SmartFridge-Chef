@@ -996,6 +996,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get priceSearching => 'Searching for a price…';
 
   @override
+  String priceIndexProgress(int done, int total) {
+    return 'Building catalog index: $done of $total';
+  }
+
+  @override
+  String get priceIndexCancel => 'Stop indexing';
+
+  @override
   String priceMatched(String name) {
     return 'Matched: $name';
   }

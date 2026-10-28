@@ -1001,6 +1001,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get priceSearching => 'Ищем цену…';
 
   @override
+  String priceIndexProgress(int done, int total) {
+    return 'Собираю индекс каталога: $done из $total';
+  }
+
+  @override
+  String get priceIndexCancel => 'Остановить сборку';
+
+  @override
   String priceMatched(String name) {
     return 'Совпало: $name';
   }

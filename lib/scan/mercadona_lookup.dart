@@ -27,6 +27,7 @@ library;
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show ValueNotifier;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
@@ -194,6 +195,20 @@ class MercadonaService {
   final Duration pacing;
   final Duration ttl;
 
+  /// NET-7 (аудит 2026-10-28): бюджет полной сборки индекса — 152
+  /// категории × до 8 с могли длиться 20+ минут без дедлайна.
+  static const Duration indexBuildBudget = Duration(seconds: 60);
+
+  /// UI-8 (аудит 2026-10-28): ход сборки индекса для UI. null — сборка
+  /// не идёт; иначе (сделано, всего) — пользователь видит прогресс и
+  /// может отменить ([requestCancelBuild]).
+  final ValueNotifier<(int, int)?> buildProgress = ValueNotifier(null);
+  bool _cancelRequested = false;
+
+  /// Просит остановить текущую сборку индекса (уже скачанное
+  /// персистится — продолжение будет поверх частичного кэша).
+  void requestCancelBuild() => _cancelRequested = true;
+
   List<PriceHit>? _index;
   Future<List<PriceHit>?>? _building;
 
@@ -209,6 +224,17 @@ class MercadonaService {
 
   /// Закрыть собственный клиент (инжектированный извне не наш — не трогаем).
   void dispose() => _ownClient?.close();
+
+  /// NET-2 (аудит 2026-10-28): .timeout() лишь перестаёт ждать —
+  /// подвисший запрос продолжает качаться в фоне и жечь батарею.
+  /// Закрываем собственный клиент (обрываем сокеты); следующий запрос
+  /// создаст свежий. Инжектированный извне клиент (тесты) не наш —
+  /// его не трогаем.
+  void _cancelStuck() {
+    if (_client != null) return;
+    _ownClient?.close();
+    _ownClient = null;
+  }
 
   /// Кандидаты для поиска: весь индекс каталога. Подбор совпадения —
   /// общий матчер [pickBestPriceHit] на стороне вызова.
@@ -258,14 +284,32 @@ class MercadonaService {
     }
   }
 
-  Future<List<PriceHit>> _buildAndPersist() async {
-    final hits = await _buildIndexFromNetwork();
-    _index = hits;
-    await _persist(hits);
-    return hits;
+  Future<List<PriceHit>> _buildAndPersist({
+    void Function(int done, int total)? onProgress,
+    bool Function()? isCancelled,
+  }) async {
+    _cancelRequested = false;
+    buildProgress.value = (0, 0);
+    try {
+      final hits = await _buildIndexFromNetwork(
+        onProgress: (done, total) {
+          onProgress?.call(done, total);
+          buildProgress.value = (done, total);
+        },
+        isCancelled: isCancelled ?? () => _cancelRequested,
+      );
+      _index = hits;
+      await _persist(hits);
+      return hits;
+    } finally {
+      buildProgress.value = null;
+    }
   }
 
-  Future<List<PriceHit>> _buildIndexFromNetwork() async {
+  Future<List<PriceHit>> _buildIndexFromNetwork({
+    void Function(int done, int total)? onProgress,
+    bool Function()? isCancelled,
+  }) async {
     final root = await _getJson(Uri.https(_host, '/api/categories/'));
     final tops = root['results'];
     if (tops is! List) {
@@ -288,13 +332,29 @@ class MercadonaService {
       throw const PriceUnavailable(PriceFailReason.blocked);
     }
 
+    // NET-7 (аудит 2026-10-28): сборка больше не all-or-nothing.
+    // Бюджет 60 с, отмена, отказ одной категории не аннулирует уже
+    // полученные: индекс персистится частями каждые 10 категорий,
+    // следующий запуск продолжит со свежим TTL поверх частичного кэша.
+    final deadline = DateTime.now().add(indexBuildBudget);
+    final total = levelOneIds.length;
     final hits = <PriceHit>[];
-    for (var i = 0; i < levelOneIds.length; i++) {
-      final category = await _getJson(
-        Uri.https(_host, '/api/categories/${levelOneIds[i]}/'),
-      );
-      hits.addAll(parseMercadonaCategoryJson(category));
-      if (i < levelOneIds.length - 1) {
+    for (var i = 0; i < total; i++) {
+      if (isCancelled != null && isCancelled()) break;
+      if (DateTime.now().isAfter(deadline)) break;
+      try {
+        final category = await _getJson(
+          Uri.https(_host, '/api/categories/${levelOneIds[i]}/'),
+        );
+        hits.addAll(parseMercadonaCategoryJson(category));
+      } on PriceUnavailable {
+        continue; // категория недоступна — остальные продолжаем
+      }
+      onProgress?.call(i + 1, total);
+      if ((i + 1) % 10 == 0 && hits.isNotEmpty) {
+        await _persist(List<PriceHit>.of(hits));
+      }
+      if (i < total - 1) {
         await Future<void>.delayed(pacing);
       }
     }
@@ -406,6 +466,7 @@ class MercadonaService {
           })
           .timeout(timeout);
     } on Exception catch (e) {
+      _cancelStuck(); // NET-2: обрываем подвисший запрос
       throwNetwork(e);
     }
 

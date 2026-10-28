@@ -437,6 +437,18 @@
   "priceSourceOpenPrices": "Open Prices — by barcode (worldwide)",
   "priceRefresh": "Find price",
   "priceSearching": "Searching for a price…",
+  "priceIndexProgress": "Building catalog index: {done} of {total}",
+  "@priceIndexProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "priceIndexCancel": "Stop indexing",
   "priceMatched": "Matched: {name}",
   "priceNotFound": "Not found in the selected store",
   "priceBarcodeNotFound": "No price for this barcode in Open Prices yet",
