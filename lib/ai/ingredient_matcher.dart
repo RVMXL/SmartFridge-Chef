@@ -19,6 +19,8 @@
 /// (test/ai/ingredient_matcher_test.dart).
 library;
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
+
 import '../data/models/product.dart';
 import '../data/models/recipe.dart';
 
@@ -106,6 +108,15 @@ class IngredientMatcher {
   /// токен стема — префикс отдельного слова названия (порядок не важен),
   /// побеждает самый длинный стем (чтобы «куриные бёдра» стало thigh,
   /// а не breast, и «томатная паста» стало tomato_paste, а не tomato).
+  /// REC-5 (аудит 2026-10-28, v0.6.2): ключи словаря для инвариант-теста
+  /// «нет мёртвых ключей»: каждый ключ обязан либо встречаться в рецептах,
+  /// либо работать в категоризации штрих-кодов (_categoryByKey).
+  @visibleForTesting
+  static Set<String> get synonymKeysForTest => _synonyms.keys.toSet();
+
+  @visibleForTesting
+  static Set<String> get categoryKeysForTest => _categoryByKey.keys.toSet();
+
   static const Map<String, List<String>> _synonyms = {
     // ---- мясо
     'chicken_breast': ['куриная грудка', 'грудк', 'куриное филе',

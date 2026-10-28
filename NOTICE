@@ -17,7 +17,13 @@ Copyright 2026 RVMXL. All rights reserved.
 - google_mlkit_text_recognition — MIT (плагин); сам ML Kit — условия
   Google ML Kit, распознавание выполняется on-device, изображения
   чеков никуда не отправляются
-- image_picker — Apache-2.0 / BSD-3-Clause (Flutter team)
+- flutter_tesseract_ocr — BSD-3-Clause (плагин); нативный движок
+  Tesseract 4 (tesseract4android) — Apache-2.0 (Google LLC); русская
+  модель tessdata_fast (rus.traineddata) — Apache-2.0
+  (tesseract-ocr project). OCR-1, v0.6.2: распознавание кириллических
+  чеков, выполняется on-device
+- image_picker — Apache-2.0 / BSD-3-Clause (Flutter team); двойная
+  лицензия: основная реализация Apache-2.0, интеграции — BSD-3-Clause
 - flutter_local_notifications — BSD-3-Clause
 - timezone — BSD-2-Clause; flutter_timezone — Apache-2.0
 - qr_flutter — BSD-3-Clause (© 2020 Luke Freeman)
@@ -25,6 +31,13 @@ Copyright 2026 RVMXL. All rights reserved.
 Сторонние компоненты (только сборка и тесты, в приложение не входят):
 - sqflite_common_ffi — MIT (AlexTekartik / Foundation)
 - flutter_lints — BSD-3-Clause (Flutter team)
+
+LEG-8 (v0.6.2): транзитивные зависимости (meta, collection, async,
+characters, material_color_utilities, path_provider, plugin_platform_interface
+и т.п. из pubspec.lock) распространяются под пермиссивными лицензиями
+MIT / BSD-2/3-Clause / Apache-2.0 их правообладателей; полные тексты —
+в файлах LICENSE соответствующих пакетов pub-кэша. Прямые зависимости
+перечислены выше; полный список — pubspec.lock.
 
 Внешние данные и сервисы, используемые приложением (не входят в состав
 и не распространяются с ним):

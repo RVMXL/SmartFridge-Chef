@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""Опрос статуса GitHub Actions (CI + Release) для последнего коммита/тега."""
-import json, os, subprocess, sys, time
+"""Опрос статуса GitHub Actions (CI + Release) для последнего коммита/тега.
+
+INFRA-7 (аудит 2026-10-28, v0.6.2): токен больше не вычитывается из
+URL remote (там его быть не должно) — берётся из окружения GH_TOKEN
+или GITHUB_TOKEN; без него скрипт просит экспортировать переменную.
+"""
+import json, os, sys, time
 
 def gh_api(path):
-    url = subprocess.check_output(['git', 'remote', 'get-url', 'origin'], text=True).strip()
-    cred = url.split('://')[1].split('@')[0]
-    token = cred.split(':')[1] if ':' in cred else cred
+    token = os.environ.get('GH_TOKEN') or os.environ.get('GITHUB_TOKEN')
+    if not token:
+        sys.exit('Нужен токен: export GH_TOKEN=... (read-only достаточно)')
     import urllib.request
     req = urllib.request.Request('https://api.github.com' + path,
         headers={'Authorization': f'Bearer {token}', 'Accept': 'application/vnd.github+json'})

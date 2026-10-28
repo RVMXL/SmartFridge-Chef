@@ -43,4 +43,19 @@ jobs:
         run: flutter analyze --fatal-infos
 
       - name: Юнит-тесты
-        run: flutter test --coverage
+        run: |
+          set -o pipefail
+          flutter test --coverage 2>&1 | tee /tmp/test_output.log
+          # TEST-3 (аудит 2026-10-28, v0.6.2): фактический счётчик тестов
+          # публикуется артефактом — README больше не хранит число,
+          # которое нельзя проверить.
+          N=$(grep -oE '\+[0-9]+' /tmp/test_output.log | tail -1 | cut -c2-)
+          echo "$N" > test_count.txt
+          echo "Всего тестов: $N"
+
+      - name: Артефакт со счётчиком тестов (TEST-3)
+        uses: actions/upload-artifact@v4
+        with:
+          name: test_count
+          path: test_count.txt
+          if-no-files-found: error

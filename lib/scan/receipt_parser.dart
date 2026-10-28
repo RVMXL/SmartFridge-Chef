@@ -89,8 +89,61 @@ const Set<String> _enEndings = {'', 's', 'es'};
 /// Токен — последовательность букв/цифр (латиница + кириллица).
 final RegExp _tokenSeparator = RegExp(r'[^a-zа-яё0-9]+');
 
+/// Результат разбора чека: кандидаты + валюта (SCAN-2).
+class ReceiptParseResult {
+  const ReceiptParseResult({required this.candidates, this.currency});
+
+  final List<ReceiptCandidate> candidates;
+
+  /// Валюта чека по символам/кодам (₽/руб/р. → RUB, $/usd → USD,
+  /// €/eur → EUR, ₸/kzt → KZT, £/gbp → GBP); null — не опознана.
+  final String? currency;
+}
+
+/// Символы/коды валют (SCAN-2, аудит 2026-10-28): раньше чек молча
+/// считался рублёвым — при $/€-чеке цена записывалась в базу с «₽».
+/// Текстовые маркеры — с границами: «рубашка» не даёт RUB, «евросеть»
+/// не даёт EUR, «евро»/«рублей» — дают. Побеждает маркер с наибольшим
+/// числом вхождений, при равенстве — первый в списке.
+const List<(String, String)> kReceiptCurrencyMarkers = [
+  ('₽', 'RUB'),
+  (r'руб(л(ей|я|ь))?(?![а-яё])', 'RUB'),
+  (r'(?<![a-z])rub(?![a-z])', 'RUB'),
+  (r'(?<![а-яёa-z0-9])р\.', 'RUB'),
+  (r'\$', 'USD'),
+  (r'(?<![a-z])usd(?![a-z])', 'USD'),
+  ('€', 'EUR'),
+  (r'(?<![a-z])eur(?![a-z])', 'EUR'),
+  (r'(?<![а-яё])евро(?![а-яё])', 'EUR'),
+  ('₸', 'KZT'),
+  (r'(?<![a-z])kzt(?![a-z])', 'KZT'),
+  (r'(?<![а-яё])тенге(?![а-яё])', 'KZT'),
+  ('£', 'GBP'),
+  (r'(?<![a-z])gbp(?![a-z])', 'GBP'),
+];
+
+String? detectReceiptCurrency(String text) {
+  final lowered = text.toLowerCase();
+  String? best;
+  var bestCount = 0;
+  for (final (marker, code) in kReceiptCurrencyMarkers) {
+    final count = RegExp(marker).allMatches(lowered).length;
+    if (count > bestCount) {
+      bestCount = count;
+      best = code;
+    }
+  }
+  return best;
+}
+
 /// Регулярка цены в конце строки: «59,90» / «59.90» / «59 90».
 final RegExp _priceEnd = RegExp(r'(\d{1,6})[.,\s](\d{2})(?=\s*$)');
+
+/// SCAN-4: целая цена без копеек в конце строки («МОЛОКО 89»).
+/// 2–3 цифры (10–999); 1 цифра — двусмысленно (кол-во), 4+ — артикул.
+/// Не срабатывает после «x/х/*» (суффикс количества) и внутри числа.
+final RegExp _priceEndWhole = RegExp(r'(?<![*xх0-9])(\d{2,3})(?=\s*$)',
+    caseSensitive: false);
 
 /// Префикс количества: «2 x», «2х», «x2», «х2» в начале или внутри.
 final RegExp _qtyPrefix = RegExp(r'^\s*(\d{1,2})\s*[xх*]\s*', caseSensitive: false);
@@ -102,7 +155,11 @@ final RegExp _qtySuffix = RegExp(r'\s*[xх*]\s*(\d{1,2})\s*$', caseSensitive: fa
 /// под названием товара — такая строка прикрепляется к предыдущей позиции.
 /// Дубликаты (одно и то же имя в разном регистре) схлопываются,
 /// количество суммируется — в чеке товар часто печатается в 2 строки.
-List<ReceiptCandidate> parseReceipt(String text) {
+List<ReceiptCandidate> parseReceipt(String text) =>
+    parseReceiptDetailed(text).candidates;
+
+/// Полный разбор: кандидаты + валюта чека (SCAN-2).
+ReceiptParseResult parseReceiptDetailed(String text) {
   final merged = <String, ReceiptCandidate>{};
   final order = <String>[];
 
@@ -115,17 +172,26 @@ List<ReceiptCandidate> parseReceipt(String text) {
     double? price;
     var body = line;
 
-    // Цена в конце строки: «… 59,90» / «Milk 2.49».
+    // Цена в конце строки: «… 59,90» / «Milk 2.49» / «МОЛОКО 89» (SCAN-4).
     final pm = _priceEnd.firstMatch(body);
     if (pm != null) {
       price = double.parse('${pm.group(1)}.${pm.group(2)}');
       body = body.substring(0, pm.start);
+    } else {
+      final wm = _priceEndWhole.firstMatch(body);
+      if (wm != null) {
+        price = double.parse(wm.group(1)!);
+        body = body.substring(0, wm.start);
+      }
     }
 
     var qty = 1;
     final qp = _qtyPrefix.firstMatch(body);
     if (qp != null) {
-      qty = int.parse(qp.group(1)!);
+      final parsed = int.parse(qp.group(1)!);
+      // SCAN-3 (аудит 2026-10-28): «0 х Молоко» не должен давать ноль
+      // позиций — трактуем как одну (пользователь поправит на экране).
+      qty = parsed > 0 ? parsed : 1;
       body = body.substring(qp.end);
     } else {
       final qs = _qtySuffix.firstMatch(body);
@@ -173,7 +239,10 @@ List<ReceiptCandidate> parseReceipt(String text) {
     }
   }
 
-  return [for (final k in order) merged[k]!];
+  return ReceiptParseResult(
+    candidates: [for (final k in order) merged[k]!],
+    currency: detectReceiptCurrency(text),
+  );
 }
 
 /// SCAN-1: строка служебная, если хотя бы один её токен равен стему

@@ -126,7 +126,9 @@ class LocalReminderScheduler implements ReminderScheduler {
       } on MissingPluginException {
         _exactAllowed = false;
       }
-      return granted ?? true;
+      // NOTIF-5 (аудит 2026-10-28, v0.6.2): null = платформа не подтвердила
+      // право — не считаем его разрешённым (раньше `?? true`).
+      return granted ?? false;
     }
     final ios = _plugin
         .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
@@ -136,7 +138,8 @@ class LocalReminderScheduler implements ReminderScheduler {
         badge: true,
         sound: true,
       );
-      return granted ?? true;
+      // NOTIF-5: null = не подтверждено (раньше `?? true`).
+      return granted ?? false;
     }
     return true; // на других платформах права не нужны
   }

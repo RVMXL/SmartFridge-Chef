@@ -362,6 +362,9 @@ class SettingsScreen extends StatelessWidget {
           initialValue: settings.wegmansKey,
           decoration:
               InputDecoration(labelText: l.wegmansKeyLabel),
+          // SEC-3 (аудит 2026-10-28, v0.6.2): ключ — секрет, ввод
+          // маскируется (как у Kroger secret).
+          obscureText: true,
           onChanged: settings.setWegmansKey,
         ),
         Padding(
@@ -436,6 +439,8 @@ class SettingsScreen extends StatelessWidget {
                     PriceFailReason.auth => l.priceAuthError,
                     PriceFailReason.blocked => l.priceUnavailable,
                     PriceFailReason.network => l.priceNoNetwork,
+                    // NET-5: неожиданная ошибка — не «нет сети» (v0.6.2).
+                    PriceFailReason.unknown => l.priceUnavailable,
                   },
                 );
               }
@@ -576,6 +581,8 @@ class SettingsScreen extends StatelessWidget {
                     PriceFailReason.auth => l.priceAuthError,
                     PriceFailReason.blocked => l.priceUnavailable,
                     PriceFailReason.network => l.priceNoNetwork,
+                    // NET-5: неожиданная ошибка — не «нет сети» (v0.6.2).
+                    PriceFailReason.unknown => l.priceUnavailable,
                   },
                 );
               }
@@ -622,6 +629,7 @@ class SettingsScreen extends StatelessWidget {
 
   Future<void> _toggleDay(
       BuildContext context, int day, bool on) async {
+    final l = AppLocalizations.of(context);
     final settings = context.read<SettingsController>();
     final products = context.read<ProductController>();
     final days = {...settings.notificationDaysBefore};
@@ -630,7 +638,14 @@ class SettingsScreen extends StatelessWidget {
     } else {
       days.remove(day);
     }
-    if (days.isEmpty) return; // должен остаться хотя бы один вариант
+    if (days.isEmpty) {
+      // UI-13 (аудит 2026-10-28, v0.6.2): отказ больше не молчаливый —
+      // объясняем, почему последний чип нельзя снять.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.notifLastDayNote)),
+      );
+      return;
+    }
     await settings.setNotificationDaysBefore(days.toList());
     await products.refresh();
   }

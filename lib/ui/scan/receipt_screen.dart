@@ -1,22 +1,27 @@
-/// Экран распознавания чека (Шаг 3): фото → ML Kit OCR → парсер чека →
+/// Экран распознавания чека (Шаг 3): фото → OCR → парсер чека →
 /// подтверждение позиций → массовое добавление в холодильник.
 ///
-/// Всё распознавание — на устройстве; фото никуда не отправляется.
-/// Названия из OCR можно поправить прямо в списке перед добавлением.
+/// OCR-1 (аудит 2026-10-28, v0.6.2): два движка на устройстве —
+/// Tesseract (rus.traineddata) для кириллицы + ML Kit latin для
+/// латиницы, автовыбор см. [AutoOcrEngine]. Всё на устройстве; фото
+/// никуда не отправляется. Названия из OCR можно поправить в списке.
 library;
 
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/models/product.dart';
 import '../../l10n/generated/app_localizations.dart';
+import '../../scan/ocr_engine.dart';
 import '../../scan/receipt_parser.dart';
 import '../../state/product_controller.dart';
 
 class ReceiptScreen extends StatefulWidget {
-  const ReceiptScreen({super.key});
+  const ReceiptScreen({super.key, this.engine});
+
+  /// Внедряется в тестах; null — авто (Tesseract rus + ML Kit latin).
+  final OcrEngine? engine;
 
   @override
   State<ReceiptScreen> createState() => _ReceiptScreenState();
@@ -24,15 +29,10 @@ class ReceiptScreen extends StatefulWidget {
 
 class _ReceiptScreenState extends State<ReceiptScreen> {
   final ImagePicker _picker = ImagePicker();
-  // OCR-1 (аудит 2026-10-28): ML Kit Text Recognition v2 официально не
-  // поддерживает кириллицу (только latin/chinese/devanagari/japanese/
-  // korean) — кириллические чеки распознаются в мусор или пустоту.
-  // Честное ограничение: латиница-only, кириллические позиции вводятся
-  // вручную (см. заметку на экране и README).
-  final TextRecognizer _recognizer =
-      TextRecognizer(script: TextRecognitionScript.latin);
+  late final OcrEngine _engine = widget.engine ?? AutoOcrEngine();
 
   List<ReceiptCandidate> _candidates = const [];
+  String? _currency; // SCAN-2: валюта чека (RUB/USD/EUR/…)
   final Set<int> _selected = {};
   final Map<int, TextEditingController> _nameCtrls = {};
   bool _busy = false;
@@ -40,7 +40,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
 
   @override
   void dispose() {
-    _recognizer.close();
+    _engine.dispose();
     for (final c in _nameCtrls.values) {
       c.dispose();
     }
@@ -62,12 +62,14 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
         setState(() => _busy = false);
         return;
       }
-      final input = InputImage.fromFilePath(picked.path);
-      final result = await _recognizer.processImage(input);
-      final candidates = parseReceipt(result.text);
+      final input = picked.path;
+      final outcome = await _engine.recognize(input);
+      final result = parseReceiptDetailed(outcome.text);
+      final candidates = result.candidates;
       if (!mounted) return;
       setState(() {
         _candidates = candidates;
+        _currency = result.currency;
         _selected.clear();
         _selected.addAll([for (var i = 0; i < candidates.length; i++) i]);
         for (final c in _nameCtrls.values) {
@@ -95,6 +97,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
     final now = DateTime.now();
     // Из чека: категория — по эвристике ключевых слов (иначе «другое»),
     // типовой срок 14 дней — пользователь поправит даты по одной, если захочет.
+    // SCAN-2 (v0.6.2): валюта из чека (₽/$/€/₸/£), null → дефолт базы.
     final items = [
       for (final i in _selected)
         Product(
@@ -105,6 +108,8 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
           quantity: _candidates[i].quantity.toDouble(),
           expiryDate: now.add(const Duration(days: 14)),
           addedAt: now,
+          price: _candidates[i].price,
+          currency: _currency,
         ),
     ];
     final saved = await controller.addAll(items);

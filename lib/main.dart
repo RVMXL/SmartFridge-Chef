@@ -8,8 +8,10 @@ library;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
+import 'ai/llm_planner.dart';
 import 'ai/recipe_repository.dart';
 import 'ai/rule_based_planner.dart';
 import 'data/data_store.dart';
@@ -32,12 +34,20 @@ import 'ui/onboarding/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // ST-3 (аудит 2026-10-28, v0.6.2): intl-символы локалей для дат в
+  // пушах — без этой инициализации DateFormat('d MMM y', 'ru') падал и
+  // текст напоминаний всегда уходил в запасной ISO-вид («2026-11-05»).
+  await initializeDateFormatting('ru', null);
   final settings = await SettingsController.load();
 
   // AI-слой (Шаг 2): встроенная база рецептов + детерминированный движок.
+  // AI-8 (аудит 2026-10-28, v0.6.2): LocalLlmPlanner — живое звено цепи
+  // (прозрачно делегирует движку, пока модель Gemma не подключена на Шаге 3).
   final recipeRepository = RecipeRepository();
   final planController = PlanController(
-    planner: RuleBasedPlanner(recipeRepository),
+    planner: LocalLlmPlanner(
+      fallback: RuleBasedPlanner(recipeRepository),
+    ),
     repo: recipeRepository,
     openDb: AppDataStore.instance.database,
   );

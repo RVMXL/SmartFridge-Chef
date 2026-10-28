@@ -671,7 +671,7 @@ abstract class AppLocalizations {
   /// No description provided for @receiptOcrNote.
   ///
   /// In en, this message translates to:
-  /// **'Receipt OCR recognizes Latin script; Cyrillic receipts may fail — enter items manually.'**
+  /// **'On-device OCR: Russian (Tesseract) and Latin (ML Kit) — the engine is chosen automatically from the receipt content. Review items before adding.'**
   String get receiptOcrNote;
 
   /// No description provided for @receiptEditHint.
@@ -2155,6 +2155,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Price'**
   String get productFieldPrice;
+
+  /// No description provided for @notifLastDayNote.
+  ///
+  /// In en, this message translates to:
+  /// **'At least one days option must remain — otherwise reminders would lose their point.'**
+  String get notifLastDayNote;
 }
 
 class _AppLocalizationsDelegate

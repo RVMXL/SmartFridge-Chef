@@ -52,29 +52,36 @@ class _ScannerScreenState extends State<ScannerScreen> {
   Future<void> _manualEntry() async {
     final l = AppLocalizations.of(context);
     final ctrl = TextEditingController();
-    final code = await showDialog<String>(
-      context: context,
-      builder: (dlgCtx) => AlertDialog(
-        title: Text(l.scanManualEntry),
-        content: TextField(
-          controller: ctrl,
-          autofocus: true,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(labelText: l.scanManualHint),
-          onSubmitted: (v) => Navigator.of(dlgCtx).pop(v.trim()),
+    final String? code;
+    try {
+      code = await showDialog<String>(
+        context: context,
+        builder: (dlgCtx) => AlertDialog(
+          title: Text(l.scanManualEntry),
+          content: TextField(
+            controller: ctrl,
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(labelText: l.scanManualHint),
+            onSubmitted: (v) => Navigator.of(dlgCtx).pop(v.trim()),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dlgCtx).pop(),
+              child: Text(l.commonCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dlgCtx).pop(ctrl.text.trim()),
+              child: Text(l.commonDone),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dlgCtx).pop(),
-            child: Text(l.commonCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dlgCtx).pop(ctrl.text.trim()),
-            child: Text(l.commonDone),
-          ),
-        ],
-      ),
-    );
+      );
+    } finally {
+      // UI-12 (аудит 2026-10-28, v0.6.2): контроллер диалога диспозится
+      // всегда — раньше утекал на каждый ручной ввод.
+      ctrl.dispose();
+    }
     if (!mounted || code == null || code.isEmpty) return;
     // Разрешаем любые цифровые коды, но не бессмысленные обрывки.
     if (code.length < 4) {

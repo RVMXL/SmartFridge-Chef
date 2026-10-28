@@ -208,8 +208,10 @@ void main() {
   });
 
   group('SHARE-5: враждебные значения внутри валидного payload', () {
+    // SHARE-3 (v0.6.2): «n» обязано совпадать с числом позиций —
+    // враждебные тесты строят payload как настоящий отправитель.
     String hostile(List<List<Object?>> items) =>
-        '{"v":1,"i":${jsonEncode(items)}}';
+        '{"v":1,"n":${items.length},"i":${jsonEncode(items)}}';
 
     test('отрицательное/нулевое quantity → 1.0', () {
       final r = ProductShareCodec.decodePayload(hostile([
@@ -222,7 +224,8 @@ void main() {
     test('1e999 → Infinity quantity → 1.0 (не течёт в базу)', () {
       // 1e999 — валидный JSON-токен; Dart парсит его как double.infinity,
       // поэтому собираем payload вручную (jsonEncode не кодирует Infinity).
-      final r = ProductShareCodec.decodePayload('{"v":1,"i":[['
+      final r = ProductShareCodec.decodePayload(
+          '{"v":1,"n":1,"i":[['
           '"Бесконечность","dairy","2026-11-01",1e999,"g",""]]}');
       expect(r.products.single.quantity, 1.0);
     });
@@ -263,7 +266,8 @@ void main() {
 
     test('БЖУ: отрицательные → null, бесконечность → null, гигант → 10000',
         () {
-      final r = ProductShareCodec.decodePayload('{"v":1,"i":[['
+      final r = ProductShareCodec.decodePayload(
+          '{"v":1,"n":1,"i":[['
           '"Питание","dairy","2026-11-01",1,"g","",'
           '[-5,1e999,999999,12.5]]]}');
       final p = r.products.single;
@@ -271,6 +275,125 @@ void main() {
       expect(p.proteinPer100, isNull); // Infinity → null
       expect(p.fatPer100, 10000); // зажат сверху
       expect(p.carbsPer100, 12.5);
+    });
+  });
+
+  group('SHARE-2/3/4 (v0.6.2)', () {
+    test('SHARE-3: расхождение «n» с числом позиций — FormatException',
+        () {
+      final payload = jsonDecode(ProductShareCodec.buildPayload([
+        product('Молоко'), product('Хлеб'),
+      ])) as Map<String, dynamic>;
+      payload['n'] = 5; // заявлено 5, фактически 2
+      expect(() => ProductShareCodec.decodePayload(jsonEncode(payload)),
+          throwsFormatException);
+    });
+
+    test('SHARE-2: битая дата отбрасывается и считается, не «сегодня»',
+        () {
+      final payload = jsonDecode(ProductShareCodec.buildPayload([
+        product('Молоко'),
+      ])) as Map<String, dynamic>;
+      final items = (payload['i'] as List<dynamic>).toList();
+      items[0][2] = 'not-a-date';
+      payload['i'] = items;
+      final result = ProductShareCodec.decodePayload(jsonEncode(payload));
+      expect(result.products, isEmpty);
+      expect(result.invalidCount, 1);
+    });
+
+    test('SHARE-2: нереальная дата 31.02 — тоже битая', () {
+      final payload = jsonDecode(ProductShareCodec.buildPayload([
+        product('Молоко'),
+      ])) as Map<String, dynamic>;
+      final items = (payload['i'] as List<dynamic>).toList();
+      items[0][2] = '2026-02-31';
+      payload['i'] = items;
+      final result = ProductShareCodec.decodePayload(jsonEncode(payload));
+      expect(result.products, isEmpty);
+      expect(result.invalidCount, 1);
+    });
+
+    test('валидная передача — invalidCount = 0', () {
+      final result = ProductShareCodec.decodePayload(
+          ProductShareCodec.buildPayload([product('Молоко')]));
+      expect(result.invalidCount, 0);
+      expect(result.products, hasLength(1));
+    });
+  });
+
+  group('SHARE-4: QrChunkCollector', () {
+    List<String> pagesOf(List<Product> ps) => ProductShareCodec.encode(ps);
+
+    test('полная передача собирается', () {
+      final pages = pagesOf([product('Молоко'), product('Хлеб')]);
+      if (pages.length == 1) {
+        // одна страница — payload целиком
+        final c = ProductShareCodec.tryParseChunk(pages.single)!;
+        expect(QrChunkCollector().add(c), isNotNull);
+        return;
+      }
+      final collector = QrChunkCollector();
+      String? payload;
+      for (final p in pages) {
+        payload = collector.add(ProductShareCodec.tryParseChunk(p)!);
+      }
+      expect(payload, isNotNull);
+    });
+
+    test('та же страница с ДРУГИМ содержимым начинает сбор заново '
+        '(передача с тем же total больше не залипает)', () {
+      final pagesA = pagesOf([product('Молоко'), product('Хлеб')]);
+      if (pagesA.length < 2) {
+        return markTestSkipped('данные влезли в одну страницу');
+      }
+      final pagesB = pagesOf([product('Сыр'), product('Кефир')]);
+      if (pagesB.length != pagesA.length) {
+        return markTestSkipped('разное число страниц в фикстурах');
+      }
+      final collector = QrChunkCollector();
+      // Первая передача: страницы 0 и 1 (не полная? собирается — сбросим
+      // тестовый сценарий: возьмём страницы 0,1 из A, потом 0 из B).
+      collector.add(ProductShareCodec.tryParseChunk(pagesA[0])!);
+      collector.add(ProductShareCodec.tryParseChunk(pagesA[1])!);
+      // Страница 0 из B — другое содержимое при том же total:
+      // сбор начинается заново, старая страница A[1] забыта.
+      collector.add(ProductShareCodec.tryParseChunk(pagesB[0])!);
+      expect(collector.received, 1, reason: 'старые страницы сброшены');
+      // Добираем B — собирается именно передача B.
+      String? payload;
+      for (var i = 1; i < pagesB.length; i++) {
+        payload = collector.add(ProductShareCodec.tryParseChunk(pagesB[i])!);
+      }
+      expect(payload, isNotNull);
+      final result = ProductShareCodec.decodePayload(payload!);
+      expect(result.products.map((p) => p.name),
+          pagesB.length == 2 ? ['Сыр', 'Кефир'] : isNotEmpty);
+    });
+
+    test('недобор сбрасывается по таймауту сессии', () {
+      final pages = pagesOf([product('Молоко'), product('Хлеб')]);
+      if (pages.length < 2) return markTestSkipped('одна страница');
+      final collector = QrChunkCollector(
+          sessionTimeout: const Duration(seconds: 45));
+      final t0 = DateTime(2026, 10, 28, 12, 0, 0);
+      collector.add(ProductShareCodec.tryParseChunk(pages[0])!,
+          now: t0);
+      expect(collector.received, 1);
+      // Через час — передача считается заброшенной: страница 0 той же
+      // передачи трактуется как новая попытка (без дубля-игнора).
+      collector.add(ProductShareCodec.tryParseChunk(pages[0])!,
+          now: t0.add(const Duration(hours: 1)));
+      expect(collector.received, 1, reason: 'сессия перезапущена');
+    });
+
+    test('дубликат страницы (то же содержимое) игнорируется', () {
+      final pages = pagesOf([product('Молоко'), product('Хлеб')]);
+      if (pages.length < 2) return markTestSkipped('одна страница');
+      final collector = QrChunkCollector();
+      collector.add(ProductShareCodec.tryParseChunk(pages[0])!);
+      collector.add(ProductShareCodec.tryParseChunk(pages[0])!);
+      expect(collector.received, 1);
     });
   });
 }

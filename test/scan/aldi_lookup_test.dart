@@ -52,6 +52,31 @@ void main() {
       expect(meat.packageQuantity, '500 g');
     });
 
+    test('NET-9: тысячи в немецком формате не теряют копеек', () {
+      List<PriceHit> run(String was) => parseAldiSearchJson({
+            'data': [
+              {
+                'name': 'A',
+                'discontinued': false,
+                'price': {
+                  'amount': 100,
+                  'amountRelevant': 100,
+                  'wasPriceDisplay': was,
+                  'currencySymbol': '€',
+                },
+              },
+            ],
+          });
+      // «1.199,00 €» = 1199.00, а не 1.199.
+      expect(run('1.199,00 €').single.oldPrice, 1199.00);
+      // «1.299 €» = 1299 (ровно 3 цифры после точки — тысячи).
+      expect(run('1.299 €').single.oldPrice, 1299.00);
+      // «2,49 €» — десятичная запятая.
+      expect(run('2,49 €').single.oldPrice, 2.49);
+      // «12.49 €» — одна точка не с 3 цифрами — десятичная.
+      expect(run('12.49 €').single.oldPrice, 12.49);
+    });
+
     test('wasPriceDisplay: немецкий формат и мусор', () {
       final hits = parseAldiSearchJson({
         'data': [

@@ -90,11 +90,33 @@ int? _centValue(Object? raw) {
 }
 
 /// «2,49 €» → 2.49 (немецкий формат); не число — null.
+///
+/// NET-9 (аудит 2026-10-28, v0.6.2): тысячи в немецком формате —
+/// «1.199,00 €» распознавались как 1.199 € (точка принималась за
+/// десятичный разделитель, копейки терялись). Правило: и точка, и
+/// запятая → точка = тысячи; только запятая → десятичная; одна точка
+/// с ровно 3 цифрами после → тысячи («1.299» = 1299), иначе десятичная
+/// («12.49» = 12.49).
 double? _parseEuroDisplay(String? display) {
   if (display == null) return null;
-  final match = RegExp(r'(\d+(?:[.,]\d+)?)').firstMatch(display);
+  final match =
+      RegExp(r'\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?')
+          .firstMatch(display);
   if (match == null) return null;
-  return double.tryParse(match.group(1)!.replaceAll(',', '.'));
+  var s = match.group(0)!;
+  final hasDot = s.contains('.');
+  final hasComma = s.contains(',');
+  if (hasDot && hasComma) {
+    // «1.199,00»: точка — тысячи, запятая — десятичная.
+    s = s.replaceAll('.', '').replaceAll(',', '.');
+  } else if (hasDot && RegExp(r'^\d{1,3}\.\d{3}$').hasMatch(s)) {
+    // «1.299»: ровно 3 цифры после точки — тысячи.
+    s = s.replaceAll('.', '');
+  } else {
+    // «2,49» / «12.49»: единственный разделитель — десятичный.
+    s = s.replaceAll(',', '.');
+  }
+  return double.tryParse(s);
 }
 
 String _displayName({String? brand, required String name}) {

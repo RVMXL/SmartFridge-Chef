@@ -326,7 +326,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiptOcrNote =>
-      'Receipt OCR recognizes Latin script; Cyrillic receipts may fail — enter items manually.';
+      'On-device OCR: Russian (Tesseract) and Latin (ML Kit) — the engine is chosen automatically from the receipt content. Review items before adding.';
 
   @override
   String get receiptEditHint =>
@@ -1166,4 +1166,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productFieldPrice => 'Price';
+
+  @override
+  String get notifLastDayNote =>
+      'At least one days option must remain — otherwise reminders would lose their point.';
 }

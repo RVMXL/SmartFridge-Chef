@@ -168,6 +168,12 @@ class PyaterochkaService {
     final cleanStore = storeCode.trim();
     final cleanQuery = query.trim();
     if (cleanStore.isEmpty || cleanQuery.isEmpty) return const [];
+    // NET-4 (аудит 2026-10-28, v0.6.2): SAP-код попадает в ПУТЬ URL —
+    // разрешены только латиница/цифры/дефис (коды бывают вида «35XY»);
+    // «/», «..», «?», «%» и прочее режем — инъекция пути невозможна.
+    if (!RegExp(r'^[A-Za-z0-9-]{1,16}$').hasMatch(cleanStore)) {
+      return const [];
+    }
 
     final deviceId = await ensureDeviceId();
     final uri = Uri.https(_host, '/api/catalog/v3/stores/$cleanStore/search', {

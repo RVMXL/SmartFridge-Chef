@@ -255,6 +255,23 @@ void main() {
       expect(calls, 1); // повторный запрос в сеть не уходил
     });
 
+    test('NET-4: нецифровой код в path не уходит — null без запроса', () async {
+      var calls = 0;
+      final service = BarcodeLookupService(
+        openDb: () async => db,
+        client: MockClient((request) async {
+          calls++;
+          return offHttp(const {'status': 0});
+        }),
+      );
+      // Мусор вместо EAN (../-обход, буквы, дефисы) — валидация режет
+      // до обращения к сети.
+      expect(await service.lookup('../../etc/passwd'), isNull);
+      expect(await service.lookup('4600-3380-11634'), isNull);
+      expect(await service.lookup('abcd1234'), isNull);
+      expect(calls, 0);
+    });
+
     test('товара нет в базе (status 0) — null, без кэширования', () async {
       final service = BarcodeLookupService(
         openDb: () async => db,

@@ -159,4 +159,57 @@ x
       expect(a.hashCode, b.hashCode);
     });
   });
+
+  group('SCAN-2/3/4 (v0.6.2) — валюта, количество, целые цены', () {
+    test('SCAN-2: ₽ и «руб» → RUB, с границами слов', () {
+      expect(parseReceiptDetailed('МОЛОКО 89,90\nХЛЕБ 45,00 руб.').currency,
+          'RUB');
+      expect(parseReceiptDetailed('МОЛОКО 89,90\nХЛЕБ 45,00\nИТОГО 134,90 ₽')
+          .currency, 'RUB');
+      // «рубашка» — не рубли
+      expect(parseReceiptDetailed('РУБАШКА 1299,00').currency, isNull);
+    });
+
+    test('SCAN-2: \$ → USD, €/евро → EUR, ₸ → KZT', () {
+      expect(parseReceiptDetailed('MILK 2.49\nBREAD 1.99\nTOTAL 4.48 \$')
+          .currency, 'USD');
+      expect(parseReceiptDetailed('BROT 2,49 €').currency, 'EUR');
+      expect(parseReceiptDetailed('WURST 12,99 EUR').currency, 'EUR');
+      // «евросеть» — не евро
+      expect(parseReceiptDetailed('ЕВРОСЕТЬ 990,00').currency, isNull);
+      expect(parseReceiptDetailed('ЖЕТЕ 1,00 ₸').currency, 'KZT');
+    });
+
+    test('SCAN-2: без маркеров — null (а не дефолт ₽)', () {
+      expect(parseReceiptDetailed('МОЛОКО 89,90\nХЛЕБ 45,00').currency, isNull);
+    });
+
+    test('SCAN-3: «0 х Молоко» — одна позиция, не ноль', () {
+      final items = parseReceipt('0 х Молоко\n120,00');
+      expect(items, hasLength(1));
+      expect(items.single.quantity, 1);
+      expect(items.single.price, 120.00);
+    });
+
+    test('SCAN-4: целая цена без копеек распознаётся', () {
+      final items = parseReceipt('МОЛОКО 89');
+      expect(items, hasLength(1));
+      expect(items.single.name, 'МОЛОКО');
+      expect(items.single.price, 89.0);
+    });
+
+    test('SCAN-4: 1 цифра и 4+ цифры — не цена (кол-во/артикул)', () {
+      final one = parseReceipt('МОЛОКО 7');
+      expect(one.single.price, isNull);
+      final articul = parseReceipt('Крупа 123456');
+      expect(articul.single.price, isNull);
+      expect(articul.single.name, contains('Крупа'));
+    });
+
+    test('SCAN-4: суффикс количества не съедается как цена', () {
+      final items = parseReceipt('Молоко х2\n120,00');
+      expect(items.single.quantity, 2);
+      expect(items.single.price, 120.00);
+    });
+  });
 }

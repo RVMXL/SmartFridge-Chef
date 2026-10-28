@@ -328,7 +328,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get receiptOcrNote =>
-      'Распознавание чеков работает для латиницы; кириллические чеки могут не распознаться — введите позиции вручную.';
+      'OCR на устройстве: русский (Tesseract) и латиница (ML Kit) — движок выбирается автоматически по содержимому чека. Проверяйте позиции перед добавлением.';
 
   @override
   String get receiptEditHint =>
@@ -1171,4 +1171,8 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get productFieldPrice => 'Цена';
+
+  @override
+  String get notifLastDayNote =>
+      'Хотя бы один вариант дней должен остаться — иначе напоминания потеряют смысл.';
 }

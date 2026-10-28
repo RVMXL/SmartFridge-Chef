@@ -7,6 +7,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:smart_fridge_chef/data/models/product.dart';
 import 'package:smart_fridge_chef/notifications/reminder_logic.dart';
@@ -55,8 +56,13 @@ class FakeReminderScheduler implements ReminderScheduler {
     cancelledAll = true;
   }
 
+  int pendingCalls = 0;
+
   @override
-  Future<Set<int>> pendingIds() async => scheduled.keys.toSet();
+  Future<Set<int>> pendingIds() async {
+    pendingCalls++;
+    return scheduled.keys.toSet();
+  }
 }
 
 class ScheduledReminder {
@@ -207,6 +213,80 @@ void main() {
     await svc.sync(products: products, now: start, localeTag: 'ru');
     expect(flaky.scheduled, isNotEmpty,
         reason: 'вторая sync должна была выполниться после падения первой');
+  });
+
+  group('ST-3/ST-6 (v0.6.2)', () {
+    test('ST-3: дата в тексте пуша локализована, не ISO-запасной вид',
+        () async {
+      await initializeDateFormatting('ru', null);
+      final products = [
+        product(1, 'Молоко', start.add(const Duration(days: 3))),
+      ];
+      await sync.sync(products: products, now: start, localeTag: 'ru');
+      expect(fake.scheduled, isNotEmpty);
+      final body = fake.scheduled.values.first.body;
+      expect(body, isNot(contains('2026-10-29')),
+          reason: 'ISO-вид — признак упавшего DateFormat');
+      expect(body, contains('окт'));
+    });
+
+    test('ST-3: formatExpiryDate — месяц словами для ru и en', () async {
+      await initializeDateFormatting('ru', null);
+      final d = DateTime(2026, 11, 5);
+      expect(ReminderSyncService.formatExpiryDate(d, 'ru'), contains('нояб'));
+      expect(ReminderSyncService.formatExpiryDate(d, 'en'), contains('Nov'));
+    });
+
+    test('ST-6: sync с неизменными входами не делает resync вовсе',
+        () async {
+      final products = [
+        product(1, 'Молоко', start.add(const Duration(days: 3))),
+      ];
+      await sync.sync(products: products, now: start, localeTag: 'ru');
+      final pendingAfterFirst = fake.pendingCalls;
+      final scheduleAfterFirst = fake.scheduleLog.length;
+      final cancelAfterFirst = fake.cancelLog.length;
+
+      await sync.sync(products: products, now: start, localeTag: 'ru');
+
+      expect(fake.pendingCalls, pendingAfterFirst,
+          reason: 'весь проход пропущен по отпечатку входов');
+      expect(fake.scheduleLog.length, scheduleAfterFirst);
+      expect(fake.cancelLog.length, cancelAfterFirst);
+    });
+
+    test('ST-6: смена дня возобновляет resync (окно напоминаний движется)',
+        () async {
+      final products = [
+        product(1, 'Молоко', start.add(const Duration(days: 3))),
+      ];
+      await sync.sync(products: products, now: start, localeTag: 'ru');
+      final pendingAfterFirst = fake.pendingCalls;
+
+      await sync.sync(
+        products: products,
+        now: start.add(const Duration(days: 1)),
+        localeTag: 'ru',
+      );
+
+      expect(fake.pendingCalls, greaterThan(pendingAfterFirst),
+          reason: 'дата в отпечатке — в полночь состав пушей меняется');
+    });
+
+    test('ST-6: изменение настроек возобновляет resync', () async {
+      final products = [
+        product(1, 'Молоко', start.add(const Duration(days: 3))),
+      ];
+      await sync.sync(products: products, now: start, localeTag: 'ru');
+      final pendingAfterFirst = fake.pendingCalls;
+
+      // Смена часа пуша = другой отпечаток входов (набор дней ограничен
+      // {1,2} и [2,1] уже дефолт — часы свободнее для теста).
+      await sync.settings.setNotificationHour(11);
+      await sync.sync(products: products, now: start, localeTag: 'ru');
+
+      expect(fake.pendingCalls, greaterThan(pendingAfterFirst));
+    });
   });
 }
 

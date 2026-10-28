@@ -135,15 +135,19 @@ class PlanDao {
   }
 
   /// Список сохранённых планов (новые сверху) — для истории меню.
-  Future<List<PlanSummary>> listPlans({int limit = 30}) async {
+  ///
+  /// DATA-5 (аудит 2026-10-28, v0.6.2): пагинация через [offset] —
+  /// раньше был жёсткий LIMIT 30 без возможности достать более старые
+  /// планы (они в базе, но недостижимы из UI).
+  Future<List<PlanSummary>> listPlans({int limit = 30, int offset = 0}) async {
     final rows = await db.rawQuery('''
       SELECT mp.*, COUNT(pm.id) AS meal_count
       FROM meal_plans mp
       LEFT JOIN planned_meals pm ON pm.plan_id = mp.id
       GROUP BY mp.id
       ORDER BY mp.created_at DESC
-      LIMIT ?
-    ''', [limit]);
+      LIMIT ? OFFSET ?
+    ''', [limit, offset]);
     return rows.map(PlanSummary.fromMap).toList();
   }
 

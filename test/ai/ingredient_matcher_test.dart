@@ -2,9 +2,12 @@
 /// индекс холодильника и сопоставление рецептов (Шаг 2).
 library;
 
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:smart_fridge_chef/ai/ingredient_matcher.dart';
+import 'package:smart_fridge_chef/ai/recipe_repository.dart';
 import 'package:smart_fridge_chef/data/models/product.dart';
 import 'package:smart_fridge_chef/data/models/recipe.dart';
 
@@ -379,6 +382,33 @@ void main() {
         ),
       ], now: DateTime(2026, 10, 26));
       expect(fridge['rice']!.grams, isNull);
+    });
+  });
+
+  group('REC-5 (v0.6.2) — нет мёртвых ключей словаря', () {
+    test('каждый ключ синонимов жив: рецепты или категоризация', () async {
+      final repo = RecipeRepository(
+        loadString: () => File('assets/data/recipes.json').readAsString(),
+      );
+      final recipes = await repo.loadAll();
+      final recipeKeys = recipes
+          .expand((r) => r.ingredients.map((i) => i.key))
+          .toSet();
+      final dict = IngredientMatcher.synonymKeysForTest;
+      final dead = dict
+          .difference(recipeKeys)
+          .difference(IngredientMatcher.categoryKeysForTest);
+      expect(dead, isEmpty,
+          reason: 'мёртвые ключи: $dead — удалить или завести рецепты');
+      // 7 «неиспользуемых в рецептах» ключей (bread_rye, eggplant,
+      // herring, radish, raspberry, strawberry, vanilla) живут в
+      // категоризации штрих-кодов:
+      for (final k in const [
+        'bread_rye', 'eggplant', 'herring', 'radish', 'raspberry',
+        'strawberry', 'vanilla',
+      ]) {
+        expect(IngredientMatcher.categoryKeysForTest, contains(k));
+      }
     });
   });
 }

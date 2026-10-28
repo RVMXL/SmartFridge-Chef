@@ -349,6 +349,8 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
                 PriceFailReason.blocked => l.priceUnavailable,
                 PriceFailReason.network => l.priceNoNetwork,
                 PriceFailReason.auth => l.priceAuthError,
+                // NET-5: неожиданная ошибка — не «нет сети» (v0.6.2).
+                PriceFailReason.unknown => l.priceUnavailable,
               },
               style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.error),

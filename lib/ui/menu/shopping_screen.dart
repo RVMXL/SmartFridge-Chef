@@ -73,7 +73,8 @@ class ShoppingScreen extends StatelessWidget {
                           title: Text(
                             item.missingGrams == null
                                 ? item.name
-                                : '${item.name} · ≈${item.missingGrams} г',
+                                // UI-10: единица — из ARB, не хардкод «г».
+                                : '${item.name} · ≈${item.missingGrams} ${l.unitGram}',
                             style: item.checked
                                 ? TextStyle(
                                     decoration: TextDecoration.lineThrough,

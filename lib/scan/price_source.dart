@@ -18,6 +18,8 @@ library;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:http/http.dart' show ClientException;
+
 /// Универсальный найденный товар: всё, что нужно для подстановки цены.
 class PriceHit {
   const PriceHit({
@@ -66,6 +68,10 @@ enum PriceFailReason {
 
   /// Ключ отклонён (Kroger: неверный client_id/secret).
   auth,
+
+  /// NET-5 (аудит 2026-10-28, v0.6.2): неожиданная ошибка (не сеть) —
+  /// раньше всё молча превращалось в «нет сети» и маскировало баг.
+  unknown,
 }
 
 /// Цены недоступны — приложению следует молча продолжать без них.
@@ -144,12 +150,21 @@ double? parsePriceValue(dynamic raw) {
   return double.tryParse(raw.toString().replaceAll(',', '.').trim());
 }
 
-/// Преобразование сетевых исключений в [PriceUnavailable.network].
+/// Преобразование сетевых исключений в [PriceUnavailable].
+///
+/// NET-5 (аудит 2026-10-28, v0.6.2): раньше обе ветки бросали одно и то
+/// же «network» — дифференциация была мёртвой, а неожиданная ошибка
+/// (баг, TypeError) маскировалась под «нет сети». Теперь: таймаут/сокет/
+/// HTTP — network; всё остальное — unknown (в UI то же «цены недоступны»,
+/// но в логах виден настоящий сбой).
 Never throwNetwork(Exception e) {
-  if (e is TimeoutException || e is SocketException || e is HttpException) {
+  if (e is TimeoutException ||
+      e is SocketException ||
+      e is HttpException ||
+      e is ClientException) {
     throw const PriceUnavailable(PriceFailReason.network);
   }
-  throw const PriceUnavailable(PriceFailReason.network);
+  throw const PriceUnavailable(PriceFailReason.unknown);
 }
 
 /// Ожидает ли JSON-ответ (иначе считаем антибот-заглушкой).

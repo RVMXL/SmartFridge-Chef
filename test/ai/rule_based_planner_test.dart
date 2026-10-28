@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:smart_fridge_chef/ai/planner.dart';
 import 'package:smart_fridge_chef/ai/recipe_repository.dart';
 import 'package:smart_fridge_chef/ai/rule_based_planner.dart';
+import 'package:smart_fridge_chef/data/models/recipe.dart';
 import 'package:smart_fridge_chef/data/models/product.dart';
 import 'package:smart_fridge_chef/data/models/user_profile.dart';
 
@@ -656,6 +657,56 @@ void main() {
         medicalRequest(['table11', 'table15']),
       );
       expect(widened.allowed.length, baseline.allowed.length);
+    });
+  });
+
+  group('AI-6 (v0.6.2) — детерминированный джиттер', () {
+    test('джиттер пары «блюдо × слот × зерно» стабилен', () {
+      final a = RuleBasedPlanner.slotJitter('r042', 7, MealSlot.lunch);
+      final b = RuleBasedPlanner.slotJitter('r042', 7, MealSlot.lunch);
+      expect(a, b);
+    });
+
+    test('джиттер в границах [0, jitter) и различает блюда/слоты', () {
+      for (var seed = 0; seed < 20; seed++) {
+        final j = RuleBasedPlanner.slotJitter('r0$seed', seed, MealSlot.dinner);
+        expect(j, inInclusiveRange(0, ScoreWeights.jitter - 1));
+      }
+      final different =
+          RuleBasedPlanner.slotJitter('r1', 1, MealSlot.breakfast);
+      // Хотя бы один из сдвигов по блюду/слоту/зерну меняет значение —
+      // иначе вся вариативность выродилась бы.
+      final values = {
+        RuleBasedPlanner.slotJitter('r1', 1, MealSlot.breakfast),
+        RuleBasedPlanner.slotJitter('r2', 1, MealSlot.breakfast),
+        RuleBasedPlanner.slotJitter('r1', 2, MealSlot.breakfast),
+        RuleBasedPlanner.slotJitter('r1', 1, MealSlot.dinner),
+      };
+      expect(values.length, greaterThan(1));
+      expect(different, inInclusiveRange(0, ScoreWeights.jitter - 1));
+    });
+
+    test('план воспроизводим: тот же сид — тот же план', () async {
+      const stamp = '2026-10-28T09:00:00.000';
+      final request = PlanRequest(
+        profile: UserProfile(
+          dailyCalories: 2100,
+          createdAt: DateTime.parse(stamp),
+          updatedAt: DateTime.parse(stamp),
+        ),
+        products: const [],
+        seed: 42,
+        startDate: DateTime(2026, 10, 28),
+      );
+      final first = await planner.generate(request);
+      final second = await planner.generate(request);
+      expect(
+        first.days
+            .expand((d) => d.meals)
+            .map((m) => m.recipe.id)
+            .toList(),
+        second.days.expand((d) => d.meals).map((m) => m.recipe.id).toList(),
+      );
     });
   });
 }

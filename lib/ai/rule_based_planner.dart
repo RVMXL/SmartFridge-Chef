@@ -20,6 +20,8 @@ library;
 
 import 'dart:math';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
+
 import '../data/models/meal_plan.dart';
 import '../data/models/medical_diet.dart';
 import '../data/models/product.dart';
@@ -106,7 +108,6 @@ class RuleBasedPlanner implements MealPlanner {
     final diagnostics = hardFilteredDetailed(all, request);
     final pool = diagnostics.allowed;
     final splits = splitsForMealsPerDay(request.profile.mealsPerDay);
-    final rnd = Random(request.seed);
 
     final usedRecipes = <String, int>{};
     final usedFamilies = <String, int>{};
@@ -147,7 +148,7 @@ class RuleBasedPlanner implements MealPlanner {
           usedFamilies: usedFamilies,
           usedSides: usedSides,
           diets: request.profile.diets,
-          rnd: rnd,
+          seed: request.seed,
         );
         if (recipe == null) {
           skippedSlots.add('день ${d + 1}, ${split.slot.key}');
@@ -409,7 +410,7 @@ class RuleBasedPlanner implements MealPlanner {
     required Map<String, int> usedFamilies,
     required Map<String, int> usedSides,
     required List<Diet> diets,
-    required Random rnd,
+    required int seed,
   }) {
     final allowedCategories = slotCategories[slot]!;
     var candidates = pool
@@ -435,7 +436,7 @@ class RuleBasedPlanner implements MealPlanner {
         usedFamilies: usedFamilies,
         usedSides: usedSides,
         diets: diets,
-        rnd: rnd,
+        seed: seed,
       );
       if (s > bestScore) {
         bestScore = s;
@@ -455,7 +456,7 @@ class RuleBasedPlanner implements MealPlanner {
     required Map<String, int> usedFamilies,
     required Map<String, int> usedSides,
     required List<Diet> diets,
-    required Random rnd,
+    required int seed,
   }) {
     final match = _matcher.matchRecipe(recipe, fridge, remaining: stock);
     var s = match.coverage * ScoreWeights.coverage;
@@ -514,8 +515,25 @@ class RuleBasedPlanner implements MealPlanner {
       s -= ScoreWeights.soupForDinnerPenalty;
     }
 
-    s += rnd.nextInt(ScoreWeights.jitter);
+    // AI-6 (аудит 2026-10-28, v0.6.2): джиттер детерминирован парой
+    // «блюдо × слот × зерно» (FNV-1a), а не порядком обхода кандидатов —
+    // раньше rnd.nextInt() сдвигал генератор на каждом кандидате, и
+    // джиттер блюда менялся от того, сколько и каких кандидатов шло
+    // перед ним (добавление рецепта в пул сдвигало выбор других).
+    s += slotJitter(recipe.id, seed, slot);
     return s;
+  }
+
+  /// Стабильный джиттер [0, jitter): FNV-1a по «id|слот|зерно».
+  @visibleForTesting
+  static int slotJitter(String recipeId, int seed, MealSlot slot) {
+    var h = 0x811c9dc5;
+    final s = '$recipeId|${slot.index}|${seed & 0x7fffffff}';
+    for (final code in s.codeUnits) {
+      h ^= code;
+      h = (h * 0x01000193) & 0x7fffffff;
+    }
+    return h % ScoreWeights.jitter;
   }
 
   // --------------------------------------------------- покупки и варнинги

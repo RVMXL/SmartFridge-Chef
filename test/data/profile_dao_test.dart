@@ -135,4 +135,23 @@ void main() {
     expect(d.fat, 67);
     expect(d.carbs, 200);
   });
+
+  group('DATA-4 (v0.6.2) — created_at защищён DAO', () {
+    test('повторный save с другой created_at не перезаписывает её', () async {
+      final t1 = DateTime(2026, 1, 1, 10, 0);
+      await dao.save(profile().copyWith(
+        createdAt: t1,
+        updatedAt: t1,
+      ));
+      final t2 = DateTime(2026, 6, 1, 12, 0);
+      await dao.save(profile().copyWith(
+        createdAt: t2,
+        updatedAt: t2,
+      ));
+      final saved = await dao.getProfile();
+      expect(saved, isNotNull);
+      expect(saved!.createdAt, t1,
+          reason: 'created_at существующей строки неизменен');
+    });
+  });
 }

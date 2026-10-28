@@ -279,4 +279,40 @@ void main() {
       expect(restored.dislikes, isEmpty);
     });
   });
+
+  group('AI-10 (v0.6.2) — границы слов в правилах «не люблю»', () {
+    test('«соль» не ловит «фасоль» (contains-подстрока)', () {
+      final ing = RecipeIngredient(
+          key: 'beans', ru: 'фасоль', en: 'beans', grams: 100, pantry: false);
+      expect(DislikeEngine.matchesIngredient('соль', ing), isFalse);
+    });
+
+    test('«соль» ловит «морская соль» и «соль морская»', () {
+      final a = RecipeIngredient(
+          key: 'salt', ru: 'морская соль', en: 'sea salt', grams: 5,
+          pantry: true);
+      expect(DislikeEngine.matchesIngredient('соль', a), isTrue);
+    });
+
+    test('стем по-прежнему ловит словоформы («томат» → «томатная паста»)',
+        () {
+      final ing = RecipeIngredient(
+          key: 'tomato_paste',
+          ru: 'томатная паста',
+          en: 'tomato paste',
+          grams: 50,
+          pantry: true);
+      expect(DislikeEngine.matchesIngredient('томат', ing), isTrue);
+    });
+
+    test('многословное правило — по подстроке («зеленый горошек»)', () {
+      final ing = RecipeIngredient(
+          key: 'green_peas',
+          ru: 'консервированный зеленый горошек',
+          en: 'canned green peas',
+          grams: 200,
+          pantry: false);
+      expect(DislikeEngine.matchesIngredient('зеленый горошек', ing), isTrue);
+    });
+  });
 }

@@ -104,22 +104,31 @@ List<({String sku, String name})> parseWegmansSearchJson(
     final sku = item['sku']?.toString() ?? '';
     final name = ((item['name'] ?? item['description']) as String?)
             ?.trim() ?? '';
+    // NET-4: sku попадает в путь URL /products/{sku}/prices/{store} —
+    // пропускаем всё, что не цифры (защита от мусора в ответе).
     if (sku.isEmpty || sku == 'null' || name.isEmpty) continue;
+    if (!RegExp(r'^\d{1,12}$').hasMatch(sku)) continue;
     found.add((sku: sku, name: name));
   }
   return found;
 }
 
 /// Чистый парсер ответа /products/{sku}/prices/{store}: {prices: [...]}.
-/// Берём первую цену (текущая розница магазина); promo-поля, если есть,
-/// уходят в oldPrice.
-double? parseWegmansPriceJson(Map<String, dynamic> json) {
+/// Берём первую цену (текущая розница магазина); NET-8 (аудит 2026-10-28,
+/// v0.6.2): wasPrice/promoPrice если есть — в oldPrice (акция «было/стало»):
+/// раньше поле игнорировалось, скидка выглядела обычной ценой.
+({double price, double? oldPrice})? parseWegmansPriceJson(
+    Map<String, dynamic> json) {
   final raw = json['prices'] ?? json['data'];
   if (raw is! List) return null;
   for (final item in raw) {
     if (item is! Map<String, dynamic>) continue;
     final price = parsePriceValue(item['price']);
-    if (price != null && price > 0) return price;
+    if (price == null || price <= 0) continue;
+    final was = parsePriceValue(item['wasPrice']) ??
+        parsePriceValue(item['promoPrice']);
+    final oldPrice = (was != null && was > price) ? was : null;
+    return (price: price, oldPrice: oldPrice);
   }
   return null;
 }
@@ -192,6 +201,11 @@ class WegmansService {
     final cleanQuery = query.trim();
     if (key.isEmpty || store.isEmpty || cleanQuery.isEmpty) return const [];
 
+    // NET-4 (аудит 2026-10-28, v0.6.2): store попадает в ПУТЬ URL —
+    // разрешены только латиница/цифры/дефис (sku дополнительно валидируется
+    // цифрами в парсере); «/», «..», «?», «%» режутся.
+    if (!RegExp(r'^[A-Za-z0-9-]{1,16}$').hasMatch(store)) return const [];
+
     // SEC-2: ключ в заголовке, не в query-string.
     final searchUri = Uri.https(_host, '/products/search', {
       'q': cleanQuery,
@@ -211,11 +225,12 @@ class WegmansService {
       });
       try {
         final priceBody = await _getJson(priceUri, subscriptionKey: key);
-        final price = parseWegmansPriceJson(priceBody);
-        if (price == null) continue;
+        final parsed = parseWegmansPriceJson(priceBody);
+        if (parsed == null) continue;
         hits.add(PriceHit(
           name: entry.name,
-          price: price,
+          price: parsed.price,
+          oldPrice: parsed.oldPrice,
           currencySymbol: r'$',
         ));
       } on PriceUnavailable catch (e) {

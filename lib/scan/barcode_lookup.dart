@@ -100,7 +100,10 @@ class BarcodeLookupService {
     String langCode = 'ru',
   }) async {
     final clean = code.trim();
-    if (clean.length < 4) return null;
+    // NET-4 (аудит 2026-10-28, v0.6.2): код попадает в ПУТЬ URL
+    // /api/v2/product/{code}.json — только цифры EAN/UPC (4–14 знаков);
+    // раньше проходил любой мусор с длиной ≥ 4.
+    if (!RegExp(r'^\d{4,14}$').hasMatch(clean)) return null;
 
     // 1. Кэш: мгновенно и офлайн.
     final dao = await _cache();

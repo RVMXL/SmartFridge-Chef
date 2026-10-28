@@ -147,7 +147,7 @@
     }
   },
   "receiptNotFound": "Could not recognize any items. Try a sharper photo or add products manually.",
-  "receiptOcrNote": "Receipt OCR recognizes Latin script; Cyrillic receipts may fail — enter items manually.",
+  "receiptOcrNote": "On-device OCR: Russian (Tesseract) and Latin (ML Kit) — the engine is chosen automatically from the receipt content. Review items before adding.",
   "receiptEditHint": "Check the names — OCR can be wrong. Uncheck the lines you do not need.",
   "receiptAddSelected": "Add selected ({count})",
   "@receiptAddSelected": {
@@ -518,5 +518,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "notifLastDayNote": "At least one days option must remain — otherwise reminders would lose their point."
 }

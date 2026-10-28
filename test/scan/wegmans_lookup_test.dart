@@ -72,22 +72,49 @@ void main() {
 
   group('parseWegmansPriceJson — цена магазина', () {
     test('фикстура: первая цена из prices', () async {
-      final price =
+      final parsed =
           parseWegmansPriceJson(await _fixture('wegmans_prices.json'));
-      expect(price, 3.79);
+      expect(parsed, isNotNull);
+      expect(parsed!.price, 3.79);
+      expect(parsed.oldPrice, isNull);
     });
 
     test('пусто/без цены → null; строковая цена парсится', () {
       expect(parseWegmansPriceJson({}), isNull);
       expect(parseWegmansPriceJson({'prices': []}), isNull);
-      expect(
-        parseWegmansPriceJson({
-          'prices': [
-            {'price': '2.49'},
-          ],
-        }),
-        2.49,
-      );
+      final parsed = parseWegmansPriceJson({
+        'prices': [
+          {'price': '2.49'},
+        ],
+      });
+      expect(parsed, isNotNull);
+      expect(parsed!.price, 2.49);
+    });
+
+    test('NET-8: wasPrice > price → oldPrice (акция), wasPrice < price — игнор', () {
+      final promo = parseWegmansPriceJson({
+        'prices': [
+          {'price': 3.79, 'wasPrice': 4.99},
+        ],
+      });
+      expect(promo, isNotNull);
+      expect(promo!.price, 3.79);
+      expect(promo.oldPrice, 4.99);
+
+      final promoAlt = parseWegmansPriceJson({
+        'prices': [
+          // promo НИЖЕ цены — цена уже промо, «старой» нет.
+          {'price': 3.0, 'promoPrice': 1.0},
+        ],
+      });
+      expect(promoAlt!.oldPrice, isNull);
+
+      final plain = parseWegmansPriceJson({
+        'prices': [
+          {'price': 5.0, 'wasPrice': 1.0},
+        ],
+      });
+      expect(plain!.oldPrice, isNull);
     });
   });
 

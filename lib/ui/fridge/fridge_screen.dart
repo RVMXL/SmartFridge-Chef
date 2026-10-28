@@ -4,6 +4,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -659,25 +660,38 @@ class _ProductCard extends StatelessWidget {
     );
 
     if (!dismissEnabled) return card;
-    return Dismissible(
-      key: ValueKey('dismiss-${product.id ?? product.name}'),
-      direction: DismissDirection.horizontal,
-      confirmDismiss: (dir) => _confirmDismiss(context, dir),
-      background: Container(
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.only(left: 20),
-        color: theme.colorScheme.primaryContainer,
-        child: Icon(Icons.restaurant,
-            color: theme.colorScheme.onPrimaryContainer),
+    // UI-15 (аудит 2026-10-28, v0.6.2): TalkBack не видит свайпы —
+    // «съел» и «удалить» добавлены как кастомные семантические действия
+    // меню доступности (через confirmDismiss — как у реальных свайпов).
+    final controller = context.read<ProductController>();
+    return Semantics(
+      customSemanticsActions: {
+        CustomSemanticsAction(label: l.actionAte): () =>
+            controller.setStatus(product.id!, ProductStatus.consumed),
+        CustomSemanticsAction(label: l.commonDelete): () async {
+          await controller.delete(product.id!);
+        },
+      },
+      child: Dismissible(
+        key: ValueKey('dismiss-${product.id ?? product.name}'),
+        direction: DismissDirection.horizontal,
+        confirmDismiss: (dir) => _confirmDismiss(context, dir),
+        background: Container(
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.only(left: 20),
+          color: theme.colorScheme.primaryContainer,
+          child: Icon(Icons.restaurant,
+              color: theme.colorScheme.onPrimaryContainer),
+        ),
+        secondaryBackground: Container(
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 20),
+          color: theme.colorScheme.errorContainer,
+          child: Icon(Icons.delete_outline,
+              color: theme.colorScheme.onErrorContainer),
+        ),
+        child: card,
       ),
-      secondaryBackground: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        color: theme.colorScheme.errorContainer,
-        child: Icon(Icons.delete_outline,
-            color: theme.colorScheme.onErrorContainer),
-      ),
-      child: card,
     );
   }
 }

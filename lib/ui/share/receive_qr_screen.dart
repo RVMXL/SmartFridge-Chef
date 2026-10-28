@@ -26,11 +26,10 @@ class _ReceiveQrScreenState extends State<ReceiveQrScreen> {
     formats: const [BarcodeFormat.qrCode],
   );
 
-  /// Принятые страницы: номер → байты куска payload.
-  final Map<int, List<int>> _chunks = {};
-
-  /// Всего страниц (фиксируется первой распознанной).
-  int? _total;
+  /// SHARE-4 (v0.6.2): сбор страниц с защитой от «залипания»
+  /// (та же страница с другим содержимым — новая передача; недобор
+  /// сбрасывается по таймауту) — вместо сырой карты в полях экрана.
+  final QrChunkCollector _collector = QrChunkCollector();
 
   /// Передача уже собирается (защита от повторного запуска).
   bool _importing = false;
@@ -50,28 +49,17 @@ class _ReceiveQrScreenState extends State<ReceiveQrScreen> {
       final chunk = ProductShareCodec.tryParseChunk(value);
       if (chunk == null) continue; // чужой QR — молча пропускаем
 
-      // Разные передачи подряд: если общее число страниц не совпало
-      // и текущая передача ещё не собрана — начинаем заново.
-      if (_total != null && chunk.total != _total) {
-        if (_chunks.length < _total!) {
-          _chunks.clear();
-          _total = chunk.total;
-        } else {
-          continue;
-        }
-      }
-      _total ??= chunk.total;
-
-      if (_chunks.containsKey(chunk.id)) continue; // дубликат страницы
-      _chunks[chunk.id] = chunk.bodyBytes;
-      HapticFeedback.selectionClick();
-      if (mounted) setState(() {});
-
-      final payload = ProductShareCodec.assemble(_chunks, _total!);
+      final before = _collector.received;
+      final payload = _collector.add(chunk);
       if (payload != null) {
         _importing = true;
         _finishScan(payload);
+        return;
       }
+      if (_collector.received > before) {
+        HapticFeedback.selectionClick(); // новая страница принята
+      }
+      if (mounted) setState(() {}); // счётчик принятых страниц
       return;
     }
   }
@@ -86,8 +74,7 @@ class _ReceiveQrScreenState extends State<ReceiveQrScreen> {
       if (!mounted) return;
       setState(() {
         _importing = false;
-        _chunks.clear();
-        _total = null;
+        _collector.reset();
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.receiveQrBroken)),
@@ -98,8 +85,7 @@ class _ReceiveQrScreenState extends State<ReceiveQrScreen> {
       if (!mounted) return;
       setState(() {
         _importing = false;
-        _chunks.clear();
-        _total = null;
+        _collector.reset();
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.receiveQrEmpty)),
@@ -132,8 +118,7 @@ class _ReceiveQrScreenState extends State<ReceiveQrScreen> {
     if (ok != true) {
       setState(() {
         _importing = false;
-        _chunks.clear();
-        _total = null;
+        _collector.reset();
       });
       return;
     }
@@ -156,8 +141,8 @@ class _ReceiveQrScreenState extends State<ReceiveQrScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final total = _total;
-    final received = _chunks.length;
+    final total = _collector.total;
+    final received = _collector.received;
 
     return Scaffold(
       appBar: AppBar(title: Text(l.receiveQrTitle)),

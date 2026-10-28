@@ -17,6 +17,7 @@ library;
 
 import 'dart:ui' show Locale;
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:intl/intl.dart';
 
 import '../core/freshness.dart';
@@ -38,6 +39,12 @@ class ReminderSyncService {
 
   /// Отпечаток последней запланированной версии каждого id (NOTIF-4).
   final Map<int, String> _lastScheduled = <int, String>{};
+
+  /// ST-6 (аудит 2026-10-28, v0.6.2): отпечаток входов последнего
+  /// успешного sync. refresh() вызывается после КАЖДОЙ мутации;
+  /// если входы (продукты/настройки/локаль/день) не менялись — resync
+  /// не нужен, sync возвращается сразу, без buildReminders/diff/pending.
+  String? _lastInputFingerprint;
 
   /// Полная синхронизация: отмена лишних + планирование нужных.
   ///
@@ -66,6 +73,24 @@ class ReminderSyncService {
     if (!settings.notificationsEnabled) {
       await scheduler.cancelAll();
       _lastScheduled.clear();
+      _lastInputFingerprint = null;
+      return;
+    }
+
+    final resolvedNow = now ?? DateTime.now();
+
+    // ST-6: идемпотентность по входам. Дата в отпечатке — потому что
+    // окно напоминаний зависит от «сегодня» (продукт входит в окно
+    // за N дней — в полночь состав запланированных пушей меняется).
+    final inputFingerprint = [
+      localeTag,
+      '${resolvedNow.year}-${resolvedNow.month}-${resolvedNow.day}',
+      ...(settings.notificationDaysBefore.toList()..sort()),
+      '${settings.notificationHour}',
+      for (final p in products) '${p.id}:${p.expiryDate.toIso8601String()}',
+    ].join('|');
+    if (inputFingerprint == _lastInputFingerprint &&
+        _lastScheduled.isNotEmpty) {
       return;
     }
 
@@ -99,7 +124,7 @@ class ReminderSyncService {
       final title = l.notifTitle;
       final body = l.notifBody(
         r.productName,
-        _formatDate(r.expiryDate, localeTag),
+        formatExpiryDate(r.expiryDate, localeTag),
         left,
       );
       // NOTIF-4: перезапись по тому же id идёт только если содержимое
@@ -117,10 +142,19 @@ class ReminderSyncService {
       );
       _lastScheduled[entry.key] = fingerprint;
     }
+
+    // ST-6: отметка успешного прохода — до него подрядные sync не скипаются.
+    _lastInputFingerprint = inputFingerprint;
   }
 
-  /// Дата в формате локали; при недоступных intl-символах — ISO.
-  String _formatDate(DateTime d, String localeTag) {
+  /// Дата в формате локали; при недоступных intl-символах — запасной вид.
+  ///
+  /// ST-3 (аудит 2026-10-28, v0.6.2): раньше формат всегда падал в запасной
+  /// ISO-вид — intl-символы локалей не инициализированы (main.dart теперь
+  /// вызывает initializeDateFormatting). Публичный и статический —
+  /// для теста «дата в пуше не ISO».
+  @visibleForTesting
+  static String formatExpiryDate(DateTime d, String localeTag) {
     try {
       return DateFormat('d MMM y', localeTag).format(d);
     } catch (_) {

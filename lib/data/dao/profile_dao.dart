@@ -26,11 +26,23 @@ class ProfileDao {
   }
 
   /// Сохраняет профиль (создание или обновление) — всегда строка id = 1.
+  ///
+  /// DATA-4 (аудит 2026-10-28, v0.6.2): replace-вставка перезаписывала
+  /// created_at тем, что пришло в объекте; защита датой жила только в
+  /// контроллере. DAO гарантирует сам: у существующей строки created_at
+  /// не меняется никогда, updated_at — всегда «сейчас».
   Future<void> save(UserProfile profile) async {
     assert(profile.id == 1, 'Профиль ровно один: id = 1');
+    final map = profile.toMap();
+    final rows = await _db.query(_table,
+        columns: ['created_at'], limit: 1);
+    if (rows.isNotEmpty && rows.first['created_at'] != null) {
+      map['created_at'] = rows.first['created_at'];
+    }
+    map['updated_at'] = DateTime.now().toIso8601String();
     await _db.insert(
       _table,
-      profile.toMap(),
+      map,
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }

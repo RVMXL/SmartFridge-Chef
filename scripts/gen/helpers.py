@@ -12,7 +12,10 @@
 from foods import FOODS, PANTRY_KEYS
 
 MEAT_CLASSES = {"meat"}
-FISH_CLASSES = {"fish", "seafood"}
+# REC-4 (аудит 2026-10-28, v0.6.2): креветки/кальмары (cls="seafood") —
+# не рыба: has_fish становится false, флаг has_shellfish их помечает.
+FISH_CLASSES = {"fish"}
+SEAFOOD_CLASSES = {"seafood"}
 ANIMAL_CLASSES = {"meat", "fish", "seafood", "dairy", "egg"}
 NON_VEGAN_FOODS = {"honey"}  # не животный продукт, но не веганский
 
@@ -26,7 +29,7 @@ def draft(category, title_ru, title_en, minutes, servings, ings,
     """
     kcal = prot = fat = carb = 0.0
     allergens = set()
-    has_meat = has_fish = has_animal = has_gluten = False
+    has_meat = has_fish = has_seafood = has_animal = has_gluten = False
 
     # Слияние дубликатов ключей (соль встречается и в базе, и в блюде)
     merged = {}
@@ -46,6 +49,8 @@ def draft(category, title_ru, title_en, minutes, servings, ings,
             has_meat = True
         if f["cls"] in FISH_CLASSES:
             has_fish = True
+        if f["cls"] in SEAFOOD_CLASSES:
+            has_seafood = True
         if f["cls"] in ANIMAL_CLASSES or key in NON_VEGAN_FOODS:
             has_animal = True
         if f.get("gluten"):
@@ -73,7 +78,7 @@ def draft(category, title_ru, title_en, minutes, servings, ings,
             "carbs": int(round(carb / servings)),
         },
         "flags": {
-            "vegetarian": not has_meat and not has_fish,
+            "vegetarian": not has_meat and not has_fish and not has_seafood,
             "vegan": (not has_meat and not has_fish and not has_animal),
             "gluten_free": not has_gluten,
             "low_carb": round(carb / servings) <= 30,

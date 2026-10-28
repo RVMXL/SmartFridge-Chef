@@ -125,6 +125,11 @@ class DislikeEngine {
   /// стемом по ru/en названию ингредиента (для коротких правил < 4
   /// символов — только точное совпадение имени, чтобы «лук» не поймал
   /// «лукум» и «рис» — «рисовый уксус»).
+  ///
+  /// AI-10 (аудит 2026-10-28, v0.6.2): для правил ≥ 4 символов совпадение
+  /// — по ТОКЕНАМ нормализованного названия (токен равен стему или
+  /// начинается с него), а не по подстроке: раньше contains ловил
+  /// «соль» внутри «фасоль» и исключал фасоль по правилу «не люблю соль».
   static bool matchesIngredient(String ruleKey, RecipeIngredient ing) {
     final group = groups[ruleKey];
     if (group != null) return group.contains(ing.key);
@@ -135,10 +140,22 @@ class DislikeEngine {
     final ru = IngredientMatcher.normalize(ing.ru);
     final en = IngredientMatcher.normalize(ing.en);
     if (norm.length < 4) return norm == ru || norm == en;
-    return ru.startsWith(norm) ||
-        en.startsWith(norm) ||
-        ru.contains(norm) ||
-        en.contains(norm);
+    // Однословный стем — по токенам (AI-10); многословный («помидоры
+    // черри») — подстрокой: специфичен, ложные срабатывания не даёт.
+    if (norm.contains(' ')) {
+      return ru.contains(norm) || en.contains(norm);
+    }
+    return _tokensMatch(norm, ru) || _tokensMatch(norm, en);
+  }
+
+  /// Токен названия равен стему или начинается с него:
+  /// «томат» ловит «томатная паста», но не ловится внутри «фасоль».
+  static bool _tokensMatch(String stem, String name) {
+    for (final token in name.split(' ')) {
+      if (token.isEmpty) continue;
+      if (token == stem || token.startsWith(stem)) return true;
+    }
+    return false;
   }
 }
 

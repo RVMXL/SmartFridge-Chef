@@ -95,6 +95,18 @@ class _ShareQrScreenState extends State<ShareQrScreen> {
     _restartTimer();
   }
 
+  /// UI-14 (аудит 2026-10-28, v0.6.2): ручная навигация выключает
+  /// автопрокрутку — раньше таймер через 2,6 с уводил страницу от той,
+  /// на которую смотрит приёмник, и ручной листать было бессмысленно.
+  void _goManual(int delta) {
+    if (_pages.isEmpty) return;
+    setState(() {
+      _index = (_index + delta).clamp(0, _pages.length - 1);
+      _auto = false;
+    });
+    _timer?.cancel();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -183,9 +195,7 @@ class _ShareQrScreenState extends State<ShareQrScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
-                      onPressed: _index > 0
-                          ? () => setState(() => _index--)
-                          : null,
+                      onPressed: _index > 0 ? () => _goManual(-1) : null,
                       icon: const Icon(Icons.chevron_left),
                     ),
                     const SizedBox(width: 8),
@@ -197,7 +207,7 @@ class _ShareQrScreenState extends State<ShareQrScreen> {
                     const SizedBox(width: 8),
                     IconButton(
                       onPressed: _index < _pages.length - 1
-                          ? () => setState(() => _index++)
+                          ? () => _goManual(1)
                           : null,
                       icon: const Icon(Icons.chevron_right),
                     ),

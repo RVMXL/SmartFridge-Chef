@@ -137,8 +137,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   onFieldSubmitted: (v) => setState(() {
+                    // UI-11 (аудит 2026-10-28, v0.6.2): диапазон поля
+                    // совпадает со слайдером (1200–3500) — раньше поле
+                    // принимало 800–6000, и значение за пределами слайдера
+                    // молча зажималось отображением (900 выглядел как 1200).
                     _calories =
-                        int.tryParse(v)?.clamp(800, 6000) ?? _calories;
+                        int.tryParse(v)?.clamp(1200, 3500) ?? _calories;
                   }),
                 ),
               ),

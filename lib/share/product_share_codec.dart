@@ -50,13 +50,21 @@ class QrChunk {
 
 /// Собранный приёмником результат: продукты + дубликаты штрих-кодов.
 class SharedProducts {
-  const SharedProducts({required this.products, required this.duplicateIds});
+  const SharedProducts({
+    required this.products,
+    required this.duplicateIds,
+    this.invalidCount = 0,
+  });
 
   /// Продукты к добавлению (addedAt проставляется здесь, id даст БД).
   final List<Product> products;
 
   /// Штрих-коды, повторяющиеся внутри самой передачи (не записаны).
   final List<String> duplicateIds;
+
+  /// SHARE-2 (v0.6.2): позиции с битой датой/именем — отброшены,
+  /// а не «молча сегодня»; приёмщик видит честное число потерь.
+  final int invalidCount;
 }
 
 class ProductShareCodec {
@@ -212,20 +220,42 @@ class ProductShareCodec {
     if (items is! List) {
       throw const FormatException('Список продуктов отсутствует');
     }
+    // SHARE-3 (аудит 2026-10-28, v0.6.2): заголовок «n» — заявленное
+    // число позиций; расхождение с фактом = битая передача (обрезка,
+    // подделка), а не «сколько-то продуктов».
+    final declared = obj['n'];
+    if (declared is! int || declared != items.length) {
+      throw const FormatException(
+          'Число позиций не совпадает с заголовком передачи');
+    }
     final now = DateTime.now();
     final products = <Product>[];
     final duplicateIds = <String>[];
     final seenBarcodes = <String>{};
+    var invalidCount = 0;
     for (final raw in items) {
-      if (raw is! List || raw.length < 6) continue;
+      if (raw is! List || raw.length < 6) {
+        invalidCount++;
+        continue;
+      }
       // SHARE-1: имя — непустое, без control-символов, до 200 символов.
       var name = '${raw[0]}'.trim().replaceAll(_controlChars, '');
-      if (name.isEmpty) continue;
+      if (name.isEmpty) {
+        invalidCount++;
+        continue;
+      }
       if (name.length > _maxNameLength) {
         name = name.substring(0, _maxNameLength);
       }
       final category = ProductCategory.fromKey('${raw[1]}');
-      final expiry = _parseDateOr('${raw[2]}', now);
+      // SHARE-2: битая дата больше не «сегодня» — позиция отбрасывается
+      // и попадает в invalidCount (продукт с сроком на месяц вперёд
+      // вместо фактического сегодня опаснее отсутствующего).
+      final expiry = _parseStrictDate('${raw[2]}');
+      if (expiry == null) {
+        invalidCount++;
+        continue;
+      }
       // SHARE-1: quantity — конечное положительное число, как в ручной
       // форме (qty ≤ 0 → 1.0); 1e999 → Infinity отбрасывается.
       double quantity = 1.0;
@@ -278,7 +308,11 @@ class ProductShareCodec {
         status: ProductStatus.active,
       ));
     }
-    return SharedProducts(products: products, duplicateIds: duplicateIds);
+    return SharedProducts(
+      products: products,
+      duplicateIds: duplicateIds,
+      invalidCount: invalidCount,
+    );
   }
 
   /// Валидация payload без полного парсинга (для одиночного QR).
@@ -291,18 +325,20 @@ class ProductShareCodec {
     }
   }
 
-  static DateTime _parseDateOr(String s, DateTime fallback) {
+  /// SHARE-2 (v0.6.2): строгая дата «yyyy-mm-dd» (как пишет buildPayload).
+  /// null — мусор/нереальная дата (31.02), НЕ «сегодня».
+  static DateTime? _parseStrictDate(String s) {
     final p = s.split('-');
-    if (p.length != 3) return fallback;
+    if (p.length != 3) return null;
     final y = int.tryParse(p[0]);
     final m = int.tryParse(p[1]);
     final d = int.tryParse(p[2]);
-    if (y == null || m == null || d == null) return fallback;
-    try {
-      return DateTime(y, m, d);
-    } catch (_) {
-      return fallback;
-    }
+    if (y == null || m == null || d == null) return null;
+    if (m < 1 || m > 12 || d < 1 || d > 31) return null;
+    final dt = DateTime(y, m, d);
+    // Нормализация «31.02 → 2-3 марта» = битая дата.
+    if (dt.year != y || dt.month != m || dt.day != d) return null;
+    return dt;
   }
 
   // ------------------------------------------------------------ base64url
@@ -329,5 +365,74 @@ class ProductShareCodec {
     } catch (_) {
       return null;
     }
+  }
+}
+
+/// SHARE-4 (аудит 2026-10-28, v0.6.2): приёмщик страниц QR-передачи
+/// с защитой от «залипания». Раньше состояние жило в полях экрана:
+/// сломанная передача (не все страницы) навсегда занимала слоты, и
+/// НОВАЯ передача с тем же числом страниц не могла собраться — страницы
+/// с теми же номерами считались дубликатами. Теперь: страница с тем же
+/// номером, но другим содержимым начинает сбор заново, а недобор
+/// сбрасывается по таймауту.
+class QrChunkCollector {
+  QrChunkCollector({this.sessionTimeout = const Duration(seconds: 45)});
+
+  /// Через сколько секунд недобранной передачи ждать новой попытки.
+  final Duration sessionTimeout;
+
+  final Map<int, List<int>> _chunks = <int, List<int>>{};
+  int? _total;
+  DateTime? _lastAt;
+
+  int? get total => _total;
+  int get received => _chunks.length;
+
+  /// Добавляет страницу; возвращает собранный payload (все страницы)
+  /// или null, если передача ещё не полная.
+  String? add(QrChunk chunk, {DateTime? now}) {
+    final t = now ?? DateTime.now();
+    // Недобор давно не пополнялся — новая попытка, а не продолжение.
+    if (_lastAt != null && t.difference(_lastAt!) > sessionTimeout) {
+      reset();
+    }
+    _lastAt = t;
+
+    if (_total != null && chunk.total != _total) {
+      // Другая передача: недобор — начинаем заново; добор — игнорируем.
+      if (_chunks.length < _total!) {
+        reset();
+      } else {
+        return null;
+      }
+    }
+    _total ??= chunk.total;
+
+    final existing = _chunks[chunk.id];
+    if (existing != null) {
+      if (_bytesEqual(existing, chunk.bodyBytes)) {
+        return ProductShareCodec.assemble(_chunks, _total!);
+      }
+      // Тот же номер страницы, ДРУГОЕ содержимое — новая передача с тем
+      // же total: сбрасываем и начинаем с этой страницы.
+      reset();
+      _total = chunk.total;
+    }
+    _chunks[chunk.id] = chunk.bodyBytes;
+    return ProductShareCodec.assemble(_chunks, _total!);
+  }
+
+  void reset() {
+    _chunks.clear();
+    _total = null;
+    _lastAt = null;
+  }
+
+  static bool _bytesEqual(List<int> a, List<int> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 }

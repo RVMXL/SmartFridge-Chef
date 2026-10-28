@@ -310,4 +310,24 @@ void main() {
           .checked, isFalse);
     });
   });
+
+  group('DATA-5 (v0.6.2) — пагинация истории', () {
+    test('offset достаёт планы старше первого LIMIT-окна', () async {
+      final base = DateTime(2026, 10, 28, 9, 0);
+      for (var i = 0; i < 35; i++) {
+        await dao.savePlan(plan(
+          id: 'pg-$i',
+          createdAt: base.subtract(Duration(minutes: i)),
+        ));
+      }
+      final first = await dao.listPlans(limit: 30);
+      expect(first, hasLength(30));
+      expect(first.first.id, 'pg-0'); // новые сверху
+      final rest = await dao.listPlans(limit: 30, offset: 30);
+      expect(rest, hasLength(5));
+      expect(rest.first.id, 'pg-30');
+      final all = await dao.listPlans(limit: 100);
+      expect(all, hasLength(35));
+    });
+  });
 }
