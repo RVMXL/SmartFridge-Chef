@@ -33,6 +33,9 @@ jobs:
       - name: Зависимости
         run: flutter pub get
 
+      - name: Версия синхронна (VER-1, аудит 2026-10-28)
+        run: python3 scripts/check_version.py
+
       - name: Локализация (gen-l10n)
         run: flutter gen-l10n
 
