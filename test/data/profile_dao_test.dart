@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'package:smart_fridge_chef/ai/equipment.dart';
 import 'package:smart_fridge_chef/data/dao/profile_dao.dart';
 import 'package:smart_fridge_chef/data/database.dart';
 import 'package:smart_fridge_chef/data/models/user_profile.dart';
@@ -152,6 +153,59 @@ void main() {
       expect(saved, isNotNull);
       expect(saved!.createdAt, t1,
           reason: 'created_at существующей строки неизменен');
+    });
+  });
+
+  group('техника на кухне (v0.6.4)', () {
+    test('roundtrip: явный список сохраняется и читается', () async {
+      await dao.save(profile().copyWith(
+        equipment: [KitchenEquipment.oven, KitchenEquipment.blender],
+      ));
+      final loaded = (await dao.getProfile())!;
+      expect(loaded.equipment, isNotNull);
+      expect(loaded.equipment, hasLength(2));
+      expect(loaded.equipment, contains(KitchenEquipment.oven));
+      expect(loaded.equipment, contains(KitchenEquipment.blender));
+      expect(loaded.equipment, isNot(contains(KitchenEquipment.toaster)));
+    });
+
+    test('пустой явный список ≠ null: «техники нет» сохраняется', () async {
+      await dao.save(profile().copyWith(equipment: const []));
+      final loaded = (await dao.getProfile())!;
+      expect(loaded.equipment, isNotNull,
+          reason: 'пустой список — осознанный выбор «техники нет»');
+      expect(loaded.equipment, isEmpty);
+    });
+
+    test('null-техника: старый профиль читается как «всё есть»', () async {
+      // Профиль до v0.6.4: equipment в колонке NULL.
+      await db.execute(
+        'INSERT OR REPLACE INTO user_profile '
+        '(allergies, created_at, updated_at) VALUES (?, ?, ?)',
+        [
+          '[]',
+          DateTime(2026, 1, 1).toIso8601String(),
+          DateTime(2026, 1, 1).toIso8601String(),
+        ],
+      );
+      final loaded = (await dao.getProfile())!;
+      expect(loaded.equipment, isNull);
+    });
+
+    test('неизвестные ключи техники отбрасываются при чтении', () async {
+      await db.execute(
+        'INSERT OR REPLACE INTO user_profile '
+        '(allergies, created_at, updated_at, equipment) '
+        'VALUES (?, ?, ?, ?)',
+        [
+          '[]',
+          DateTime(2026, 1, 1).toIso8601String(),
+          DateTime(2026, 1, 1).toIso8601String(),
+          '["airfryer_3000","oven"]',
+        ],
+      );
+      final loaded = (await dao.getProfile())!;
+      expect(loaded.equipment, [KitchenEquipment.oven]);
     });
   });
 }

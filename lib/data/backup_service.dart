@@ -82,7 +82,13 @@ class BackupService {
 
   /// Версия формата конверта. При изменении состава данных/колонок —
   /// увеличивать и уметь читать старые версии в [importBundle].
-  static const int formatVersion = 1;
+  ///
+  /// v2 (v0.6.4): в user_profile добавилась колонка equipment (техника
+  /// на кухне). Экспорт пишет полные строки, поэтому формат вырос
+  /// автоматически: старое приложение (v1) чисто откажется импортировать
+  /// новый файл (validateEnvelope → newerVersion), новое читает и v1
+  /// (профиль без equipment → «всё есть»), и v2.
+  static const int formatVersion = 2;
 
   /// Метка принадлежности файла этому приложению.
   static const String appMarker = 'smart_fridge_chef';

@@ -27,6 +27,11 @@
 /// v8 — (v0.5.11): `mercadona_index` — индекс цен Mercadona перенесён из
 /// SharedPreferences (≈0,5 МБ XML-пресетов — jank на старте, лимиты
 /// мелких значений) в SQLite (SCAN-6, аудит 2026-10-28).
+/// v9 — (v0.6.3, UI-6): `products.currency` — валюта цены продукта.
+/// v10 — (v0.6.4): `user_profile.equipment` — техника на кухне
+/// (JSON-массив ключей oven/blender/toaster, lib/ai/equipment.dart).
+/// Nullable: null/пусто = «неизвестно/всё есть» — профили до v0.6.4
+/// продолжают работать без фильтрации по технике.
 library;
 
 import 'package:path/path.dart' as p;
@@ -36,7 +41,7 @@ class AppDatabase {
   AppDatabase._();
 
   static const String dbName = 'smart_fridge.db';
-  static const int dbVersion = 9;
+  static const int dbVersion = 10;
 
   /// Открывает базу.
   ///
@@ -80,6 +85,7 @@ class AppDatabase {
     createV8Tables(batch);
     // v9 (UI-6): валюта цены продукта.
     batch.execute('ALTER TABLE products ADD COLUMN currency TEXT;');
+    createV10Columns(batch);
     await batch.commit(noResult: true);
   }
 
@@ -137,6 +143,11 @@ class AppDatabase {
       // v8 -> v9: валюта цены продукта (UI-6, аудит 2026-10-28) —
       // карточка холодильника может показать валюту источника, а не ₽.
       await db.execute('ALTER TABLE products ADD COLUMN currency TEXT;');
+    }
+    if (oldVersion < 10) {
+      // v9 -> v10: техника на кухне в профиле (v0.6.4) — фильтр/пометки
+      // планера. Nullable: старые профили читаются как «всё есть».
+      await upgradeToV10(db);
     }
     assert(oldVersion >= 1 && newVersion == dbVersion,
         'Неизвестная версия: $oldVersion -> $newVersion');
@@ -335,6 +346,25 @@ class AppDatabase {
     batch.execute(
       "ALTER TABLE user_profile ADD COLUMN medical_diets TEXT"
       " NOT NULL DEFAULT '[]'",
+    );
+  }
+
+  // ------------------------------------------------------------ схема v10
+
+  /// v10 (v0.6.4): техника на кухне в профиле. Nullable-колонка: у строк
+  /// до миграции значение NULL — семантика «неизвестно/всё есть»
+  /// (UserProfile.equipment == null), поведение существующих установок
+  /// не меняется.
+  static void createV10Columns(Batch batch) {
+    batch.execute(
+      'ALTER TABLE user_profile ADD COLUMN equipment TEXT',
+    );
+  }
+
+  /// Накат v10 на живую базу (вне батча — как [upgradeToV4]).
+  static Future<void> upgradeToV10(Database db) async {
+    await db.execute(
+      'ALTER TABLE user_profile ADD COLUMN equipment TEXT',
     );
   }
 

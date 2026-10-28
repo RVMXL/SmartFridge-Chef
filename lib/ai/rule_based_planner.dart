@@ -29,6 +29,7 @@ import '../data/models/recipe.dart';
 import '../data/models/user_profile.dart';
 import 'calorie_target.dart';
 import 'dislikes.dart';
+import 'equipment.dart';
 import 'ingredient_matcher.dart';
 import 'planner.dart';
 import 'recipe_repository.dart';
@@ -65,6 +66,13 @@ abstract final class ScoreWeights {
   /// Бонус/штраф при диете low_carb.
   static const double lowCarbBonus = 15;
   static const double lowCarbPenalty = 8;
+
+  /// Мягкий штраф за замещаемое отсутствие техники (v0.6.4): блюдо под
+  /// имеющуюся технику выигрывает при прочих равных, но блюдо с лучшим
+  /// покрытием холодильника всё равно может победить. Меньше
+  /// [sameFamilyPenalty], чтобы разнообразие недели страдало сильнее,
+  /// чем отсутствие духовки (все духовочные блюда базы — малые).
+  static const double missingEquipment = 12;
 
   /// Диапазон случайного джиттера [0, jitter).
   static const int jitter = 7;
@@ -148,6 +156,7 @@ class RuleBasedPlanner implements MealPlanner {
           usedFamilies: usedFamilies,
           usedSides: usedSides,
           diets: request.profile.diets,
+          ownedEquipment: request.profile.equipment?.toSet(),
           seed: request.seed,
         );
         if (recipe == null) {
@@ -287,6 +296,9 @@ class RuleBasedPlanner implements MealPlanner {
     final medicalTables = request.profile.medicalDiets;
     final dislikes = request.profile.dislikes;
     final maxMinutes = request.maxCookMinutes;
+    // Техника (v0.6.4): null — «неизвестно/всё есть» (профили до
+    // v0.6.4), фильтрации нет; явный список — проверяем каждую технику.
+    final ownedEquipment = request.profile.equipment?.toSet();
     final allowed = <Recipe>[];
     final counts = <String, int>{};
     final examples = <String, List<String>>{};
@@ -307,6 +319,25 @@ class RuleBasedPlanner implements MealPlanner {
       // Лечебные столы — безопасность наравне с аллергиями (v0.5.9).
       reason ??= MedicalDiet.exclusionReason(r, medicalTables);
       reason ??= DislikeEngine.evaluate(r, dislikes).exclusionReason;
+      // Техника (v0.6.4): нерезервируемое расхождение — духовка для
+      // большого блюда (>= kOvenBigServings порций) — жёсткий фильтр.
+      // Замещаемые расхождения НЕ исключают: блюдо предлагается со
+      // штрафом в скоринге и пометкой замены (UI считает сам).
+      if (reason == null && ownedEquipment != null) {
+        final equipmentGaps = KitchenEquipmentEngine.gaps(
+          needed: KitchenEquipmentEngine.requiredForSteps(
+              KitchenEquipmentEngine.stepsTextOf(r.stepsRu)),
+          servings: r.servings,
+          owned: ownedEquipment,
+        );
+        if (KitchenEquipmentEngine.hasBlocking(equipmentGaps)) {
+          final blocked = equipmentGaps
+              .firstWhere((g) => !g.substitutable)
+              .equipment;
+          reason = 'нет техники: ${blocked.ruLabel} — блюдо большое, '
+              'замене не подлежит';
+        }
+      }
       if (reason == null && maxMinutes > 0 && r.minutes > maxMinutes) {
         reason = 'готовка дольше $maxMinutes мин';
       }
@@ -410,6 +441,7 @@ class RuleBasedPlanner implements MealPlanner {
     required Map<String, int> usedFamilies,
     required Map<String, int> usedSides,
     required List<Diet> diets,
+    required Set<KitchenEquipment>? ownedEquipment,
     required int seed,
   }) {
     final allowedCategories = slotCategories[slot]!;
@@ -436,6 +468,7 @@ class RuleBasedPlanner implements MealPlanner {
         usedFamilies: usedFamilies,
         usedSides: usedSides,
         diets: diets,
+        ownedEquipment: ownedEquipment,
         seed: seed,
       );
       if (s > bestScore) {
@@ -456,6 +489,7 @@ class RuleBasedPlanner implements MealPlanner {
     required Map<String, int> usedFamilies,
     required Map<String, int> usedSides,
     required List<Diet> diets,
+    required Set<KitchenEquipment>? ownedEquipment,
     required int seed,
   }) {
     final match = _matcher.matchRecipe(recipe, fridge, remaining: stock);
@@ -513,6 +547,21 @@ class RuleBasedPlanner implements MealPlanner {
     }
     if (slot == MealSlot.dinner && recipe.category == 'soup') {
       s -= ScoreWeights.soupForDinnerPenalty;
+    }
+
+    // Техника (v0.6.4): замещаемое отсутствие — мягкий штраф, чтобы
+    // блюда под имеющуюся технику выигрывали при прочих равных. Жёсткий
+    // фильтр уже сработал в hardFilteredDetailed — здесь остаются только
+    // заместимые расхождения, но страховка не помешает: блокирующее
+    // расхождение (если когда-нибудь дойдёт сюда) штрафуется так же.
+    if (ownedEquipment != null) {
+      final equipmentGaps = KitchenEquipmentEngine.gaps(
+        needed: KitchenEquipmentEngine.requiredForSteps(
+            KitchenEquipmentEngine.stepsTextOf(recipe.stepsRu)),
+        servings: recipe.servings,
+        owned: ownedEquipment,
+      );
+      s -= ScoreWeights.missingEquipment * equipmentGaps.length;
     }
 
     // AI-6 (аудит 2026-10-28, v0.6.2): джиттер детерминирован парой

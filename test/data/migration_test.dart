@@ -9,7 +9,9 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'package:smart_fridge_chef/ai/equipment.dart';
 import 'package:smart_fridge_chef/data/database.dart';
+import 'package:smart_fridge_chef/data/dao/profile_dao.dart';
 import 'package:smart_fridge_chef/data/models/product.dart';
 import 'package:smart_fridge_chef/data/models/user_profile.dart';
 
@@ -399,6 +401,56 @@ void main() {
         (await db.query('user_profile', limit: 1)).first);
     expect(profile.allergies, isNotEmpty);
     expect(profile.medicalDiets, isEmpty);
+    await db.close();
+  });
+
+  test('v9 -> v10: колонка equipment появилась, профиль читается как '
+      '«всё есть», запись техники работает', () async {
+    // 1. База версии 9 (полная схема до v0.6.4).
+    final v9 = await databaseFactory.openDatabase(dbPath,
+        options: OpenDatabaseOptions(
+          version: 9,
+          onCreate: (db, version) async {
+            final batch = db.batch();
+            AppDatabase.createV1Tables(batch);
+            AppDatabase.createV2Tables(batch);
+            AppDatabase.createV3Tables(batch);
+            AppDatabase.createV4Columns(batch);
+            AppDatabase.createV5Columns(batch);
+            AppDatabase.createV6Columns(batch);
+            AppDatabase.createV7Columns(batch);
+            AppDatabase.createV8Tables(batch);
+            batch.execute(
+                'ALTER TABLE products ADD COLUMN currency TEXT;');
+            await batch.commit(noResult: true);
+          },
+        ));
+    final created = DateTime(2026, 10, 1);
+    await v9.insert('user_profile', {
+      'allergies': '["milk"]',
+      'created_at': created.toIso8601String(),
+      'updated_at': created.toIso8601String(),
+    });
+    await v9.close();
+
+    // 2. Открытие текущей версией накатывает v10.
+    final db = await AppDatabase.open(absolutePath: dbPath);
+    expect(await db.getVersion(), AppDatabase.dbVersion);
+
+    // 3. Старая строка: equipment NULL → «всё есть».
+    final legacy = UserProfile.fromMap(
+        (await db.query('user_profile', limit: 1)).first);
+    expect(legacy.equipment, isNull);
+    expect(legacy.allergies, isNotEmpty);
+
+    // 4. Запись техники в накаченную колонку и обратное чтение.
+    final dao = ProfileDao(db);
+    await dao.save(legacy.copyWith(
+      equipment: [KitchenEquipment.oven, KitchenEquipment.toaster],
+    ));
+    final saved = (await dao.getProfile())!;
+    expect(saved.equipment,
+        unorderedEquals([KitchenEquipment.oven, KitchenEquipment.toaster]));
     await db.close();
   });
 }

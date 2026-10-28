@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../core/freshness.dart';
+import '../../ai/equipment.dart';
 import '../../data/models/product.dart';
 import '../../data/models/recipe.dart';
 import '../../data/models/user_profile.dart';
@@ -109,6 +110,22 @@ IconData slotIcon(MealSlot s) => switch (s) {
       MealSlot.snack => Icons.cookie_outlined,
       MealSlot.lunch => Icons.lunch_dining_outlined,
       MealSlot.dinner => Icons.dinner_dining_outlined,
+    };
+
+/// Локализованное название кухонной техники (v0.6.4).
+String equipmentLabel(AppLocalizations l, KitchenEquipment e) => switch (e) {
+      KitchenEquipment.oven => l.equipmentOven,
+      KitchenEquipment.blender => l.equipmentBlender,
+      KitchenEquipment.toaster => l.equipmentToaster,
+    };
+
+/// Короткая подсказка замены техники для пометки в списке блюд
+/// (v0.6.4): «духовка → плита», «блендер → толкушка/сито».
+String equipmentSubstShort(AppLocalizations l, KitchenEquipment e) =>
+    switch (e) {
+      KitchenEquipment.oven => l.equipmentSubstOvenShort,
+      KitchenEquipment.blender => l.equipmentSubstBlenderShort,
+      KitchenEquipment.toaster => l.equipmentSubstToasterShort,
     };
 
 /// Заголовок секции настроек/экранов.

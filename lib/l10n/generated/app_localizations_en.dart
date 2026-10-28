@@ -972,6 +972,53 @@ class AppLocalizationsEn extends AppLocalizations {
       'Nothing marked yet — add from the presets below or type your own';
 
   @override
+  String get onbEquipmentTitle => 'What\'s in your kitchen?';
+
+  @override
+  String get onbEquipmentBody =>
+      'Untick what you don\'t have. Recipes won\'t disappear: we\'ll suggest how to cook without it (oven → covered pan, blender → masher) — only very large oven dishes are dropped.';
+
+  @override
+  String get profileEquipment => 'Kitchen equipment';
+
+  @override
+  String get profileEquipmentHint =>
+      'Dishes needing equipment you lack are planned with a substitution note (e.g., a small casserole in a covered pan); large oven dishes (4+ servings) are excluded.';
+
+  @override
+  String get equipmentOven => 'Oven';
+
+  @override
+  String get equipmentBlender => 'Blender';
+
+  @override
+  String get equipmentToaster => 'Toaster';
+
+  @override
+  String get equipmentSubstOvenShort => 'stove';
+
+  @override
+  String get equipmentSubstBlenderShort => 'masher/sieve';
+
+  @override
+  String get equipmentSubstToasterShort => 'dry pan';
+
+  @override
+  String menuEquipmentNote(String names) {
+    return 'substitute: $names';
+  }
+
+  @override
+  String recipeEquipmentMissing(String equipment, String substitution) {
+    return 'You don\'t have: $equipment. Substitute: $substitution — the result will be slightly different.';
+  }
+
+  @override
+  String recipeEquipmentBlocking(int servings) {
+    return 'This dish for $servings servings requires an oven and is too large to cook without one.';
+  }
+
+  @override
   String get priceSectionTitle => 'Store prices (experimental)';
 
   @override

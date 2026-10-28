@@ -429,6 +429,43 @@
     }
   },
   "dislikesEmpty": "Nothing marked yet — add from the presets below or type your own",
+  "onbEquipmentTitle": "What's in your kitchen?",
+  "onbEquipmentBody": "Untick what you don't have. Recipes won't disappear: we'll suggest how to cook without it (oven → covered pan, blender → masher) — only very large oven dishes are dropped.",
+  "profileEquipment": "Kitchen equipment",
+  "profileEquipmentHint": "Dishes needing equipment you lack are planned with a substitution note (e.g., a small casserole in a covered pan); large oven dishes (4+ servings) are excluded.",
+  "equipmentOven": "Oven",
+  "equipmentBlender": "Blender",
+  "equipmentToaster": "Toaster",
+  "equipmentSubstOvenShort": "stove",
+  "equipmentSubstBlenderShort": "masher/sieve",
+  "equipmentSubstToasterShort": "dry pan",
+  "menuEquipmentNote": "substitute: {names}",
+  "@menuEquipmentNote": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "recipeEquipmentMissing": "You don't have: {equipment}. Substitute: {substitution} — the result will be slightly different.",
+  "@recipeEquipmentMissing": {
+    "placeholders": {
+      "equipment": {
+        "type": "String"
+      },
+      "substitution": {
+        "type": "String"
+      }
+    }
+  },
+  "recipeEquipmentBlocking": "This dish for {servings} servings requires an oven and is too large to cook without one.",
+  "@recipeEquipmentBlocking": {
+    "placeholders": {
+      "servings": {
+        "type": "int"
+      }
+    }
+  },
   "priceSectionTitle": "Store prices (experimental)",
   "priceEnable": "Auto-fill prices when adding a product",
   "priceSourceLabel": "Price source",

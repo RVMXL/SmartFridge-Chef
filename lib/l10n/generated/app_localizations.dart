@@ -1802,6 +1802,84 @@ abstract class AppLocalizations {
   /// **'Nothing marked yet — add from the presets below or type your own'**
   String get dislikesEmpty;
 
+  /// No description provided for @onbEquipmentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s in your kitchen?'**
+  String get onbEquipmentTitle;
+
+  /// No description provided for @onbEquipmentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Untick what you don\'t have. Recipes won\'t disappear: we\'ll suggest how to cook without it (oven → covered pan, blender → masher) — only very large oven dishes are dropped.'**
+  String get onbEquipmentBody;
+
+  /// No description provided for @profileEquipment.
+  ///
+  /// In en, this message translates to:
+  /// **'Kitchen equipment'**
+  String get profileEquipment;
+
+  /// No description provided for @profileEquipmentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Dishes needing equipment you lack are planned with a substitution note (e.g., a small casserole in a covered pan); large oven dishes (4+ servings) are excluded.'**
+  String get profileEquipmentHint;
+
+  /// No description provided for @equipmentOven.
+  ///
+  /// In en, this message translates to:
+  /// **'Oven'**
+  String get equipmentOven;
+
+  /// No description provided for @equipmentBlender.
+  ///
+  /// In en, this message translates to:
+  /// **'Blender'**
+  String get equipmentBlender;
+
+  /// No description provided for @equipmentToaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Toaster'**
+  String get equipmentToaster;
+
+  /// No description provided for @equipmentSubstOvenShort.
+  ///
+  /// In en, this message translates to:
+  /// **'stove'**
+  String get equipmentSubstOvenShort;
+
+  /// No description provided for @equipmentSubstBlenderShort.
+  ///
+  /// In en, this message translates to:
+  /// **'masher/sieve'**
+  String get equipmentSubstBlenderShort;
+
+  /// No description provided for @equipmentSubstToasterShort.
+  ///
+  /// In en, this message translates to:
+  /// **'dry pan'**
+  String get equipmentSubstToasterShort;
+
+  /// No description provided for @menuEquipmentNote.
+  ///
+  /// In en, this message translates to:
+  /// **'substitute: {names}'**
+  String menuEquipmentNote(String names);
+
+  /// No description provided for @recipeEquipmentMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have: {equipment}. Substitute: {substitution} — the result will be slightly different.'**
+  String recipeEquipmentMissing(String equipment, String substitution);
+
+  /// No description provided for @recipeEquipmentBlocking.
+  ///
+  /// In en, this message translates to:
+  /// **'This dish for {servings} servings requires an oven and is too large to cook without one.'**
+  String recipeEquipmentBlocking(int servings);
+
   /// No description provided for @priceSectionTitle.
   ///
   /// In en, this message translates to:

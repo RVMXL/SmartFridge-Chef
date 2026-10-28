@@ -7,6 +7,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:smart_fridge_chef/ai/equipment.dart';
 import 'package:smart_fridge_chef/ai/planner.dart';
 import 'package:smart_fridge_chef/ai/recipe_repository.dart';
 import 'package:smart_fridge_chef/ai/rule_based_planner.dart';
@@ -709,4 +710,201 @@ void main() {
       );
     });
   });
+
+  group('техника на кухне (v0.6.4)', () {
+    /// Синтетический «большой» духовочный рецепт (в реальной базе все
+    /// духовочные — на 2 порции).
+    Recipe bigOvenRecipe({
+      String steps = 'Выложите в форму и запекайте 40 минут.',
+      int servings = 6,
+    }) =>
+        Recipe(
+          id: 'big_oven',
+          titleRu: 'Большая запеканка',
+          titleEn: 'Big casserole',
+          category: 'main',
+          minutes: 50,
+          servings: servings,
+          kcal: 400,
+          protein: 20,
+          fat: 15,
+          carbs: 40,
+          vegetarian: true,
+          vegan: false,
+          glutenFree: true,
+          lowCarb: false,
+          hasMeat: false,
+          hasFish: false,
+          allergens: const [],
+          family: 'test_big',
+          secondFamily: '',
+          ingredients: const [],
+          stepsRu: [steps],
+          stepsEn: [steps],
+        );
+
+    UserProfile profileWithEquipment(
+            List<KitchenEquipment>? equipment) =>
+        UserProfile(
+          dailyCalories: 2000,
+          equipment: equipment,
+          createdAt: DateTime(2026, 10, 24),
+          updatedAt: DateTime(2026, 10, 24),
+        );
+
+    test('null-профиль: техника не фильтруется (совместимость)', () {
+      final big = bigOvenRecipe();
+      final result = planner.hardFilteredDetailed(
+        [big],
+        PlanRequest(
+          profile: profileWithEquipment(null),
+          products: const [],
+          startDate: DateTime(2026, 10, 26),
+        ),
+      );
+      expect(result.allowed, hasLength(1));
+      expect(result.excludedCounts, isEmpty);
+    });
+
+    test('большое духовочное блюдо без духовки — жёсткое исключение',
+        () {
+      final big = bigOvenRecipe();
+      final result = planner.hardFilteredDetailed(
+        [big],
+        PlanRequest(
+          profile: profileWithEquipment([]),
+          products: const [],
+          startDate: DateTime(2026, 10, 26),
+        ),
+      );
+      expect(result.allowed, isEmpty);
+      expect(result.excludedCounts.keys.first, contains('нет техники'));
+      expect(result.excludedCounts.keys.first, contains('духовка'));
+    });
+
+    test('большое духовочное блюдо с духовкой — разрешено', () {
+      final big = bigOvenRecipe();
+      final result = planner.hardFilteredDetailed(
+        [big],
+        PlanRequest(
+          profile: profileWithEquipment([KitchenEquipment.oven]),
+          products: const [],
+          startDate: DateTime(2026, 10, 26),
+        ),
+      );
+      expect(result.allowed, hasLength(1));
+    });
+
+    test('малые духовочные блюда без духовки остаются в пуле, большие '
+        'исключаются (реальная база)', () async {
+      // Реальная база: 102 духовочных рецепта, из них 2 больших —
+      // r0536 (4 порции) и r0539 (6 порций). Без духовки малые
+      // предлагаются с пометкой замены, большие честно исключены.
+      final all = await repo.loadAll();
+      final ovenRecipes = all
+          .where((r) =>
+              KitchenEquipmentEngine.requiredForSteps(
+                      KitchenEquipmentEngine.stepsTextOf(r.stepsRu))
+                  .contains(KitchenEquipment.oven))
+          .toList();
+      expect(ovenRecipes, hasLength(102));
+      final result = planner.hardFilteredDetailed(
+        ovenRecipes,
+        PlanRequest(
+          profile: profileWithEquipment([]),
+          products: const [],
+          startDate: DateTime(2026, 10, 26),
+        ),
+      );
+      expect(result.allowed, hasLength(100));
+      expect(result.excludedCounts, hasLength(1));
+      final reason = result.excludedCounts.keys.single;
+      expect(reason, contains('нет техники'));
+      expect(result.excludedExamples[reason], hasLength(2));
+    });
+
+    test('малое духовочное блюдо проигрывает скоринг, но не фильтр',
+        () async {
+      // Равное покрытие (0), равный калораж: без техники ужин
+      // определяется джиттером [0, 7); с пустым набором техники
+      // духовочное блюдо получает штраф 12 > 7 — проигрывает всегда.
+      // Скоринг проверяем на стаб-репозитории из двух синтетических
+      // рецептов (generate берёт пул из репозитория, не из аргументов).
+      final ovenSmall = bigOvenRecipe(servings: 2);
+      final plain = Recipe(
+        id: 'plain_pan',
+        titleRu: 'Сковородочное рагу',
+        titleEn: 'Pan stew',
+        category: 'main',
+        minutes: 30,
+        servings: 2,
+        kcal: 400,
+        protein: 20,
+        fat: 15,
+        carbs: 40,
+        vegetarian: true,
+        vegan: false,
+        glutenFree: true,
+        lowCarb: false,
+        hasMeat: false,
+        hasFish: false,
+        allergens: const [],
+        family: 'plain',
+        secondFamily: '',
+        ingredients: const [],
+        stepsRu: const ['Тушите на плите под крышкой 20 минут.'],
+        stepsEn: const ['Simmer covered for 20 minutes.'],
+      );
+      final stubPlanner =
+          RuleBasedPlanner(_StubRepo([ovenSmall, plain]));
+
+      var ovenWonDinner = false;
+      for (var seed = 0; seed < 10; seed++) {
+        final plan = await stubPlanner.generate(PlanRequest(
+          profile: profileWithEquipment([]),
+          products: const [],
+          seed: seed,
+          days: 1,
+          startDate: DateTime(2026, 10, 26),
+        ));
+        final dinner = plan.days.first.meals
+            .firstWhere((m) => m.slot == MealSlot.dinner);
+        if (dinner.recipe.id == ovenSmall.id) ovenWonDinner = true;
+      }
+      expect(ovenWonDinner, isFalse,
+          reason: 'духовочное блюдо без духовки не должно выигрывать '
+              'при равном покрытии (штраф 12 > джиттера)');
+
+      // С духовкой в наборе — штраф исчезает, духовочное блюдо может
+      // выигрывать хотя бы на одном сиде (джиттер решает между равными).
+      var ovenWonWithOven = false;
+      for (var seed = 0; seed < 20; seed++) {
+        final plan = await stubPlanner.generate(PlanRequest(
+          profile: profileWithEquipment([KitchenEquipment.oven]),
+          products: const [],
+          seed: seed,
+          days: 1,
+          startDate: DateTime(2026, 10, 26),
+        ));
+        final dinner = plan.days.first.meals
+            .firstWhere((m) => m.slot == MealSlot.dinner);
+        if (dinner.recipe.id == ovenSmall.id) ovenWonWithOven = true;
+      }
+      expect(ovenWonWithOven, isTrue,
+          reason: 'с духовкой в наборе выбор между равными — джиттер');
+    });
+  });
+}
+
+/// Репозиторий-стаб: fixed список рецептов вместо актива бандла.
+class _StubRepo extends RecipeRepository {
+  _StubRepo(this._recipes) : super(loadString: () async => '[]');
+
+  final List<Recipe> _recipes;
+
+  @override
+  Future<List<Recipe>> loadAll() async => _recipes;
+
+  @override
+  List<Recipe> get cachedAll => _recipes;
 }

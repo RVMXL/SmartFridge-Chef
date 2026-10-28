@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../ai/dislikes.dart';
+import '../../ai/equipment.dart';
 import '../../ai/ingredient_matcher.dart';
 import '../../data/models/medical_diet.dart';
 import '../../data/models/user_profile.dart';
@@ -44,6 +45,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late List<DislikeRule> _dislikes;
   late int _mealsPerDay;
 
+  /// Техника на кухне (v0.6.4). Профиль без явного списка (до v0.6.4)
+  /// показывается как «всё есть» — при сохранении список становится
+  /// явным, поведение меняется только если пользователь снял галочки.
+  late Set<KitchenEquipment> _equipment;
+
   @override
   void initState() {
     super.initState();
@@ -57,6 +63,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _medicalDiets = {...p.medicalDiets};
     _dislikes = [...p.dislikes];
     _mealsPerDay = p.mealsPerDay;
+    _equipment = p.equipment?.toSet() ?? {...KitchenEquipment.values};
   }
 
   @override
@@ -87,6 +94,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       dislikes: _dislikes,
       medicalDiets: _medicalDiets.toList(),
       mealsPerDay: _mealsPerDay,
+      equipment: _equipment.toList(),
       latitude: null,
       longitude: null,
     ));
@@ -268,6 +276,30 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           _DislikesEditor(
             rules: _dislikes,
             onChanged: (rules) => setState(() => _dislikes = rules),
+          ),
+
+          // Техника на кухне (v0.6.4): список ключей — из состава базы
+          // рецептов; подписи локализованы в common.dart.
+          SectionHeader(l.profileEquipment),
+          Text(
+            l.profileEquipmentHint,
+            style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 0,
+            children: [
+              for (final e in KitchenEquipment.values)
+                FilterChip(
+                  label: Text(equipmentLabel(l, e)),
+                  selected: _equipment.contains(e),
+                  onSelected: (on) => setState(() {
+                    on ? _equipment.add(e) : _equipment.remove(e);
+                  }),
+                ),
+            ],
           ),
 
           SectionHeader(l.profileMealsPerDay),

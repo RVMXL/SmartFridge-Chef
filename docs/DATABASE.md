@@ -1,4 +1,4 @@
-# База данных (v0.6.1, схема v9)
+# База данных (v0.6.4, схема v10)
 
 SQLite через sqflite, файл `smart_fridge.db` в приватной папке приложения.
 v1 (Шаг 1) — **продукты** и **профиль пользователя**; v2 (Шаг 2) —
@@ -169,6 +169,8 @@ v4 (v0.5.0) — колонки: `user_profile.diets` (список диет),
   v8 — v0.5.11 (индекс цен Mercadona из SharedPreferences в SQLite:
   `mercadona_index`, SCAN-6);
   v9 — v0.6.1 (валюта цены продукта: `products.currency`, UI-6) —
+  v10 — v0.6.4 (техника на кухне: `user_profile.equipment`, JSON-массив
+  ключей oven/blender/toaster, nullable: null = «неизвестно/всё есть»).
   Данные при миграциях не трогаются —
   поведение закреплено тестом `test/data/migration_test.dart`.
 - Обратная совместимость: неизвестные ключи словарей не роняют чтение.

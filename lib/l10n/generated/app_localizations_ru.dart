@@ -977,6 +977,53 @@ class AppLocalizationsRu extends AppLocalizations {
       'Пока ничего не отмечено — добавьте из пресетов ниже или впишите своё';
 
   @override
+  String get onbEquipmentTitle => 'Какая техника есть на кухне?';
+
+  @override
+  String get onbEquipmentBody =>
+      'Снимите галочки с того, чего нет. Рецепты не пропадут: подскажем, чем заменить (духовка → сковорода под крышкой, блендер → толкушка), а исключим только большие духовочные блюда.';
+
+  @override
+  String get profileEquipment => 'Техника на кухне';
+
+  @override
+  String get profileEquipmentHint =>
+      'Блюда, которым нужна отсутствующая техника, попадают в план с подсказкой замены (например, небольшую запеканку можно приготовить на плите под крышкой); большие духовочные блюда (4+ порций) исключаются.';
+
+  @override
+  String get equipmentOven => 'Духовка';
+
+  @override
+  String get equipmentBlender => 'Блендер';
+
+  @override
+  String get equipmentToaster => 'Тостер';
+
+  @override
+  String get equipmentSubstOvenShort => 'плита';
+
+  @override
+  String get equipmentSubstBlenderShort => 'толкушка/сито';
+
+  @override
+  String get equipmentSubstToasterShort => 'сухая сковорода';
+
+  @override
+  String menuEquipmentNote(String names) {
+    return 'замена: $names';
+  }
+
+  @override
+  String recipeEquipmentMissing(String equipment, String substitution) {
+    return 'В вашей кухне нет: $equipment. Замена: $substitution — результат будет немного отличаться.';
+  }
+
+  @override
+  String recipeEquipmentBlocking(int servings) {
+    return 'Блюдо на $servings порций требует духовки — без неё его не приготовить.';
+  }
+
+  @override
   String get priceSectionTitle => 'Цены магазинов (эксперимент)';
 
   @override

@@ -291,6 +291,43 @@
     }
   },
   "dislikesEmpty": "Пока ничего не отмечено — добавьте из пресетов ниже или впишите своё",
+  "onbEquipmentTitle": "Какая техника есть на кухне?",
+  "onbEquipmentBody": "Снимите галочки с того, чего нет. Рецепты не пропадут: подскажем, чем заменить (духовка → сковорода под крышкой, блендер → толкушка), а исключим только большие духовочные блюда.",
+  "profileEquipment": "Техника на кухне",
+  "profileEquipmentHint": "Блюда, которым нужна отсутствующая техника, попадают в план с подсказкой замены (например, небольшую запеканку можно приготовить на плите под крышкой); большие духовочные блюда (4+ порций) исключаются.",
+  "equipmentOven": "Духовка",
+  "equipmentBlender": "Блендер",
+  "equipmentToaster": "Тостер",
+  "equipmentSubstOvenShort": "плита",
+  "equipmentSubstBlenderShort": "толкушка/сито",
+  "equipmentSubstToasterShort": "сухая сковорода",
+  "menuEquipmentNote": "замена: {names}",
+  "@menuEquipmentNote": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "recipeEquipmentMissing": "В вашей кухне нет: {equipment}. Замена: {substitution} — результат будет немного отличаться.",
+  "@recipeEquipmentMissing": {
+    "placeholders": {
+      "equipment": {
+        "type": "String"
+      },
+      "substitution": {
+        "type": "String"
+      }
+    }
+  },
+  "recipeEquipmentBlocking": "Блюдо на {servings} порций требует духовки — без неё его не приготовить.",
+  "@recipeEquipmentBlocking": {
+    "placeholders": {
+      "servings": {
+        "type": "int"
+      }
+    }
+  },
   "priceSectionTitle": "Цены магазинов (эксперимент)",
   "priceEnable": "Подставлять цены при добавлении продукта",
   "priceSourceLabel": "Источник цен",

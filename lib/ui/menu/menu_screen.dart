@@ -9,10 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../ai/equipment.dart';
 import '../../data/models/meal_plan.dart';
 import '../../data/models/recipe.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../state/plan_controller.dart';
+import '../../state/profile_controller.dart';
 import '../widgets/common.dart';
 import 'cooked_sheet.dart';
 import 'shopping_screen.dart';
@@ -327,6 +329,21 @@ class _DayCard extends StatelessWidget {
   final PlanDay day;
   final String localeTag;
 
+  /// Расхождения по технике для блюда (v0.6.4): считаются на runtime
+  /// из текущего профиля — пометки всегда соответствуют настройке,
+  /// в план ничего дополнительно не пишется. Профиль без явного списка
+  /// (до v0.6.4) — расхождений нет.
+  List<EquipmentGap> _equipmentGaps(BuildContext context, Recipe recipe) {
+    final profile = context.watch<ProfileController>().profile;
+    if (profile == null) return const [];
+    return KitchenEquipmentEngine.gaps(
+      needed: KitchenEquipmentEngine.requiredForSteps(
+          KitchenEquipmentEngine.stepsTextOf(recipe.stepsRu)),
+      servings: recipe.servings,
+      owned: profile.equipment?.toSet(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -363,36 +380,46 @@ class _DayCard extends StatelessWidget {
               ),
             ),
           for (final meal in day.meals)
-            ListTile(
-              leading: Icon(slotIcon(meal.slot),
-                  color: theme.colorScheme.primary),
-              title: Text(meal.recipe.title(localeTag)),
-              subtitle: Text(
-                '${slotLabel(l, meal.slot)} · ${meal.kcal} ${l.unitKcal}'
-                '${meal.usesExpiring.isEmpty ? '' : ' · ★ ${meal.usesExpiring.length}'}',
-                style: theme.textTheme.bodySmall,
-              ),
-              // Нелюбимое в малом количестве (v0.5.4): честная пометка
-              // «содержит: лук» под приёмом пищи.
-              trailing: meal.minorDislikes.isEmpty
-                  ? const Icon(Icons.chevron_right)
-                  : Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            l.menuContainsDislike(
-                                meal.minorDislikes.take(2).join(', ')),
-                            style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.tertiary),
-                            overflow: TextOverflow.ellipsis,
+            () {
+              // Пометка замены техники (v0.6.4): только заместимые
+              // расхождения — блокирующее не попадает в план.
+              final equipmentNote = _equipmentGaps(context, meal.recipe)
+                  .where((g) => g.substitutable)
+                  .map((g) => '${equipmentLabel(l, g.equipment)} → '
+                      '${equipmentSubstShort(l, g.equipment)}')
+                  .toList();
+              return ListTile(
+                leading: Icon(slotIcon(meal.slot),
+                    color: theme.colorScheme.primary),
+                title: Text(meal.recipe.title(localeTag)),
+                subtitle: Text(
+                  '${slotLabel(l, meal.slot)} · ${meal.kcal} ${l.unitKcal}'
+                  '${meal.usesExpiring.isEmpty ? '' : ' · ★ ${meal.usesExpiring.length}'}'
+                  '${equipmentNote.isEmpty ? '' : ' · ${l.menuEquipmentNote(equipmentNote.join(', '))}'}',
+                  style: theme.textTheme.bodySmall,
+                ),
+                // Нелюбимое в малом количестве (v0.5.4): честная пометка
+                // «содержит: лук» под приёмом пищи.
+                trailing: meal.minorDislikes.isEmpty
+                    ? const Icon(Icons.chevron_right)
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              l.menuContainsDislike(
+                                  meal.minorDislikes.take(2).join(', ')),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.tertiary),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                        const Icon(Icons.chevron_right),
-                      ],
-                    ),
-              onTap: () => _showRecipe(context, meal),
-            ),
+                          const Icon(Icons.chevron_right),
+                        ],
+                      ),
+                onTap: () => _showRecipe(context, meal),
+              );
+            }(),
         ],
       ),
     );
@@ -457,6 +484,7 @@ class RecipeSheet extends StatelessWidget {
             style: theme.textTheme.bodySmall
                 ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
+          _EquipmentNoteCard(recipe: recipe, localeTag: localeTag),
           const SizedBox(height: 16),
           Text(l.menuIngredients, style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
@@ -516,6 +544,82 @@ class RecipeSheet extends StatelessWidget {
           ),
           const SizedBox(height: 24),
         ],
+      ),
+    );
+  }
+}
+
+/// Карточка «техники нет — чем заменить» (v0.6.4) в деталях рецепта.
+///
+/// Считается на runtime из текущего профиля: заменяемые расхождения
+/// показывают подсказку замены, блокируемые (духовка + большое блюдо) —
+/// честное «без духовки не приготовить» (актуально для старых планов,
+/// сгенерированных до смены набора техники).
+class _EquipmentNoteCard extends StatelessWidget {
+  const _EquipmentNoteCard({required this.recipe, required this.localeTag});
+
+  final Recipe recipe;
+  final String localeTag;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final profile = context.watch<ProfileController>().profile;
+    if (profile == null) return const SizedBox.shrink();
+    final gaps = KitchenEquipmentEngine.gaps(
+      needed: KitchenEquipmentEngine.requiredForSteps(
+          KitchenEquipmentEngine.stepsTextOf(recipe.stepsRu)),
+      servings: recipe.servings,
+      owned: profile.equipment?.toSet(),
+    );
+    if (gaps.isEmpty) return const SizedBox.shrink();
+
+    final blocking = gaps.where((g) => !g.substitutable).toList();
+    final substitutable = gaps.where((g) => g.substitutable).toList();
+
+    String substitutionOf(EquipmentGap g) => localeTag.startsWith('ru')
+        ? g.substitutionRu
+        : g.substitutionEn;
+
+    final String message;
+    if (blocking.isNotEmpty) {
+      // Блокируемое — всегда духовка (единственная нерезервируемая
+      // техника), сообщение в ARB сформулировано под неё.
+      message = [
+        if (blocking.isNotEmpty) l.recipeEquipmentBlocking(recipe.servings),
+        for (final g in substitutable)
+          l.recipeEquipmentMissing(
+              equipmentLabel(l, g.equipment), substitutionOf(g)),
+      ].join(' ');
+    } else {
+      message = l.recipeEquipmentMissing(
+        substitutable
+            .map((g) => equipmentLabel(l, g.equipment))
+            .join(', '),
+        substitutable.map(substitutionOf).join(' / '),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: ListTile(
+          leading: Icon(
+            blocking.isEmpty
+                ? Icons.swap_horiz_outlined
+                : Icons.report_problem_outlined,
+            color: blocking.isEmpty
+                ? theme.colorScheme.tertiary
+                : theme.colorScheme.error,
+          ),
+          title: Text(
+            message,
+            style: theme.textTheme.bodySmall,
+          ),
+          dense: true,
+        ),
       ),
     );
   }

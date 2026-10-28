@@ -1,16 +1,17 @@
 /// Онбординг (Шаг 3, ТЗ: «Пользователь один раз настраивает свои параметры»).
 ///
-/// 5 экранов PageView: приветствие → калораж → диета/аллергии →
-/// нелюбимые продукты (v0.5.4) → приёмы пищи и напоминания. На финале
-/// сохраняется профиль (onboarded = 1) и запрашиваются права на пуши.
-/// «Пропустить» — сохраняет профиль по умолчанию; донастроить можно
-/// в «Настройках».
+/// 6 экранов PageView: приветствие → калораж → диета/аллергии →
+/// нелюбимые продукты (v0.5.4) → техника на кухне (v0.6.4) → приёмы
+/// пищи и напоминания. На финале сохраняется профиль (onboarded = 1)
+/// и запрашиваются права на пуши. «Пропустить» — сохраняет профиль
+/// по умолчанию; донастроить можно в «Настройках».
 library;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../ai/dislikes.dart';
+import '../../ai/equipment.dart';
 import '../../data/models/user_profile.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../notifications/reminder_scheduler.dart';
@@ -34,10 +35,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final Set<Diet> _diets = {};
   final Set<Allergen> _allergies = {};
   final Set<String> _dislikes = {};
+
+  /// Техника по умолчанию — «всё есть» (семантика «Пропустить» и
+  /// старых профилей): пользователь снимает галочки с отсутствующего.
+  final Set<KitchenEquipment> _equipment = {...KitchenEquipment.values};
   int _mealsPerDay = 3;
   bool _wantNotifications = true;
 
-  static const _pages = 5;
+  static const _pages = 6;
 
   @override
   void dispose() {
@@ -72,6 +77,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           .map((key) => DislikeRule(key: key, always: false))
           .toList(),
       mealsPerDay: _mealsPerDay,
+      // Явный список даже при «Пропустить» (по умолчанию — вся техника):
+      // null оставлен только профилям, созданным до v0.6.4.
+      equipment: _equipment.toList(),
     ));
     if (ok && wantNotifications && mounted) {
       try {
@@ -146,6 +154,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         _dislikes.contains(key)
                             ? _dislikes.remove(key)
                             : _dislikes.add(key);
+                      }),
+                    ),
+                  ),
+                  _Step(
+                    title: l.onbEquipmentTitle,
+                    subtitle: l.onbEquipmentBody,
+                    onNext: _next,
+                    child: _EquipmentStep(
+                      selected: _equipment,
+                      onToggle: (e) => setState(() {
+                        _equipment.contains(e)
+                            ? _equipment.remove(e)
+                            : _equipment.add(e);
                       }),
                     ),
                   ),
@@ -375,6 +396,32 @@ class _DietStep extends StatelessWidget {
               ),
           ],
         ),
+      ],
+    );
+  }
+}
+
+/// Шаг «Какая техника есть на кухне?» (v0.6.4): всё выбрано по
+/// умолчанию — пользователь снимает галочки с отсутствующего.
+class _EquipmentStep extends StatelessWidget {
+  const _EquipmentStep({required this.selected, required this.onToggle});
+
+  final Set<KitchenEquipment> selected;
+  final void Function(KitchenEquipment) onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Wrap(
+      spacing: 8,
+      runSpacing: 0,
+      children: [
+        for (final e in KitchenEquipment.values)
+          FilterChip(
+            label: Text(equipmentLabel(l, e)),
+            selected: selected.contains(e),
+            onSelected: (_) => onToggle(e),
+          ),
       ],
     );
   }

@@ -6,6 +6,7 @@ library;
 
 import 'dart:convert';
 
+import '../../ai/equipment.dart';
 import 'medical_diet.dart';
 
 /// Диета пользователя: ограничение на целые группы продуктов.
@@ -193,6 +194,12 @@ class UserProfile {
     this.dislikes = const [],
     this.medicalDiets = const [],
     this.mealsPerDay = 3,
+
+    /// Какая техника есть на кухне (v0.6.4). null — «неизвестно/всё
+    /// есть»: профили до v0.6.4 не меняют поведение (планер не
+    /// фильтрует по технике), после онбординга/правки в «Настройках»
+    /// список всегда явный, даже пустой.
+    this.equipment,
     this.regionName,
     this.latitude,
     this.longitude,
@@ -236,6 +243,13 @@ class UserProfile {
   /// Количество приёмов пищи в день (2–6).
   final int mealsPerDay;
 
+  /// Техника на кухне (v0.6.4): духовка, блендер, тостер — по составу
+  /// базы рецептов. null = «неизвестно/всё есть» (старые профили);
+  /// явный пустой список = «техники нет» — духовочные блюда на 4+
+  /// порций исключаются, остальные предлагаются с пометкой замены
+  /// (см. lib/ai/equipment.dart).
+  final List<KitchenEquipment>? equipment;
+
   /// Геолокация (город/регион) — для учёта сезонности продуктов на рынках.
   final String? regionName;
   final double? latitude;
@@ -270,6 +284,7 @@ class UserProfile {
     List<DislikeRule>? dislikes,
     List<String>? medicalDiets,
     int? mealsPerDay,
+    List<KitchenEquipment>? equipment,
     String? regionName,
     double? latitude,
     double? longitude,
@@ -288,6 +303,7 @@ class UserProfile {
       dislikes: dislikes ?? this.dislikes,
       medicalDiets: medicalDiets ?? this.medicalDiets,
       mealsPerDay: mealsPerDay ?? this.mealsPerDay,
+      equipment: equipment ?? this.equipment,
       regionName: regionName ?? this.regionName,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
@@ -312,6 +328,11 @@ class UserProfile {
             jsonEncode(dislikes.map((d) => d.toJson()).toList()),
         'medical_diets': jsonEncode(medicalDiets),
         'meals_per_day': mealsPerDay,
+        // null пишется явно: колонка nullable, старые бэкапы/профили
+        // читаются как «всё есть» (см. [equipment]).
+        'equipment': equipment == null
+            ? null
+            : jsonEncode(equipment!.map((e) => e.key).toList()),
         'region_name': regionName,
         'latitude': latitude,
         'longitude': longitude,
@@ -327,6 +348,18 @@ class UserProfile {
         jsonDecode(map['dislikes'] as String? ?? '[]') as List<dynamic>;
     final rawMedicalDiets =
         jsonDecode(map['medical_diets'] as String? ?? '[]') as List<dynamic>;
+    final rawEquipment = map['equipment'] as String?;
+    final List<KitchenEquipment>? equipment;
+    if (rawEquipment == null || rawEquipment.isEmpty) {
+      // Профили до v0.6.4 (или импорт старого бэкапа): техника
+      // неизвестна — считаем «всё есть», поведение не меняется.
+      equipment = null;
+    } else {
+      equipment = (jsonDecode(rawEquipment) as List<dynamic>)
+          .map((k) => KitchenEquipment.fromKey(k as String))
+          .whereType<KitchenEquipment>()
+          .toList();
+    }
     // v0.5.0: источник истины — колонка diets (JSON-массив).
     // Старые записи (до миграции данных) читаются по колонке diet.
     final rawDiets = map['diets'] as String?;
@@ -362,6 +395,7 @@ class UserProfile {
           .toList(),
       medicalDiets: MedicalDiet.keysFromStorage(rawMedicalDiets),
       mealsPerDay: (map['meals_per_day'] as int?) ?? 3,
+      equipment: equipment,
       regionName: map['region_name'] as String?,
       latitude: (map['latitude'] as num?)?.toDouble(),
       longitude: (map['longitude'] as num?)?.toDouble(),
@@ -378,5 +412,6 @@ class UserProfile {
       'аллергии: ${allergies.map((a) => a.key).join(",")}, '
       'не любит: ${dislikes.map((d) => d.key).join(",")}, '
       'столы: ${medicalDiets.join(",")}, '
-      'приёмов: $mealsPerDay)';
+      'приёмов: $mealsPerDay, '
+      'техника: ${equipment == null ? "вся (по умолчанию)" : equipment!.map((e) => e.key).join(",")})';
 }
