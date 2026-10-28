@@ -341,4 +341,64 @@ void main() {
     expect(priced.priceUpdatedAt, DateTime.parse('2026-10-26T12:00:00.000'));
     await db.close();
   });
+
+  test('миграция v6 -> v8: medical_diets (TEST-1) + mercadona_index (SCAN-6)',
+      () async {
+    final v8Path = '${tmp.path}/v6to8.db';
+    // База версии 6 (как у пользователя v0.5.8) с продуктом и профилем.
+    final v6 = await openDatabase(v8Path, version: 6);
+    final b6 = v6.batch();
+    AppDatabase.createV1Tables(b6);
+    AppDatabase.createV2Tables(b6);
+    AppDatabase.createV3Tables(b6);
+    AppDatabase.createV4Columns(b6);
+    AppDatabase.createV5Columns(b6);
+    AppDatabase.createV6Columns(b6);
+    await b6.commit(noResult: true);
+    await v6.insert('products', {
+      'name': 'Кефир',
+      'category_key': 'dairy',
+      'quantity': 1.0,
+      'unit_key': 'pcs',
+      'expiry_date': '2026-11-01',
+      'added_at': DateTime(2026, 10, 26).toIso8601String(),
+      'status': 'active',
+    });
+    await v6.insert('user_profile', {
+      'allergies': '["milk"]',
+      'created_at': DateTime(2026, 10, 1).toIso8601String(),
+      'updated_at': DateTime(2026, 10, 26).toIso8601String(),
+    });
+    await v6.close();
+
+    final db = await AppDatabase.open(absolutePath: v8Path);
+    expect(await db.getVersion(), AppDatabase.dbVersion);
+
+    // v7: колонка лечебных столов появилась.
+    final profileCols = (await db.rawQuery(
+      'PRAGMA table_info(user_profile)',
+    )).map((r) => r['name'] as String).toSet();
+    expect(profileCols, contains('medical_diets'));
+
+    // v8: таблица индекса Mercadona создана и принимает записи.
+    final tables = (await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type = 'table'",
+    )).map((r) => r['name'] as String).toSet();
+    expect(tables, contains('mercadona_index'));
+    await db.insert('mercadona_index', {
+      'name': 'Leche entera Hacendado',
+      'price': 0.95,
+      'old_price': null,
+      'package_quantity': 'botella · 1 l',
+    });
+    expect(await db.query('mercadona_index'), hasLength(1));
+
+    // Данные пользователей пережили обе миграции: продукт и аллергия.
+    expect(await db.query('products'), hasLength(1));
+    final profile = UserProfile.fromMap(
+        (await db.query('user_profile', limit: 1)).first);
+    expect(profile.allergies, isNotEmpty);
+    expect(profile.medicalDiets, isEmpty);
+    await db.close();
+  });
 }

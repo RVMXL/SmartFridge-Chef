@@ -24,6 +24,9 @@
 /// v7 — (v0.5.9): `user_profile.medical_diets` — лечебные столы по
 /// Певзнеру (JSON-массив ключей table1…table15), жёсткий фильтр планера
 /// наравне с аллергиями.
+/// v8 — (v0.5.11): `mercadona_index` — индекс цен Mercadona перенесён из
+/// SharedPreferences (≈0,5 МБ XML-пресетов — jank на старте, лимиты
+/// мелких значений) в SQLite (SCAN-6, аудит 2026-10-28).
 library;
 
 import 'package:path/path.dart' as p;
@@ -33,7 +36,7 @@ class AppDatabase {
   AppDatabase._();
 
   static const String dbName = 'smart_fridge.db';
-  static const int dbVersion = 7;
+  static const int dbVersion = 8;
 
   /// Открывает базу.
   ///
@@ -48,7 +51,20 @@ class AppDatabase {
       onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON;'),
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
-    );
+      // DATA-1 (аудит 2026-10-28): дефолт sqflite при даунгрейде версии —
+      // onDatabaseDeleted, молча сносящий файл базы: откат релиза (боковая
+      // загрузка старого APK) означал потерю всех продуктов и истории.
+      // Миграции схемы строго аддитивны (ALTER/CREATE без разрушений),
+      // поэтому схема новее кода безопасна: старый код читает свои
+      // таблицы, добавленные позже колонки просто не трогает.
+      onDowngrade: (db, oldVersion, newVersion) async {
+        assert(() {
+          // ignore: avoid_print
+          print('SmartFridge: даунгрейд $oldVersion->$newVersion отклонён, '
+              'база сохранена на новой схеме');
+          return true;
+        }());
+      },);
   }
 
   /// Полная схема (v1 + v2 + v3 + v4 + v5) для новой базы.
@@ -61,6 +77,7 @@ class AppDatabase {
     createV5Columns(batch);
     createV6Columns(batch);
     createV7Columns(batch);
+    createV8Tables(batch);
     await batch.commit(noResult: true);
   }
 
@@ -105,6 +122,13 @@ class AppDatabase {
       // v6 -> v7: лечебные столы по Певзнеру в профиле (v0.5.9).
       final batch = db.batch();
       createV7Columns(batch);
+      await batch.commit(noResult: true);
+    }
+    if (oldVersion < 8) {
+      // v7 -> v8: индекс цен Mercadona — из SharedPreferences в SQLite
+      // (SCAN-6, аудит 2026-10-28).
+      final batch = db.batch();
+      createV8Tables(batch);
       await batch.commit(noResult: true);
     }
     assert(oldVersion >= 1 && newVersion == dbVersion,
@@ -305,5 +329,21 @@ class AppDatabase {
       "ALTER TABLE user_profile ADD COLUMN medical_diets TEXT"
       " NOT NULL DEFAULT '[]'",
     );
+  }
+
+  // ------------------------------------------------------------- схема v8
+
+  /// Таблица версии 8 (v0.5.11): индекс цен Mercadona (SCAN-6). Строки
+  /// соответствуют записям компактного индекса; перезаписывается целиком
+  /// при фоновом обновлении каталога.
+  static void createV8Tables(Batch batch) {
+    batch.execute('''
+      CREATE TABLE mercadona_index (
+        name             TEXT NOT NULL,
+        price            REAL NOT NULL,
+        old_price        REAL,
+        package_quantity TEXT
+      )
+    ''');
   }
 }

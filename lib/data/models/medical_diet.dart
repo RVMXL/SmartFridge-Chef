@@ -196,7 +196,7 @@ const List<MedicalDiet> medicalDiets = [
         'chocolate, honey, jam, pickles, vinegar',
     forbiddenKeys: {
       'milk', 'cream', 'mayo', 'pork', 'mushroom', 'beans', 'split_peas',
-      'lentils', 'chickpeas', 'cabbage', 'spinach', 'beetroot',
+      'lentils', 'chickpeas', 'cabbage', 'spinach',
       'bell_pepper', 'greens', 'pickles', 'vinegar', 'soy_sauce', 'almond',
       'walnut', 'peanut_butter', 'chocolate', 'honey', 'jam', 'raisins',
       'cucumber', 'tomato', 'lettuce',
@@ -335,11 +335,16 @@ const List<MedicalDiet> medicalDiets = [
         'возбуждающие продукты',
     indicationsEn: 'Nervous system disorders; stimulating products are '
         'excluded',
-    forbiddenRu: 'Шоколад и какао, чеснок, чёрный перец, горчица, смеси '
-        'пряностей',
-    forbiddenEn: 'Chocolate and cocoa, garlic, black pepper, mustard, '
-        'spice blends',
-    forbiddenKeys: {'garlic', 'pepper', 'mustard', 'chocolate', 'spices'},
+    forbiddenRu: 'Шоколад и какао, чеснок, горчица; крепкий чай и кофе '
+        'ограничьте вне базы рецептов. Чёрный перец и смеси пряностей в '
+        'готовых блюдах допускаются умеренно',
+    forbiddenEn: 'Chocolate and cocoa, garlic, mustard; limit strong tea '
+        'and coffee outside the recipe base. Black pepper and spice '
+        'blends in cooked dishes are allowed in moderation',
+    // AI-1 (аудит 2026-10-28): «возбуждающие» — сильные стимуляторы;
+    // чёрный перец и смеси пряностей в готовых блюдах ими не являются,
+    // а полный их запрет оставлял 0 основных блюд.
+    forbiddenKeys: {'garlic', 'mustard', 'chocolate'},
   ),
   MedicalDiet(
     number: 13,
@@ -352,16 +357,18 @@ const List<MedicalDiet> medicalDiets = [
     indicationsEn: 'Acute infectious diseases, fever period; light, bland '
         'food',
     forbiddenRu: 'Свинина, сливки, майонез, бобовые, капуста, грибы, '
-        'свежий хлеб, сыр, пряности, соленья, шоколад, слива, вишня, '
-        'ягоды',
+        'сыр, соленья, шоколад, слива, вишня, ягоды. Хлеб — подсушенный '
+        'или вчерашний; чёрный перец и пряности — умеренно',
     forbiddenEn: 'Pork, cream, mayonnaise, legumes, cabbage, mushrooms, '
-        'fresh bread, cheese, spices, pickles, chocolate, plum, cherry, '
-        'berries',
+        'cheese, pickles, chocolate, plum, cherry, berries. Bread — '
+        'toasted or day-old; black pepper and spices — in moderation',
+    // AI-1 (аудит 2026-10-28): щадящая диета ограничивает свежий хлеб
+    // (подсушенный допускается) и острые приправы; ключи 'bread',
+    // 'pepper', 'spices' целиком убивали пул основных блюд (4 рецепта).
     forbiddenKeys: {
       'pork', 'cream', 'mayo', 'beans', 'split_peas', 'lentils',
-      'chickpeas', 'cabbage', 'mushroom', 'bread', 'cheese', 'spices',
-      'pepper', 'garlic', 'mustard', 'pickles', 'chocolate', 'berries',
-      'cherry', 'plum',
+      'chickpeas', 'cabbage', 'mushroom', 'cheese', 'garlic', 'mustard',
+      'pickles', 'chocolate', 'berries', 'cherry', 'plum',
     },
   ),
   MedicalDiet(
@@ -375,15 +382,23 @@ const List<MedicalDiet> medicalDiets = [
     indicationsEn: 'Phosphaturia — alkaline urine; the diet shifts acidic: '
         'meat, fish, cereals and bread as the base',
     forbiddenRu: 'Молочные продукты, большинство овощей и фруктов '
-        '(картофель, морковь, капуста, томаты, яблоки, цитрусовые и др.)',
+        '(картофель, морковь, капуста, томаты, бананы и др.). Сливочное '
+        'масло нейтрально; кислые фрукты (кислые яблоки и груши, '
+        'цитрусовые, клюква, брусника) сдвигают мочу в кислую сторону и '
+        'допускаются',
     forbiddenEn: 'Dairy products, most vegetables and fruits (potato, '
-        'carrot, cabbage, tomato, apple, citrus, etc.)',
+        'carrot, cabbage, tomato, banana, etc.). Butter is neutral; '
+        'acidic fruits (tart apples and pears, citrus, cranberry, '
+        'lingonberry) shift urine acidic and are allowed',
+    // AI-1 (аудит 2026-10-28): масло нейтрально, кислые фрукты
+    // рекомендованы (кислая реакция мочи) — ключи 'butter', 'apple',
+    // 'pear', 'orange', 'lemon', 'berries' убраны из запрета.
     forbiddenKeys: {
       'milk', 'cheese', 'cottage_cheese', 'sour_cream', 'cream', 'yogurt',
-      'kefir', 'butter', 'potato', 'carrot', 'beetroot', 'cabbage',
+      'kefir', 'potato', 'carrot', 'beetroot', 'cabbage',
       'cucumber', 'pumpkin', 'zucchini', 'spinach', 'lettuce', 'greens',
-      'tomato', 'bell_pepper', 'onion', 'garlic', 'avocado', 'apple',
-      'pear', 'banana', 'orange', 'lemon', 'berries', 'cherry', 'plum',
+      'tomato', 'bell_pepper', 'onion', 'garlic', 'avocado',
+      'banana', 'cherry', 'plum',
       'jam', 'honey', 'mushroom', 'beans', 'split_peas', 'lentils',
       'chickpeas', 'broccoli', 'cauliflower', 'celery', 'olives',
       'pickles',

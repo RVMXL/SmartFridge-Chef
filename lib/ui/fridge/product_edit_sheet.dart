@@ -246,6 +246,17 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
         _priceLoading = false;
         _priceFail = e.reason;
       });
+    } catch (e) {
+      // NET-6 (аудит 2026-10-28): TypeError/NoSuchMethodError от кривого
+      // JSON неофициальных API — это Error, а не Exception: раньше он
+      // уходил в unhandled zone (запрос не await-ится) и _priceLoading
+      // оставался true навсегда — вечный спиннер кнопки цены до закрытия
+      // формы. Любая неожиданная ошибка трактуется как недоступность цены.
+      if (!mounted) return;
+      setState(() {
+        _priceLoading = false;
+        _priceFail = PriceFailReason.network;
+      });
     }
   }
 

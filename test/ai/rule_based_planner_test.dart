@@ -604,6 +604,30 @@ void main() {
       }
     });
 
+    test('вырожденный слот даёт предупреждение в плане (AI-1)', () async {
+      // Стол 14: перекус (snack+dessert) после фильтров — 6 рецептов,
+      // меньше 7 использований за неделю.
+      final plan = await planner.generate(medicalRequest(['table14'],
+          seed: 5));
+      expect(
+        plan.warnings,
+        anyElement(contains('после фильтров осталось')),
+        reason: 'вырожденный слот должен быть виден пользователю',
+      );
+      expect(
+        plan.warnings,
+        anyElement(contains('перекус')),
+      );
+    });
+
+    test('без ограничений предупреждений о вырожденности нет', () async {
+      final plan = await planner.generate(request(seed: 6));
+      expect(
+        plan.warnings.where((w) => w.contains('после фильтров осталось')),
+        isEmpty,
+      );
+    });
+
     test('комбинация столов объединяет запреты', () async {
       final all = await repo.loadAll();
       final both = planner.hardFilteredDetailed(

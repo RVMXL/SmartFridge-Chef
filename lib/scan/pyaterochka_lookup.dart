@@ -42,7 +42,7 @@ List<PriceHit> parsePyaterochkaSearchJson(Map<String, dynamic> json) {
   final hits = <PriceHit>[];
   for (final item in raw) {
     if (item is! Map<String, dynamic>) continue;
-    final name = (item['name'] as String?)?.trim() ?? '';
+    final name = (jsonStr(item['name']) ?? '').trim();
     final plu = item['plu'];
     if (name.isEmpty || plu is! int) continue;
 
@@ -64,14 +64,14 @@ List<PriceHit> parsePyaterochkaSearchJson(Map<String, dynamic> json) {
           ? item['is_available'] as bool
           : true,
       packageQuantity: _cleanText(
-          item['package_quantity'] as String? ??
-              item['property_clarification'] as String?),
+          jsonStr(item['package_quantity']) ??
+              jsonStr(item['property_clarification'])),
       rating: (rating is Map<String, dynamic>
-              ? rating['rating_average']
+              ? jsonNum(rating['rating_average'])
               : null)
           ?.toDouble(),
       ratesCount: rating is Map<String, dynamic>
-          ? (rating['rates_count'] as num?)?.toInt()
+          ? jsonNum(rating['rates_count'])?.toInt()
           : null,
     ));
   }
@@ -103,6 +103,21 @@ class PyaterochkaService {
   static const String _deviceIdPref = 'pref_pyat_device_id';
 
   final http.Client? _client;
+  http.Client? _ownClient;
+
+  /// NET-1 (аудит 2026-10-28): один переиспользуемый клиент на сервис.
+  /// http.Client() на каждый запрос утекал вместе с keep-alive-пулом
+  /// (пик — 153 клиента за одну сборку индекса Mercadona); сервис —
+  /// синглтон приложения, собственный клиент живёт столько же.
+  http.Client get _effectiveClient {
+    final injected = _client;
+    if (injected != null) return injected;
+    return _ownClient ??= http.Client();
+  }
+
+  /// Закрыть собственный клиент (инжектированный извне не наш — не трогаем).
+  void dispose() => _ownClient?.close();
+
   final Duration timeout;
 
   /// Анонимный идентификатор устройства, как у веб-фронта: генерируется
@@ -145,7 +160,7 @@ class PyaterochkaService {
 
     final http.Response response;
     try {
-      response = await (_client ?? http.Client())
+      response = await _effectiveClient
           .get(uri, headers: {
             'Accept': 'application/json, text/plain, */*',
             'User-Agent': _mobileUserAgent,

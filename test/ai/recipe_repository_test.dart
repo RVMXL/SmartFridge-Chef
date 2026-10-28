@@ -95,7 +95,7 @@ void main() {
       'butter': {'milk'}, 'cream': {'milk'},
       'salmon': {'fish'}, 'cod': {'fish'}, 'pollock': {'fish'},
       'herring': {'fish'}, 'tuna_can': {'fish'}, 'minced_fish': {'fish'},
-      'shrimp': {'shellfish'}, 'squid': {'shellfish'},
+      'shrimp': {'crustaceans'}, 'squid': {'molluscs'},
       'walnut': {'nuts'}, 'almond': {'nuts'},
       'peanut_butter': {'peanuts'},
       'tofu': {'soy'},
@@ -213,8 +213,11 @@ void main() {
       if (r.hasDairy && !r.allergens.contains(Allergen.milk)) {
         problems.add('${r.id}: has_dairy без аллергена milk');
       }
-      if (r.hasShellfish && !r.allergens.contains(Allergen.shellfish)) {
-        problems.add('${r.id}: has_shellfish без аллергена shellfish');
+      if (r.hasShellfish &&
+          !(r.allergens.contains(Allergen.crustaceans) ||
+              r.allergens.contains(Allergen.molluscs))) {
+        problems.add(
+            '${r.id}: has_shellfish без аллергена crustaceans/molluscs');
       }
     }
     expect(problems, isEmpty, reason: problems.join('; '));

@@ -5,7 +5,9 @@
 /// эндпоинта у него НЕТ (проверено 2026-10: /api/search → 404). Поэтому
 /// поиск по названию делается локально: сервис один раз собирает индекс
 /// товаров по всем категориям (26 верхних → 152 категории 1-го уровня,
-/// примерно 20–40 секунд), кэширует его в памяти и SharedPreferences и
+/// примерно 20–40 секунд), кэширует его в памяти и SQLite (SCAN-6,
+/// аудит 2026-10-28: раньше индекс ≈0,5 МБ жил в SharedPreferences —
+/// XML-пресеты грузятся целиком при первом доступе и jank-ят старт) и
 /// дальше отвечает мгновенно. Индекс устаревает через [kCatalogTtl] и
 /// обновляется в фоне при первом поиске после истечения срока.
 ///
@@ -27,6 +29,9 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
+
+import '../data/data_store.dart';
 
 import 'price_source.dart';
 
@@ -70,7 +75,7 @@ PriceHit? _parseMercadonaProduct(Map<String, dynamic> item) {
   // Непубликуемые товары пропускаем целиком.
   if (item['published'] == false) return null;
 
-  final name = (item['display_name'] as String?)?.trim() ?? '';
+  final name = (jsonStr(item['display_name']) ?? '').trim();
   if (name.isEmpty) return null;
 
   final pi = item['price_instructions'];
@@ -87,9 +92,9 @@ PriceHit? _parseMercadonaProduct(Map<String, dynamic> item) {
     price: price,
     oldPrice: oldPrice,
     packageQuantity: _mercadonaQuantity(
-      packaging: item['packaging'] as String?,
+      packaging: jsonStr(item['packaging']),
       unitSize: pi['unit_size'],
-      sizeFormat: pi['size_format'] as String?,
+      sizeFormat: jsonStr(pi['size_format']),
     ),
     currencySymbol: '€',
   );
@@ -147,14 +152,14 @@ List<PriceHit> decodeMercadonaIndex(String raw) {
   for (final entry in decoded) {
     if (entry is! Map<String, dynamic>) continue;
     final price = parsePriceValue(entry['p']);
-    final name = (entry['n'] as String?)?.trim() ?? '';
+    final name = (jsonStr(entry['n']) ?? '').trim();
     if (name.isEmpty || price == null || price <= 0) continue;
     final old = parsePriceValue(entry['o']);
     hits.add(PriceHit(
       name: name,
       price: price,
       oldPrice: (old != null && old > price) ? old : null,
-      packageQuantity: (entry['q'] as String?)?.trim(),
+      packageQuantity: jsonStr(entry['q'])?.trim(),
       currencySymbol: '€',
     ));
   }
@@ -169,14 +174,22 @@ class MercadonaService {
     this.timeout = const Duration(seconds: 8),
     this.pacing = kMercadonaPacing,
     this.ttl = kMercadonaCatalogTtl,
-  }) : _client = httpClient;
+    Future<Database> Function()? openDb,
+  })  : _client = httpClient,
+        _openDb = openDb ?? AppDataStore.instance.database;
 
   static const String _host = 'tienda.mercadona.es';
 
-  static const String _indexPref = 'pref_mercadona_catalog_json';
+  static const String _table = 'mercadona_index';
+  /// Старый prefs-ключ (v0.5.8): читается один раз при апгрейде и удаляется.
+  static const String _legacyIndexPref = 'pref_mercadona_catalog_json';
+  /// TTL-метка — маленький int, SharedPreferences здесь уместны.
   static const String _indexAtPref = 'pref_mercadona_catalog_at';
 
+  final Future<Database> Function() _openDb;
+
   final http.Client? _client;
+  http.Client? _ownClient;
   final Duration timeout;
   final Duration pacing;
   final Duration ttl;
@@ -184,7 +197,18 @@ class MercadonaService {
   List<PriceHit>? _index;
   Future<List<PriceHit>?>? _building;
 
-  http.Client get _effectiveClient => _client ?? http.Client();
+  /// NET-1 (аудит 2026-10-28): один переиспользуемый клиент на сервис.
+  /// http.Client() на каждый запрос утекал вместе с keep-alive-пулом
+  /// (пик — 153 клиента за одну сборку индекса Mercadona); сервис —
+  /// синглтон приложения, собственный клиент живёт столько же.
+  http.Client get _effectiveClient {
+    final injected = _client;
+    if (injected != null) return injected;
+    return _ownClient ??= http.Client();
+  }
+
+  /// Закрыть собственный клиент (инжектированный извне не наш — не трогаем).
+  void dispose() => _ownClient?.close();
 
   /// Кандидаты для поиска: весь индекс каталога. Подбор совпадения —
   /// общий матчер [pickBestPriceHit] на стороне вызова.
@@ -210,7 +234,7 @@ class MercadonaService {
   }
 
   Future<List<PriceHit>?> _loadOrBuild() async {
-    final cached = await _loadFromPrefs();
+    final cached = await _loadFromStore();
     if (cached != null && cached.isNotEmpty) {
       _index = cached;
       if (await _isStale()) {
@@ -277,12 +301,55 @@ class MercadonaService {
     return hits;
   }
 
-  Future<List<PriceHit>?> _loadFromPrefs() async {
+  Future<Database?> _openDbSafe() async {
+    try {
+      return await _openDb();
+    } catch (_) {
+      return null; // база недоступна — индекс живёт в памяти.
+    }
+  }
+
+  /// Индекс из SQLite (SCAN-6); если база пуста — одноразовый импорт из
+  /// prefs апгрейдера со старой версией (после импорта prefs-ключ
+  /// удаляется: SharedPreferences больше не растёт на мегабайты).
+  Future<List<PriceHit>?> _loadFromStore() async {
+    final db = await _openDbSafe();
+    if (db != null) {
+      try {
+        final rows = await db.query(_table);
+        final hits = <PriceHit>[];
+        for (final row in rows) {
+          final price = parsePriceValue(row['price']);
+          final name = (jsonStr(row['name']) ?? '').trim();
+          if (name.isEmpty || price == null || price <= 0) continue;
+          final old = parsePriceValue(row['old_price']);
+          hits.add(PriceHit(
+            name: name,
+            price: price,
+            oldPrice: (old != null && old > price) ? old : null,
+            packageQuantity: jsonStr(row['package_quantity'])?.trim(),
+            currencySymbol: '€',
+          ));
+        }
+        if (hits.isNotEmpty) return hits;
+      } catch (_) {
+        // Таблицы может не быть у базы, открытой до v8, — импорт/сеть.
+      }
+    }
+    return _importLegacyPrefs(db);
+  }
+
+  Future<List<PriceHit>?> _importLegacyPrefs(Database? db) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final raw = prefs.getString(_indexPref);
+      final raw = prefs.getString(_legacyIndexPref);
       if (raw == null || raw.isEmpty) return null;
-      return decodeMercadonaIndex(raw);
+      final hits = decodeMercadonaIndex(raw);
+      if (hits.isNotEmpty && db != null) {
+        await _persistToDb(db, hits);
+      }
+      await prefs.remove(_legacyIndexPref);
+      return hits.isEmpty ? null : hits;
     } catch (_) {
       return null; // prefs недоступны (тесты) — только сетевая стройка.
     }
@@ -300,14 +367,32 @@ class MercadonaService {
   }
 
   Future<void> _persist(List<PriceHit> hits) async {
+    final db = await _openDbSafe();
+    if (db == null) return; // базы нет — индекс живёт в памяти до перезапуска.
     try {
+      await _persistToDb(db, hits);
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_indexPref, encodeMercadonaIndex(hits));
       await prefs.setInt(
           _indexAtPref, DateTime.now().millisecondsSinceEpoch);
     } catch (_) {
-      // prefs недоступны — индекс живёт в памяти до перезапуска.
+      // База недоступна — индекс живёт в памяти до перезапуска.
     }
+  }
+
+  Future<void> _persistToDb(Database db, List<PriceHit> hits) async {
+    await db.transaction((txn) async {
+      await txn.delete(_table);
+      final batch = txn.batch();
+      for (final h in hits) {
+        batch.insert(_table, {
+          'name': h.name,
+          'price': h.price,
+          'old_price': h.oldPrice,
+          'package_quantity': h.packageQuantity,
+        });
+      }
+      await batch.commit(noResult: true);
+    });
   }
 
   Future<Map<String, dynamic>> _getJson(Uri uri) async {

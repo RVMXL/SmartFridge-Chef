@@ -24,6 +24,11 @@ class ReceiptScreen extends StatefulWidget {
 
 class _ReceiptScreenState extends State<ReceiptScreen> {
   final ImagePicker _picker = ImagePicker();
+  // OCR-1 (аудит 2026-10-28): ML Kit Text Recognition v2 официально не
+  // поддерживает кириллицу (только latin/chinese/devanagari/japanese/
+  // korean) — кириллические чеки распознаются в мусор или пустоту.
+  // Честное ограничение: латиница-only, кириллические позиции вводятся
+  // вручную (см. заметку на экране и README).
   final TextRecognizer _recognizer =
       TextRecognizer(script: TextRecognitionScript.latin);
 
@@ -166,6 +171,15 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
                       child: Text(
                         l.receiptFound(_selected.length),
                         style: theme.textTheme.titleMedium,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                      child: Text(
+                        l.receiptOcrNote,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.tertiary,
+                        ),
                       ),
                     ),
                     Padding(

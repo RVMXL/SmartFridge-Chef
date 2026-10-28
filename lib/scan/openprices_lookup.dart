@@ -75,14 +75,14 @@ List<PriceHit> parseOpenPricesJson(Map<String, dynamic> json) {
     final location = item['location'];
     String storeName = '';
     if (location is Map<String, dynamic>) {
-      storeName = ((location['osm_brand'] as String?) ??
-              location['osm_name'] as String? ??
+      storeName = (jsonStr(location['osm_brand']) ??
+              jsonStr(location['osm_name']) ??
               '')
           .trim();
     }
     final product = item['product'];
     final productName = product is Map<String, dynamic>
-        ? (product['product_name'] as String?)?.trim() ?? ''
+        ? (jsonStr(product['product_name']) ?? '').trim()
         : '';
 
     parsed.add(_OpenPricesRecord(
@@ -97,7 +97,7 @@ List<PriceHit> parseOpenPricesJson(Map<String, dynamic> json) {
         packageQuantity: productName.isEmpty ? null : productName,
         currencySymbol: currencySymbolFor(item['currency']?.toString()),
       ),
-      date: (item['date'] as String?) ?? '',
+      date: jsonStr(item['date']) ?? '',
     ));
   }
   parsed.sort((a, b) => b.date.compareTo(a.date));
@@ -120,6 +120,21 @@ class OpenPricesService {
   static const String _host = 'prices.openfoodfacts.org';
 
   final http.Client? _client;
+  http.Client? _ownClient;
+
+  /// NET-1 (аудит 2026-10-28): один переиспользуемый клиент на сервис.
+  /// http.Client() на каждый запрос утекал вместе с keep-alive-пулом
+  /// (пик — 153 клиента за одну сборку индекса Mercadona); сервис —
+  /// синглтон приложения, собственный клиент живёт столько же.
+  http.Client get _effectiveClient {
+    final injected = _client;
+    if (injected != null) return injected;
+    return _ownClient ??= http.Client();
+  }
+
+  /// Закрыть собственный клиент (инжектированный извне не наш — не трогаем).
+  void dispose() => _ownClient?.close();
+
   final Duration timeout;
 
   /// Цены по штрих-коду, самые свежие первыми. Пустой список — в базе
@@ -138,7 +153,7 @@ class OpenPricesService {
 
     final http.Response response;
     try {
-      response = await (_client ?? http.Client())
+      response = await _effectiveClient
           .get(uri, headers: {
             'Accept': 'application/json',
             'User-Agent': 'SmartFridgeChef/$kAppVersion (price lookup)',

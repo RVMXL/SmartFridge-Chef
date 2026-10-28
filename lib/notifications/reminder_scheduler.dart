@@ -100,14 +100,20 @@ class LocalReminderScheduler implements ReminderScheduler {
   /// Перевод локального момента в TZDateTime плагина.
   tz.TZDateTime _toTz(DateTime when) {
     if (_usesUtcFallback) {
-      // Мгновение, соответствующее локальному «when» при известном смещении.
-      return tz.TZDateTime.from(
-        when.subtract(DateTime.now().timeZoneOffset),
-        tz.UTC,
-      );
+      return fallbackToTz(when);
     }
     return tz.TZDateTime.from(when, tz.local);
   }
+
+  /// NOTIF-1 (аудит 2026-10-28): чистая конверсия для фолбэка, когда
+  /// плагин таймзон недоступен и tz.local остаётся UTC. [when] — локальное
+  /// «настенное» время; его платформенная интерпретация как момента уже
+  /// корректна, поэтому ручное вычитание timeZoneOffset перед конверсией
+  /// (двойной учёт смещения) не производится — старый код сдвигал
+  /// будильники на |offset| часов (10:00 МСК приходили в 07:00).
+  @visibleForTesting
+  static tz.TZDateTime fallbackToTz(DateTime when) =>
+      tz.TZDateTime.from(when, tz.UTC);
 
   @override
   Future<bool> requestPermissions() async {

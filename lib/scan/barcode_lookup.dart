@@ -14,6 +14,7 @@ import 'package:http/http.dart' as http;
 import 'package:sqflite/sqflite.dart';
 
 import '../ai/ingredient_matcher.dart';
+import '../core/constants.dart';
 import '../data/dao/barcode_cache_dao.dart';
 import '../data/data_store.dart';
 import '../data/models/product.dart';
@@ -41,12 +42,28 @@ class BarcodeLookupService {
 
   static const String _host = 'world.openfoodfacts.org';
 
-  /// Open Food Facts просит приложение представляться в User-Agent.
-  static const String _userAgent =
-      'SmartFridge-Chef/0.4 (Flutter; +https://github.com/RVMXL/SmartFridge-Chef)';
+  /// Open Food Facts просит приложение представляться в User-Agent
+  /// (PLAT-4/VER-1: версия берётся из kAppVersion, а не фиксированная «0.4»).
+  static final String _userAgent =
+      'SmartFridge-Chef/$kAppVersion (Flutter; +https://github.com/RVMXL/SmartFridge-Chef)';
 
   /// HTTP-клиент (внедряется в тестах; в рантайме — обычный).
   final http.Client? client;
+  http.Client? _ownClient;
+
+  /// NET-1 (аудит 2026-10-28): один переиспользуемый клиент на сервис.
+  /// http.Client() на каждый запрос утекал вместе с keep-alive-пулом
+  /// (пик — 153 клиента за одну сборку индекса Mercadona); сервис —
+  /// синглтон приложения, собственный клиент живёт столько же.
+  http.Client get _effectiveClient {
+    final injected = client;
+    if (injected != null) return injected;
+    return _ownClient ??= http.Client();
+  }
+
+  /// Закрыть собственный клиент (инжектированный извне не наш — не трогаем).
+  void dispose() => _ownClient?.close();
+
 
   final Future<Database> Function() _openDb;
   final Duration timeout;
@@ -107,7 +124,7 @@ class BarcodeLookupService {
         'fields': 'product_name,product_name_ru,generic_name,'
             'brands,categories_tags',
       });
-      final response = (client ?? http.Client())
+      final response = _effectiveClient
           .get(uri, headers: {'User-Agent': _userAgent})
           .timeout(timeout);
       final body = await response;

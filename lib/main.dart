@@ -74,7 +74,9 @@ void main() async {
   final pyaterochka = PyaterochkaService();
   final kroger = KrogerService();
   final openPrices = OpenPricesService();
-  final mercadona = MercadonaService();
+  final mercadona = MercadonaService(
+    openDb: AppDataStore.instance.database,
+  );
   final aldi = AldiService();
   final wegmans = WegmansService();
 

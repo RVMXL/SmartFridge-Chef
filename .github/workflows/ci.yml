@@ -14,6 +14,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Линт воркфлоу (actionlint)
+        # Харденинг после аудита 2026-10-28 (INFRA-1): его диагноз «branches:
+        # ain]» оказался артефактом извлечения текста — git-объекты и реальные
+        # запуски CI (event=push на main) показывают корректный branches:
+        # [main] с первого коммита. Шаг оставлен как страховка от настоящих
+        # синтаксических дефектов воркфлоу.
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash | bash -s -- -b /tmp v1.7.7
+          /tmp/actionlint -color
+
       - uses: subosito/flutter-action@v2
         with:
           channel: stable

@@ -173,6 +173,7 @@ class RuleBasedPlanner implements MealPlanner {
       skippedSlots: skippedSlots,
       days: days,
       dailyTarget: request.profile.dailyCalories,
+      slotPools: _slotPools(diagnostics.allowed),
     );
 
     return GeneratedPlan(
@@ -192,6 +193,30 @@ class RuleBasedPlanner implements MealPlanner {
       excludedCounts: diagnostics.excludedCounts,
       excludedExamples: diagnostics.excludedExamples,
     );
+  }
+
+  /// Пулы кандидатов по слотам после жёстких фильтров (для предупреждений).
+  Map<MealSlot, int> _slotPools(List<Recipe> allowed) {
+    final byCategory = <String, int>{};
+    for (final r in allowed) {
+      byCategory[r.category] = (byCategory[r.category] ?? 0) + 1;
+    }
+    return {
+      for (final entry in slotCategories.entries)
+        entry.key: entry.value
+            .map((c) => byCategory[c] ?? 0)
+            .reduce((a, b) => a + b),
+    };
+  }
+
+  /// «1 рецепт / 2 рецепта / 5 рецептов» для предупреждений.
+  static String _recipesWord(int n) {
+    final mod10 = n % 10, mod100 = n % 100;
+    if (mod10 == 1 && mod100 != 11) return 'рецепт';
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+      return 'рецепта';
+    }
+    return 'рецептов';
   }
 
   /// Стабильный id: неделя старта + seed (одинаковый запрос → одинаковый id).
@@ -272,7 +297,8 @@ class RuleBasedPlanner implements MealPlanner {
     Allergen.milk: 'молоко',
     Allergen.eggs: 'яйца',
     Allergen.fish: 'рыба',
-    Allergen.shellfish: 'моллюски',
+    Allergen.crustaceans: 'ракообразные',
+    Allergen.molluscs: 'моллюски',
     Allergen.nuts: 'орехи',
     Allergen.peanuts: 'арахис',
     Allergen.soy: 'соя',
@@ -488,6 +514,7 @@ class RuleBasedPlanner implements MealPlanner {
     required List<String> skippedSlots,
     required List<PlanDay> days,
     required int dailyTarget,
+    required Map<MealSlot, int> slotPools,
   }) {
     final warnings = <String>[];
 
@@ -508,6 +535,27 @@ class RuleBasedPlanner implements MealPlanner {
         'Проверьте профиль (диета/аллергии) или время готовки.',
       );
     }
+
+    // AI-1 (аудит 2026-10-28): вырожденные слоты после жёстких фильтров.
+    // Недельный план использует каждый слот ~7 раз — при пуле меньше
+    // семи блюд план неминуемо повторяется, и пользователь должен
+    // видеть причину (столы №4/12/13/14 и молочно-яичные завтраки
+    // давали вырожденность незаметно для пользователя).
+    const slotNames = {
+      MealSlot.breakfast: 'завтрак',
+      MealSlot.lunch: 'обед',
+      MealSlot.dinner: 'ужин',
+      MealSlot.snack: 'перекус',
+    };
+    slotPools.forEach((slot, poolSize) {
+      if (poolSize < 7) {
+        warnings.add(
+          'В слоте «${slotNames[slot]}» после фильтров осталось $poolSize '
+          '${_recipesWord(poolSize)} — меню будет повторяться. '
+          'Ослабьте фильтры (аллергии/диеты/столы) в профиле.',
+        );
+      }
+    });
 
     // Отклонение дня от цели более чем на 15%.
     for (final d in days) {

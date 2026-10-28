@@ -129,6 +129,15 @@ PriceHit? pickBestPriceHit(List<PriceHit> hits, String query) {
 }
 
 /// Разбор числового поля цены: num как есть, строка с запятой/пробелами.
+/// NET-6 (аудит 2026-10-28): безопасные чтения JSON. Неофициальные API
+/// отдают неожиданные типы (число вместо строки и т.п.); `as String?`
+/// бросает TypeError — это Error, а не Exception, обычные catch его не
+/// ловили, ошибка уходила в unhandled zone и навсегда оставляла спиннер
+/// цены. Парсеры читают поля только через эти функции.
+String? jsonStr(Object? v) => v is String ? v : null;
+
+num? jsonNum(Object? v) => v is num ? v : null;
+
 double? parsePriceValue(dynamic raw) {
   if (raw == null) return null;
   if (raw is num) return raw.toDouble();

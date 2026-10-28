@@ -82,15 +82,28 @@ class CookedSheet extends StatefulWidget {
 }
 
 class _CookedSheetState extends State<CookedSheet> {
-  late final List<_Row> _rows;
-  late final List<String> _missing;
+  late final DeductionPlan _plan;
+  List<_Row> _rows = const [];
+  List<String> _missing = const [];
+  bool _rowsBuilt = false;
   bool _applying = false;
 
   @override
   void initState() {
     super.initState();
     final fridge = context.read<ProductController>().products;
-    final plan = DeductionPlan.build(widget.recipe, fridge);
+    _plan = DeductionPlan.build(widget.recipe, fridge);
+  }
+
+  // UI-2 (аудит 2026-10-28): Localizations.localeOf — dependOnInherited,
+  // вызов в initState даёт FlutterError в debug-сборке («Приготовил»).
+  // Чтение локали и построение строк — в didChangeDependencies.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_rowsBuilt) return;
+    _rowsBuilt = true;
+    final plan = _plan;
 
     // Агрегация по продукту: один продукт — одна строка. Остаток — из
     // последней цели по продукту (движок уже учёл накопление спроса);

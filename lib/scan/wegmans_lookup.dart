@@ -138,9 +138,22 @@ class WegmansService {
   static const int pricedResults = 4;
 
   final http.Client? _client;
+  http.Client? _ownClient;
   final Duration timeout;
 
-  http.Client get _effectiveClient => _client ?? http.Client();
+  /// NET-1 (аудит 2026-10-28): один переиспользуемый клиент на сервис.
+  /// http.Client() на каждый запрос утекал вместе с keep-alive-пулом
+  /// (пик — 153 клиента за одну сборку индекса Mercadona); сервис —
+  /// синглтон приложения, собственный клиент живёт столько же.
+  http.Client get _effectiveClient {
+    final injected = _client;
+    if (injected != null) return injected;
+    return _ownClient ??= http.Client();
+  }
+
+  /// Закрыть собственный клиент (инжектированный извне не наш — не трогаем).
+  void dispose() => _ownClient?.close();
+
 
   /// Магазины для выбора в настройках.
   Future<List<WegmansStore>> stores({required String subscriptionKey}) async {

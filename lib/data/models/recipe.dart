@@ -221,6 +221,7 @@ class Recipe {
     final result =
         (j['allergens'] as List<dynamic>? ?? const [])
             .map((a) => Allergen.fromKey(a as String))
+            .whereType<Allergen>()
             .toSet();
     final ingredients = j['ingredients'] as List<dynamic>? ?? const [];
     for (final raw in ingredients) {
@@ -301,6 +302,10 @@ class Recipe {
     // её уже помечает генератор), тофу — соевый творог.
     'soy_sauce': Allergen.soy,
     'tofu': Allergen.soy,
+    // Морепродукты: ракообразные и моллюски — разные аллергены ЕС
+    // (LEG-2, аудит 2026-10-28); раньше деривации не было вовсе.
+    'shrimp': Allergen.crustaceans,
+    'squid': Allergen.molluscs,
   };
 
   Map<String, Object?> toJson() => {

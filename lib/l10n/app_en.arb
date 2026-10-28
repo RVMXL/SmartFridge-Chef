@@ -147,6 +147,7 @@
     }
   },
   "receiptNotFound": "Could not recognize any items. Try a sharper photo or add products manually.",
+  "receiptOcrNote": "Receipt OCR recognizes Latin script; Cyrillic receipts may fail — enter items manually.",
   "receiptEditHint": "Check the names — OCR can be wrong. Uncheck the lines you do not need.",
   "receiptAddSelected": "Add selected ({count})",
   "@receiptAddSelected": {
@@ -327,7 +328,8 @@
   "allergenMilk": "Milk",
   "allergenEggs": "Eggs",
   "allergenFish": "Fish",
-  "allergenShellfish": "Shellfish",
+  "allergenCrustaceans": "Crustaceans (shrimp, crab)",
+  "allergenMolluscs": "Molluscs (mussels, squid, oysters)",
   "allergenNuts": "Nuts",
   "allergenPeanuts": "Peanuts",
   "allergenSoy": "Soy",

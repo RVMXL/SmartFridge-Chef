@@ -48,7 +48,7 @@ List<PriceHit> parseAldiSearchJson(Map<String, dynamic> json) {
   final hits = <PriceHit>[];
   for (final item in raw) {
     if (item is! Map<String, dynamic>) continue;
-    final name = (item['name'] as String?)?.trim() ?? '';
+    final name = (jsonStr(item['name']) ?? '').trim();
     if (name.isEmpty) continue;
     if (item['discontinued'] == true) continue;
 
@@ -60,15 +60,15 @@ List<PriceHit> parseAldiSearchJson(Map<String, dynamic> json) {
         _centValue(price['amountRelevant']) ?? _centValue(price['amount']);
     if (cents == null || cents <= 0) continue;
 
-    final oldPrice = _parseEuroDisplay(price['wasPriceDisplay'] as String?);
+    final oldPrice = _parseEuroDisplay(jsonStr(price['wasPriceDisplay']));
     hits.add(PriceHit(
-      name: _displayName(brand: item['brandName'] as String?, name: name),
+      name: _displayName(brand: jsonStr(item['brandName']), name: name),
       price: cents / 100.0,
       oldPrice:
           (oldPrice != null && oldPrice > cents / 100.0) ? oldPrice : null,
-      packageQuantity: _cleanText(item['sellingSize'] as String?),
+      packageQuantity: _cleanText(jsonStr(item['sellingSize'])),
       currencySymbol:
-          _cleanText(price['currencySymbol'] as String?) ?? '€',
+          _cleanText(jsonStr(price['currencySymbol'])) ?? '€',
     ));
   }
   return hits;
@@ -124,6 +124,21 @@ class AldiService {
   static const List<int> allowedLimits = [12, 16, 24, 30, 32, 48, 60];
 
   final http.Client? _client;
+  http.Client? _ownClient;
+
+  /// NET-1 (аудит 2026-10-28): один переиспользуемый клиент на сервис.
+  /// http.Client() на каждый запрос утекал вместе с keep-alive-пулом
+  /// (пик — 153 клиента за одну сборку индекса Mercadona); сервис —
+  /// синглтон приложения, собственный клиент живёт столько же.
+  http.Client get _effectiveClient {
+    final injected = _client;
+    if (injected != null) return injected;
+    return _ownClient ??= http.Client();
+  }
+
+  /// Закрыть собственный клиент (инжектированный извне не наш — не трогаем).
+  void dispose() => _ownClient?.close();
+
   final Duration timeout;
 
   /// Поиск по названию по всей сети Aldi Süd (магазины через
@@ -148,7 +163,7 @@ class AldiService {
     final http.Response response;
     try {
       // ВАЖНО: без кастомного User-Agent (см. шапку библиотеки).
-      response = await (_client ?? http.Client())
+      response = await _effectiveClient
           .get(uri, headers: {'Accept': 'application/json'})
           .timeout(timeout);
     } on Exception catch (e) {

@@ -668,6 +668,12 @@ abstract class AppLocalizations {
   /// **'Could not recognize any items. Try a sharper photo or add products manually.'**
   String get receiptNotFound;
 
+  /// No description provided for @receiptOcrNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt OCR recognizes Latin script; Cyrillic receipts may fail — enter items manually.'**
+  String get receiptOcrNote;
+
   /// No description provided for @receiptEditHint.
   ///
   /// In en, this message translates to:
@@ -1310,11 +1316,17 @@ abstract class AppLocalizations {
   /// **'Fish'**
   String get allergenFish;
 
-  /// No description provided for @allergenShellfish.
+  /// No description provided for @allergenCrustaceans.
   ///
   /// In en, this message translates to:
-  /// **'Shellfish'**
-  String get allergenShellfish;
+  /// **'Crustaceans (shrimp, crab)'**
+  String get allergenCrustaceans;
+
+  /// No description provided for @allergenMolluscs.
+  ///
+  /// In en, this message translates to:
+  /// **'Molluscs (mussels, squid, oysters)'**
+  String get allergenMolluscs;
 
   /// No description provided for @allergenNuts.
   ///

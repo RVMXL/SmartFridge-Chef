@@ -327,6 +327,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не удалось распознать товары. Попробуйте фото чётче или добавьте продукты вручную.';
 
   @override
+  String get receiptOcrNote =>
+      'Распознавание чеков работает для латиницы; кириллические чеки могут не распознаться — введите позиции вручную.';
+
+  @override
   String get receiptEditHint =>
       'Проверьте названия — OCR может ошибаться. Снимите выделение с лишних строк.';
 
@@ -699,7 +703,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get allergenFish => 'Рыба';
 
   @override
-  String get allergenShellfish => 'Моллюски';
+  String get allergenCrustaceans => 'Ракообразные (креветки, крабы)';
+
+  @override
+  String get allergenMolluscs => 'Моллюски (мидии, кальмары, устрицы)';
 
   @override
   String get allergenNuts => 'Орехи';

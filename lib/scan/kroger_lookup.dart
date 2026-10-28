@@ -83,15 +83,19 @@ List<KrogerLocation> parseKrogerLocationsJson(Map<String, dynamic> json) {
 
     result.add(KrogerLocation(
       locationId: id,
-      name: field(item['name'] as String?) ?? 'Kroger',
-      chain: field(item['chain'] as String?) ?? '',
+      name: field(jsonStr(item['name'])) ?? 'Kroger',
+      chain: field(jsonStr(item['chain'])) ?? '',
       addressLine: field(address is Map<String, dynamic>
-          ? address['addressLine1'] as String?
+          ? jsonStr(address['addressLine1'])
           : null),
       city: field(
-          address is Map<String, dynamic> ? address['city'] as String? : null),
+          address is Map<String, dynamic>
+              ? jsonStr(address['city'])
+              : null),
       state: field(
-          address is Map<String, dynamic> ? address['state'] as String? : null),
+          address is Map<String, dynamic>
+              ? jsonStr(address['state'])
+              : null),
       zipCode: field(address is Map<String, dynamic>
           ? address['zipCode']?.toString()
           : null),
@@ -111,7 +115,7 @@ List<PriceHit> parseKrogerProductsJson(Map<String, dynamic> json) {
   final hits = <PriceHit>[];
   for (final item in raw) {
     if (item is! Map<String, dynamic>) continue;
-    final name = (item['description'] as String?)?.trim() ?? '';
+    final name = (jsonStr(item['description']) ?? '').trim();
     if (name.isEmpty) continue;
 
     // Цена лежит в items[].price (regular/promo); товаров-вариантов может
@@ -144,7 +148,7 @@ List<PriceHit> parseKrogerProductsJson(Map<String, dynamic> json) {
       price: current,
       oldPrice: promoActive ? regular : null,
       isAvailable: instore is bool ? instore : true,
-      packageQuantity: _cleanText(item['size'] as String?),
+      packageQuantity: _cleanText(jsonStr(item['size'])),
       currencySymbol: r'$',
     ));
   }
@@ -167,12 +171,24 @@ class KrogerService {
   static const String _scope = 'product.compact';
 
   final http.Client? _client;
+  http.Client? _ownClient;
   final Duration timeout;
 
   String? _cachedToken;
   DateTime _cachedUntil = DateTime.fromMillisecondsSinceEpoch(0);
 
-  http.Client get _effectiveClient => _client ?? http.Client();
+  /// NET-1 (аудит 2026-10-28): один переиспользуемый клиент на сервис.
+  /// http.Client() на каждый запрос утекал вместе с keep-alive-пулом
+  /// (пик — 153 клиента за одну сборку индекса Mercadona); сервис —
+  /// синглтон приложения, собственный клиент живёт столько же.
+  http.Client get _effectiveClient {
+    final injected = _client;
+    if (injected != null) return injected;
+    return _ownClient ??= http.Client();
+  }
+
+  /// Закрыть собственный клиент (инжектированный извне не наш — не трогаем).
+  void dispose() => _ownClient?.close();
 
   /// Сервисный Bearer-токен (client_credentials) с кэшем в памяти.
   /// Бросает [PriceUnavailable] с reason auth при 401/403.

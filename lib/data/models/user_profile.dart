@@ -59,7 +59,12 @@ enum Allergen {
   milk('milk'),
   eggs('eggs'),
   fish('fish'),
-  shellfish('shellfish'),
+  /// Ракообразные (креветки, крабы, лангусты) — отдельный аллерген ЕС
+  /// (LEG-2, аудит 2026-10-28: раньше был слит с моллюсками в один чип).
+  crustaceans('crustaceans'),
+
+  /// Моллюски (мидии, устрицы, кальмары) — отдельный аллерген ЕС.
+  molluscs('molluscs'),
   nuts('nuts'),
   peanuts('peanuts'),
   soy('soy'),
@@ -127,10 +132,15 @@ enum Allergen {
   const Allergen(this.key);
   final String key;
 
-  static Allergen fromKey(String key) => values.firstWhere(
-        (a) => a.key == key,
-        orElse: () => Allergen.milk,
-      );
+  /// Неизвестный/повреждённый ключ → null (ключ отбрасывается), а не
+  /// «аллергия на молоко по умолчанию»: default-ветка с молоком внезапно
+  /// выкидывала 210 рецептов плана без объяснения (AI-7, аудит 2026-10-28).
+  static Allergen? fromKey(String key) {
+    for (final a in values) {
+      if (a.key == key) return a;
+    }
+    return null;
+  }
 }
 
 /// Правило «не люблю и не покупаю» (v0.5.4).
@@ -337,8 +347,15 @@ class UserProfile {
       fatG: (map['fat_g'] as int?) ?? 67,
       carbsG: (map['carbs_g'] as int?) ?? 200,
       diets: diets,
-      allergies:
-          rawAllergies.map((k) => Allergen.fromKey(k as String)).toList(),
+      allergies: [
+        for (final raw in rawAllergies)
+          // LEG-2 (аудит 2026-10-28): чип «shellfish» старых профилей
+          // покрывал и ракообразных, и моллюсков — пользователь получает
+          // оба новых чипа (консервативно: покрытие не сужается).
+          ...(raw == 'shellfish'
+              ? const [Allergen.crustaceans, Allergen.molluscs]
+              : [?Allergen.fromKey(raw as String)]),
+      ],
       dislikes: rawDislikes
           .map((d) =>
               DislikeRule.fromJson(d as Map<String, Object?>))

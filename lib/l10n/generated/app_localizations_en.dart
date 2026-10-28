@@ -325,6 +325,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not recognize any items. Try a sharper photo or add products manually.';
 
   @override
+  String get receiptOcrNote =>
+      'Receipt OCR recognizes Latin script; Cyrillic receipts may fail — enter items manually.';
+
+  @override
   String get receiptEditHint =>
       'Check the names — OCR can be wrong. Uncheck the lines you do not need.';
 
@@ -696,7 +700,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allergenFish => 'Fish';
 
   @override
-  String get allergenShellfish => 'Shellfish';
+  String get allergenCrustaceans => 'Crustaceans (shrimp, crab)';
+
+  @override
+  String get allergenMolluscs => 'Molluscs (mussels, squid, oysters)';
 
   @override
   String get allergenNuts => 'Nuts';

@@ -124,13 +124,98 @@ void main() {
       }
     });
 
+    test('матрица стол × слот: у каждого стола достаточно кандидатов '
+        'в каждом слоте недельного плана (AI-1)', () async {
+      // Слоты и категории — как в CalorieTarget.slotCategories:
+      // завтрак = breakfast; обед и ужин = soup/main/salad (14 приёмов
+      // в неделю); полдник = snack/dessert. Недельный план использует
+      // каждый слот ~7 раз, поэтому порог завтрака/полдника — 10/5,
+      // обеда и ужина — 14 (с запасом на вырожденные профили).
+      final raw =
+          jsonDecode(await File('assets/data/recipes.json').readAsString())
+              as Map<String, Object?>;
+      final recipes =
+          (raw['recipes'] as List<dynamic>).cast<Map<String, Object?>>();
+      const slotCategories = {
+        'завтрак': ['breakfast'],
+        'обед и ужин': ['soup', 'main', 'salad'],
+        'полдник': ['snack', 'dessert'],
+      };
+      const thresholds = {
+        'завтрак': 10,
+        'обед и ужин': 14,
+        'полдник': 5,
+      };
+      final pools = <int, Map<String, int>>{};
+      for (final d in medicalDiets) {
+        final bySlot = <String, int>{};
+        slotCategories.forEach((slot, categories) {
+          bySlot[slot] = recipes
+              .where((r) => categories.contains(r['category']))
+              .where((r) => !(r['ingredients'] as List<dynamic>).any(
+                  (i) => d.forbiddenKeys
+                      .contains((i as Map<String, Object?>)['key'])))
+              .length;
+        });
+        pools[d.number] = bySlot;
+        bySlot.forEach((slot, pool) {
+          expect(pool, greaterThanOrEqualTo(thresholds[slot]!),
+              reason: 'стол №${d.number}, слот "$slot": пул $pool — '
+                  'недельный план повторяется, смягчите запреты');
+        });
+      }
+      // Контрольные точки (механический пересчёт по базе 554 и запретам
+      // после щадящей калибровки AI-1; сессия аудита считала 343/237 без
+      // учёта салатов/финальной базы — сверено скриптом).
+      expect(pools[4]!['завтрак'], 22);
+      expect(pools[12]!['обед и ужин'], 377);
+      expect(pools[13]!['обед и ужин'], 250);
+      expect(pools[14]!['завтрак'], 10);
+      expect(pools[14]!['полдник'], 6);
+    });
+
+    test('REC-1: топ-комбинации аллергий и диет оставляют >= 5 завтраков',
+        () async {
+      final raw =
+          jsonDecode(await File('assets/data/recipes.json').readAsString())
+              as Map<String, Object?>;
+      final recipes = (raw['recipes'] as List<dynamic>)
+          .cast<Map<String, Object?>>()
+          .where((r) => r['category'] == 'breakfast')
+          .toList();
+      int breakfasts({List<String> allergens = const [], bool vegan = false}) {
+        return recipes
+            .where((r) => !(r['allergens'] as List<dynamic>)
+                .any(allergens.contains))
+            .where((r) => !vegan || (r['flags']
+                as Map<String, Object?>)['vegan'] == true)
+            .length;
+      }
+
+      expect(breakfasts(allergens: ['milk']), greaterThanOrEqualTo(5),
+          reason: 'аллергия на молоко');
+      expect(breakfasts(allergens: ['milk', 'eggs']), greaterThanOrEqualTo(5),
+          reason: 'молоко + яйца');
+      expect(
+          breakfasts(allergens: ['milk', 'eggs', 'wheat']),
+          greaterThanOrEqualTo(5),
+          reason: 'молоко + яйца + пшеница');
+      expect(breakfasts(vegan: true), greaterThanOrEqualTo(5),
+          reason: 'веганская диета');
+      expect(breakfasts(vegan: true, allergens: ['wheat']),
+          greaterThanOrEqualTo(5),
+          reason: 'веган + пшеница');
+    });
+
     test('таблица калибровки: пул каждого стола совпадает с ожидаемым',
         () async {
       // Значения из scripts/pevzner_coverage.py (v0.5.9). При изменении
       // списков запретов или базы рецептов обновите ожидания осознанно.
+      // Обновлено (v0.5.11): щадящая калибровка столов 4/12/13/14
+      // (AI-1, аудит 2026-10-28) + 13 новых рецептов (REC-1).
       final expected = {
-        1: 408, 2: 417, 3: 457, 4: 197, 5: 418, 6: 384, 7: 444, 8: 330,
-        9: 432, 10: 437, 12: 132, 13: 81, 14: 108,
+        1: 421, 2: 430, 3: 468, 4: 208, 5: 431, 6: 397, 7: 457, 8: 332,
+        9: 435, 10: 450, 12: 516, 13: 348, 14: 122,
       };
       final raw =
           jsonDecode(await File('assets/data/recipes.json').readAsString())
