@@ -1001,6 +1001,53 @@ class AppLocalizationsRu extends AppLocalizations {
   String get priceSearching => 'Ищем цену…';
 
   @override
+  String get unitKcal => 'ккал';
+
+  @override
+  String get unitP => 'Б';
+
+  @override
+  String get unitF => 'Ж';
+
+  @override
+  String get unitC => 'У';
+
+  @override
+  String get perServing => '(на порцию)';
+
+  @override
+  String get planErrorGenerate => 'Не удалось сгенерировать меню';
+
+  @override
+  String get planErrorSave => 'Не удалось сохранить план';
+
+  @override
+  String get planErrorHistory => 'Не удалось загрузить историю планов';
+
+  @override
+  String get planErrorOpen => 'Не удалось открыть план';
+
+  @override
+  String get planErrorDelete => 'Не удалось удалить план';
+
+  @override
+  String get planErrorShopping => 'Не удалось обновить список покупок';
+
+  @override
+  String get medicalDisclaimer =>
+      'Приложение не заменяет консультацию врача: лечебный стол назначает специалист. Жёсткий фильтр не заменяет чтение этикетки на упаковке.';
+
+  @override
+  String get priceSourceUnofficial => 'неофициальный источник';
+
+  @override
+  String get resetDeviceId => 'Сбросить идентификатор запросов';
+
+  @override
+  String get resetDeviceIdDone =>
+      'Идентификатор сброшен — при следующем запросе будет новый';
+
+  @override
   String priceIndexProgress(int done, int total) {
     return 'Собираю индекс каталога: $done из $total';
   }

@@ -10,6 +10,7 @@ import '../../data/models/user_profile.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../notifications/reminder_scheduler.dart';
 import '../../scan/kroger_lookup.dart';
+import '../../scan/pyaterochka_lookup.dart';
 import '../../scan/wegmans_lookup.dart';
 import '../../state/profile_controller.dart';
 import '../../state/product_controller.dart';
@@ -162,7 +163,9 @@ class SettingsScreen extends StatelessWidget {
                       items: [
                         DropdownMenuItem(
                           value: 'pyaterochka',
-                          child: Text(l.priceSourcePyat),
+                          // LEG-5/LEG-6 (аудит 2026-10-28): честная
+                          // маркировка неофициальных источников.
+                          child: Text('${l.priceSourcePyat} · ${l.priceSourceUnofficial}'),
                         ),
                         DropdownMenuItem(
                           value: 'kroger',
@@ -174,11 +177,15 @@ class SettingsScreen extends StatelessWidget {
                         ),
                         DropdownMenuItem(
                           value: 'mercadona',
-                          child: Text(l.priceSourceMercadona),
+                          // LEG-5/LEG-6 (аудит 2026-10-28): честная
+                          // маркировка неофициальных источников.
+                          child: Text('${l.priceSourceMercadona} · ${l.priceSourceUnofficial}'),
                         ),
                         DropdownMenuItem(
                           value: 'aldi',
-                          child: Text(l.priceSourceAldi),
+                          // LEG-5/LEG-6 (аудит 2026-10-28): честная
+                          // маркировка неофициальных источников.
+                          child: Text('${l.priceSourceAldi} · ${l.priceSourceUnofficial}'),
                         ),
                         DropdownMenuItem(
                           value: 'wegmans',
@@ -190,7 +197,7 @@ class SettingsScreen extends StatelessWidget {
                       },
                     ),
                     if (settings.priceSourceKind == 'pyaterochka')
-                      _buildPyaterochkaConfig(l, theme, settings),
+                      _buildPyaterochkaConfig(context, l, theme, settings),
                     if (settings.priceSourceKind == 'kroger')
                       _buildKrogerConfig(context, l, theme, settings),
                     if (settings.priceSourceKind == 'open_prices')
@@ -282,8 +289,8 @@ class SettingsScreen extends StatelessWidget {
   }
 
   /// Конфиг Пятёрочки: SAP-код магазина + подсказки (без изменений с 0.5.5).
-  Widget _buildPyaterochkaConfig(
-      AppLocalizations l, ThemeData theme, SettingsController settings) {
+  Widget _buildPyaterochkaConfig(BuildContext context, AppLocalizations l,
+      ThemeData theme, SettingsController settings) {
     return Column(
       children: [
         TextFormField(
@@ -293,6 +300,22 @@ class SettingsScreen extends StatelessWidget {
             hintText: '35XY',
           ),
           onChanged: settings.setPyaterochkaStoreCode,
+        ),
+        // SEC-4 (аудит 2026-10-28): опция сброса анонимного идентификатора
+        // — X5 теряет связность истории запросов устройства.
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton(
+            onPressed: () async {
+              await context.read<PyaterochkaService>().resetDeviceId();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l.resetDeviceIdDone)),
+                );
+              }
+            },
+            child: Text(l.resetDeviceId),
+          ),
         ),
         Padding(
           padding: const EdgeInsets.only(top: 8, bottom: 4),

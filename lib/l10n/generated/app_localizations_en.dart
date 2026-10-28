@@ -996,6 +996,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String get priceSearching => 'Searching for a price…';
 
   @override
+  String get unitKcal => 'kcal';
+
+  @override
+  String get unitP => 'P';
+
+  @override
+  String get unitF => 'F';
+
+  @override
+  String get unitC => 'C';
+
+  @override
+  String get perServing => '(per serving)';
+
+  @override
+  String get planErrorGenerate => 'Failed to generate the menu';
+
+  @override
+  String get planErrorSave => 'Failed to save the plan';
+
+  @override
+  String get planErrorHistory => 'Failed to load plan history';
+
+  @override
+  String get planErrorOpen => 'Failed to open the plan';
+
+  @override
+  String get planErrorDelete => 'Failed to delete the plan';
+
+  @override
+  String get planErrorShopping => 'Failed to update the shopping list';
+
+  @override
+  String get medicalDisclaimer =>
+      'This app does not replace professional advice: a therapeutic diet must be prescribed by a doctor. The strict filter is not a substitute for reading the label.';
+
+  @override
+  String get priceSourceUnofficial => 'unofficial source';
+
+  @override
+  String get resetDeviceId => 'Reset request identifier';
+
+  @override
+  String get resetDeviceIdDone =>
+      'Identifier reset — a new one will be used for the next request';
+
+  @override
   String priceIndexProgress(int done, int total) {
     return 'Building catalog index: $done of $total';
   }

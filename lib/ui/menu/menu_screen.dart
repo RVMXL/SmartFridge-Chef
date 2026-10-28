@@ -34,6 +34,18 @@ class _MenuScreenState extends State<MenuScreen> {
     });
   }
 
+  /// ST-1 (аудит 2026-10-28): ошибки планера локализуются через ARB —
+  /// EN-пользователь больше не получает русские хардкоды контроллера.
+  String _planErrorMessage(AppLocalizations l, PlanError? e) => switch (e) {
+        PlanError.generate => l.planErrorGenerate,
+        PlanError.save => l.planErrorSave,
+        PlanError.history => l.planErrorHistory,
+        PlanError.open => l.planErrorOpen,
+        PlanError.delete => l.planErrorDelete,
+        PlanError.shopping => l.planErrorShopping,
+        null => '',
+      };
+
   void _snack(String text) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
@@ -44,7 +56,7 @@ class _MenuScreenState extends State<MenuScreen> {
     if (!mounted) return;
     final l = AppLocalizations.of(context);
     if (controller.phase == PlanPhase.error) {
-      _snack('${l.menuPlanError}: ${controller.error ?? ''}');
+      _snack(_planErrorMessage(l, controller.error));
     }
   }
 
@@ -78,7 +90,7 @@ class _MenuScreenState extends State<MenuScreen> {
         PlanPhase.error => EmptyState(
             icon: Icons.error_outline,
             title: l.menuPlanError,
-            body: plan.error ?? '',
+            body: _planErrorMessage(l, plan.error),
             action: FilledButton(
               onPressed: () => _generate(fresh: true),
               child: Text(l.menuGenerateShort),
@@ -329,8 +341,8 @@ class _DayCard extends StatelessWidget {
         childrenPadding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
         title: Text(fmt.format(day.date)),
         subtitle: Text(
-          '${day.kcalTotal} ${localeTag.startsWith('ru') ? 'ккал' : 'kcal'} · '
-          'Б/P ${day.proteinTotal} · Ж/F ${day.fatTotal} · У/C ${day.carbsTotal}',
+          '${day.kcalTotal} ${l.unitKcal} · '
+          '${l.unitP}/${l.unitF}/${l.unitC} ${day.proteinTotal}/${day.fatTotal}/${day.carbsTotal}',
           style: theme.textTheme.bodySmall,
         ),
         children: [
@@ -356,7 +368,7 @@ class _DayCard extends StatelessWidget {
                   color: theme.colorScheme.primary),
               title: Text(meal.recipe.title(localeTag)),
               subtitle: Text(
-                '${slotLabel(l, meal.slot)} · ${meal.kcal} ${localeTag.startsWith('ru') ? 'ккал' : 'kcal'}'
+                '${slotLabel(l, meal.slot)} · ${meal.kcal} ${l.unitKcal}'
                 '${meal.usesExpiring.isEmpty ? '' : ' · ★ ${meal.usesExpiring.length}'}',
                 style: theme.textTheme.bodySmall,
               ),
@@ -427,7 +439,7 @@ class RecipeSheet extends StatelessWidget {
                 avatar: const Icon(Icons.local_fire_department_outlined,
                     size: 16),
                 label: Text(
-                    '${recipe.kcal} ${localeTag.startsWith('ru') ? 'ккал' : 'kcal'}'),
+                    '${recipe.kcal} ${l.unitKcal}'),
               ),
               Chip(
                 avatar: const Icon(Icons.schedule, size: 16),
@@ -441,7 +453,7 @@ class RecipeSheet extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Б/P ${recipe.protein} · Ж/F ${recipe.fat} · У/C ${recipe.carbs} ${localeTag.startsWith('ru') ? '(на порцию)' : '(per serving)'}',
+            '${l.unitP}/${l.unitF}/${l.unitC} ${recipe.protein}/${recipe.fat}/${recipe.carbs} ${l.perServing}',
             style: theme.textTheme.bodySmall
                 ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
@@ -465,7 +477,7 @@ class RecipeSheet extends StatelessWidget {
                     child: Text(
                         localeTag.startsWith('ru') ? ing.ru : ing.en),
                   ),
-                  Text('${ing.grams} ${localeTag.startsWith('ru') ? 'г' : 'g'}',
+                  Text('${ing.grams} ${l.unitGram}',
                       style: theme.textTheme.bodySmall),
                 ],
               ),

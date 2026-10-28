@@ -36,7 +36,7 @@ class AppDatabase {
   AppDatabase._();
 
   static const String dbName = 'smart_fridge.db';
-  static const int dbVersion = 8;
+  static const int dbVersion = 9;
 
   /// Открывает базу.
   ///
@@ -78,6 +78,8 @@ class AppDatabase {
     createV6Columns(batch);
     createV7Columns(batch);
     createV8Tables(batch);
+    // v9 (UI-6): валюта цены продукта.
+    batch.execute('ALTER TABLE products ADD COLUMN currency TEXT;');
     await batch.commit(noResult: true);
   }
 
@@ -130,6 +132,11 @@ class AppDatabase {
       final batch = db.batch();
       createV8Tables(batch);
       await batch.commit(noResult: true);
+    }
+    if (oldVersion < 9) {
+      // v8 -> v9: валюта цены продукта (UI-6, аудит 2026-10-28) —
+      // карточка холодильника может показать валюту источника, а не ₽.
+      await db.execute('ALTER TABLE products ADD COLUMN currency TEXT;');
     }
     assert(oldVersion >= 1 && newVersion == dbVersion,
         'Неизвестная версия: $oldVersion -> $newVersion');

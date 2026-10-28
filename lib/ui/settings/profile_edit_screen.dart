@@ -244,6 +244,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant),
           ),
+          // LEG-4 (аудит 2026-10-28): общий дисклеймер в справке профиля —
+          // «не заменяет консультацию специалиста / чтение этикетки».
+          const SizedBox(height: 8),
+          Text(
+            l.medicalDisclaimer,
+            style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontStyle: FontStyle.italic),
+          ),
 
           SectionHeader(l.profileDislikes),
           Text(

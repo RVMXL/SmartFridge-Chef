@@ -42,6 +42,22 @@ class ProductController extends ChangeNotifier {
   /// Поисковый запрос (регистронезависимое вхождение в название).
   String get query => _query;
 
+  /// UI-4 (аудит 2026-10-28): открыт ли режим поиска. Флаг живёт в
+  /// контроллере вместе с запросом — экран не может «разойтись» с
+  /// отфильтрованным списком после ухода/возврата.
+  bool get searchOpen => _searchOpen;
+  bool _searchOpen = false;
+
+  void setSearchOpen(bool open) {
+    _searchOpen = open;
+    if (!open) {
+      _query = '';
+      notifyListeners();
+      return;
+    }
+    notifyListeners();
+  }
+
   FridgeSort get sort => _sort;
 
   void setQuery(String value) {

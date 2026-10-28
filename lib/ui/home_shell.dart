@@ -25,11 +25,18 @@ class _HomeShellState extends State<HomeShell> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return Scaffold(
-      body: switch (_tab) {
-        0 => const FridgeScreen(),
-        1 => const MenuScreen(),
-        _ => const SettingsScreen(),
-      },
+      // UI-3 (аудит 2026-10-28): IndexedStack вместо switch — вкладки не
+      // пересоздаются при переключении: сохраняются скролл, режим поиска и
+      // состояние виджетов; не дёргаются FridgeScreen.initState→refresh()
+      // (БД + полный resync пушей) и MenuScreen→loadHistory() на каждый вход.
+      body: IndexedStack(
+        index: _tab,
+        children: const [
+          FridgeScreen(),
+          MenuScreen(),
+          SettingsScreen(),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
         onDestinationSelected: (i) => setState(() => _tab = i),

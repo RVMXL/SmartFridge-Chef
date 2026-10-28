@@ -88,6 +88,7 @@ class Product {
     this.price,
     this.priceUpdatedAt,
     this.priceSource,
+    this.currency,
   });
 
   final int? id;
@@ -124,6 +125,10 @@ class Product {
   /// в каталоге магазина; без сети продукт остаётся полноценным.
   final double? price;
 
+  /// UI-6 (аудит 2026-10-28): символ валюты цены (₽/$/€ по источнику).
+  /// null — цена без источника или старая запись; карточка показывает ₽.
+  final String? currency;
+
   /// Момент последнего обновления цены (для показа «актуально на…»).
   final DateTime? priceUpdatedAt;
 
@@ -158,6 +163,7 @@ class Product {
     bool clearPriceUpdatedAt = false,
     String? priceSource,
     bool clearPriceSource = false,
+    String? currency,
   }) {
     return Product(
       id: id ?? this.id,
@@ -179,6 +185,7 @@ class Product {
           ? null
           : (priceUpdatedAt ?? this.priceUpdatedAt),
       priceSource: clearPriceSource ? null : (priceSource ?? this.priceSource),
+      currency: clearPrice ? null : (currency ?? this.currency),
     );
   }
 
@@ -200,6 +207,7 @@ class Product {
         'price': price,
         'price_updated_at': priceUpdatedAt?.toIso8601String(),
         'price_source': priceSource,
+        if (currency != null) 'currency': currency,
       };
 
   static Product fromMap(Map<String, Object?> map) => Product(
@@ -222,6 +230,7 @@ class Product {
             ? null
             : DateTime.parse(map['price_updated_at'] as String),
         priceSource: map['price_source'] as String?,
+        currency: map['currency'] as String?,
       );
 
   /// Дата в виде `yyyy-MM-dd` — лексикографический порядок строк

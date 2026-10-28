@@ -5,6 +5,8 @@
 /// без серверов, без аккаунтов.
 library;
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -55,8 +57,14 @@ void main() async {
   final productController = ProductController(
     openDb: AppDataStore.instance.database,
     reminderSync: reminderSync,
-    localeTag: () =>
-        settings.language == 'system' ? 'ru' : settings.language,
+    // ST-2 (аудит 2026-10-28): при языке «как в системе» локаль читается
+    // из системы, а не захардкожена на русский — EN-система получала
+    // интерфейс на английском, а пуши на русском.
+    localeTag: () => settings.language != 'system'
+        ? settings.language
+        : (Platform.localeName.toLowerCase().startsWith('ru')
+            ? 'ru'
+            : 'en'),
   );
   final profileController = ProfileController(
     openDb: AppDataStore.instance.database,

@@ -1850,6 +1850,96 @@ abstract class AppLocalizations {
   /// **'Searching for a price…'**
   String get priceSearching;
 
+  /// No description provided for @unitKcal.
+  ///
+  /// In en, this message translates to:
+  /// **'kcal'**
+  String get unitKcal;
+
+  /// No description provided for @unitP.
+  ///
+  /// In en, this message translates to:
+  /// **'P'**
+  String get unitP;
+
+  /// No description provided for @unitF.
+  ///
+  /// In en, this message translates to:
+  /// **'F'**
+  String get unitF;
+
+  /// No description provided for @unitC.
+  ///
+  /// In en, this message translates to:
+  /// **'C'**
+  String get unitC;
+
+  /// No description provided for @perServing.
+  ///
+  /// In en, this message translates to:
+  /// **'(per serving)'**
+  String get perServing;
+
+  /// No description provided for @planErrorGenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to generate the menu'**
+  String get planErrorGenerate;
+
+  /// No description provided for @planErrorSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save the plan'**
+  String get planErrorSave;
+
+  /// No description provided for @planErrorHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load plan history'**
+  String get planErrorHistory;
+
+  /// No description provided for @planErrorOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to open the plan'**
+  String get planErrorOpen;
+
+  /// No description provided for @planErrorDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete the plan'**
+  String get planErrorDelete;
+
+  /// No description provided for @planErrorShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update the shopping list'**
+  String get planErrorShopping;
+
+  /// No description provided for @medicalDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'This app does not replace professional advice: a therapeutic diet must be prescribed by a doctor. The strict filter is not a substitute for reading the label.'**
+  String get medicalDisclaimer;
+
+  /// No description provided for @priceSourceUnofficial.
+  ///
+  /// In en, this message translates to:
+  /// **'unofficial source'**
+  String get priceSourceUnofficial;
+
+  /// No description provided for @resetDeviceId.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset request identifier'**
+  String get resetDeviceId;
+
+  /// No description provided for @resetDeviceIdDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Identifier reset — a new one will be used for the next request'**
+  String get resetDeviceIdDone;
+
   /// No description provided for @priceIndexProgress.
   ///
   /// In en, this message translates to:

@@ -1,1 +1,5 @@
+/* PLAT-1 (аудит 2026-10-28): usage-описания локализованы для App Store-ревью.
+   Root Info.plist держит RU-тексты как дефолт; en-система читает этот файл. */
 "CFBundleDisplayName" = "Smart Fridge";
+"NSCameraUsageDescription" = "The camera is needed to scan product barcodes and photograph receipts. Everything is processed on the device and is never sent anywhere.";
+"NSPhotoLibraryUsageDescription" = "The photo library is needed to recognize a receipt from a saved photo. The image is processed on the device.";

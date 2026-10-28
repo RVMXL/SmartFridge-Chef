@@ -54,7 +54,10 @@ Future<void> _saveSheetResult(
 }
 
 class _FridgeScreenState extends State<FridgeScreen> {
-  bool _searching = false;
+  // UI-4: режим поиска и запрос живут в ProductController — экран только
+  // отражает состояние и синхронизирует поле ввода.
+  bool get _searching => context.watch<ProductController>().searchOpen;
+
   final _searchCtrl = TextEditingController();
 
   @override
@@ -62,7 +65,10 @@ class _FridgeScreenState extends State<FridgeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<ProductController>().refresh();
+      final ctrl = context.read<ProductController>();
+      // UI-4: поле поиска отражает состояние контроллера, а не наоборот.
+      _searchCtrl.text = ctrl.query;
+      ctrl.refresh();
     });
   }
 
@@ -295,9 +301,12 @@ class _FridgeScreenState extends State<FridgeScreen> {
     final langCode = Localizations.localeOf(context).languageCode;
     // Запрос стартует до диалога, чтобы кэш-попадание почти не мигало.
     final lookupFuture = lookup.lookup(barcode, langCode: langCode);
+    // UI-7 (аудит 2026-10-28): диалог отменяемый — тап мимо и кнопка
+    // «Отмена» закрывают его; при медленной сети пользователь больше не
+    // заперт на крутке до таймаута 6 с.
     final found = await showDialog<BarcodeLookupResult>(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       builder: (_) => _BarcodeLookupDialog(future: lookupFuture),
     );
     if (!mounted) return;
@@ -352,13 +361,16 @@ class _FridgeScreenState extends State<FridgeScreen> {
           IconButton(
             icon: Icon(_searching ? Icons.close : Icons.search),
             onPressed: () {
-              setState(() {
-                _searching = !_searching;
-                if (!_searching) {
-                  _searchCtrl.clear();
-                  ctrl.setQuery('');
-                }
-              });
+              final open = !ctrl.searchOpen;
+              ctrl.setSearchOpen(open);
+              if (!open) {
+                _searchCtrl.clear();
+              } else {
+                // Вернулись в режим поиска — поле отражает запрос,
+                // по которому уже отфильтрован список.
+                _searchCtrl.text = ctrl.query;
+              }
+              setState(() {});
             },
           ),
           PopupMenuButton<FridgeSort>(
@@ -625,7 +637,8 @@ class _ProductCard extends StatelessWidget {
                 subtitle: Text(
                   '${categoryLabel(l, product.category)} · '
                   '${quantityText(l, product)}'
-                  '${product.price == null ? '' : ' · ${product.price!.toStringAsFixed(2)} ₽'}\n'
+                  // UI-6: валюта из источника цены (₽/$/€), ₽ — дефолт.
+                  '${product.price == null ? '' : ' · ${product.price!.toStringAsFixed(2)} ${product.currency ?? "₽"}'}\n'
                   '${l.expiryOn(dateFmt.format(product.expiryDate))} — '
                   '${freshness == Freshness.expired ? l.freshnessExpired : l.daysLeft(left)}',
                   maxLines: 2,
@@ -701,6 +714,13 @@ class _BarcodeLookupDialog extends StatelessWidget {
               Expanded(child: Text(l.scanLookupWaiting)),
             ],
           ),
+          // UI-7: явная отмена наряду с barrierDismissible.
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l.commonCancel),
+            ),
+          ],
         );
       },
     );

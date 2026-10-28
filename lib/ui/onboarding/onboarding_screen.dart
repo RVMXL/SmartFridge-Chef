@@ -116,6 +116,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   _Step(
                     title: l.onbStep2Title,
                     subtitle: l.onbStep2Body,
+                    footnote: l.medicalDisclaimer,
                     onNext: _next,
                     child: _DietStep(
                       diets: _diets,
@@ -235,12 +236,18 @@ class _Step extends StatelessWidget {
     required this.child,
     required this.onNext,
     this.subtitle,
+    this.footnote,
   });
 
   final String title;
   final String? subtitle;
   final Widget child;
   final VoidCallback onNext;
+
+  /// LEG-4 (аудит 2026-10-28): общий дисклеймер — «не заменяет
+  /// консультацию специалиста / чтение этикетки». Обязателен на шаге
+  /// аллергий/диет/столов.
+  final String? footnote;
 
   @override
   Widget build(BuildContext context) {
@@ -261,6 +268,14 @@ class _Step extends StatelessWidget {
           ],
           const SizedBox(height: 24),
           child,
+          if (footnote != null) ...[
+            const SizedBox(height: 24),
+            Text(
+              footnote!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant),
+            ),
+          ],
         ],
       ),
     );

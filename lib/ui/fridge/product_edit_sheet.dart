@@ -422,6 +422,12 @@ class _ProductEditSheetState extends State<ProductEditSheet> {
           ? DateTime.now()
           : null,
       priceSource: freshSource,
+      // UI-6 (аудит 2026-10-28): валюта следует источнику цены —
+      // карточка холодильника показывает её, а не жёсткий ₽.
+      // Ручной ввод цены сбрасывает валюту (неизвестна).
+      currency: _priceTouched
+          ? null
+          : _priceHit?.currencySymbol ?? base.currency,
     );
     Navigator.of(context).pop(product);
   }

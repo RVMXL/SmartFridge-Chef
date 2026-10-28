@@ -31,8 +31,29 @@ enum PlanPhase {
   /// План готов и сохранён в базу.
   saved,
 
-  /// Ошибка (текст в [PlanController.error]).
   error,
+}
+
+/// ST-1 (аудит 2026-10-28): ошибки планера — не русские хардкоды, а вид,
+/// локализуемый в UI через ARB. Деталь (исключение) — только в логах.
+enum PlanError {
+  /// Генерация не удалась.
+  generate,
+
+  /// Сохранение не удалось.
+  save,
+
+  /// История не загрузилась.
+  history,
+
+  /// План не открылся.
+  open,
+
+  /// План не удалён.
+  delete,
+
+  /// Список покупок не обновился.
+  shopping,
 }
 
 class PlanController extends ChangeNotifier {
@@ -51,7 +72,9 @@ class PlanController extends ChangeNotifier {
   PlanPhase phase = PlanPhase.idle;
   GeneratedPlan? plan;
   List<PlanSummary> history = const [];
-  String? error;
+
+  /// ST-1: вид ошибки для локализации в UI (см. enum [PlanError]).
+  PlanError? error;
 
   /// Доступ к репозиторию рецептов для UI (детали блюда, счётчики).
   RecipeRepository get repository => _repo;
@@ -87,8 +110,9 @@ class PlanController extends ChangeNotifier {
       );
       plan = await _planner.generate(request);
       phase = PlanPhase.ready;
-    } catch (e) {
-      error = 'Не удалось сгенерировать меню: $e';
+    } catch (e, st) {
+      debugPrint('plan generate: $e\n$st');
+      error = PlanError.generate;
       phase = PlanPhase.error;
     }
     notifyListeners();
@@ -105,7 +129,7 @@ class PlanController extends ChangeNotifier {
       await loadHistory();
       return true;
     } catch (e) {
-      error = 'Не удалось сохранить план: $e';
+      error = PlanError.save;
       notifyListeners();
       return false;
     }
@@ -118,7 +142,7 @@ class PlanController extends ChangeNotifier {
       history = await dao.listPlans();
       notifyListeners();
     } catch (e) {
-      error = 'Не удалось загрузить историю: $e';
+      error = PlanError.history;
       notifyListeners();
     }
   }
@@ -134,7 +158,7 @@ class PlanController extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      error = 'Не удалось открыть план: $e';
+      error = PlanError.open;
       notifyListeners();
       return false;
     }
@@ -152,7 +176,7 @@ class PlanController extends ChangeNotifier {
       await loadHistory();
       return true;
     } catch (e) {
-      error = 'Не удалось удалить план: $e';
+      error = PlanError.delete;
       notifyListeners();
       return false;
     }
@@ -178,7 +202,7 @@ class PlanController extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      error = 'Не удалось обновить список покупок: $e';
+      error = PlanError.shopping;
       notifyListeners();
     }
   }
@@ -197,7 +221,7 @@ class PlanController extends ChangeNotifier {
       }
       return removed;
     } catch (e) {
-      error = 'Не удалось обновить список покупок: $e';
+      error = PlanError.shopping;
       notifyListeners();
       return 0;
     }
