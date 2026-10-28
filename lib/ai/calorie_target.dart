@@ -70,10 +70,12 @@ int slotTargetKcal(int dailyCalories, MealSplit split) =>
 
 /// Категории рецептов, подходящие слоту (жёсткое ограничение),
 /// и приоритетные категории (мягкий бонус скоринга).
+/// AI-2 (аудит 2026-10-28): гарниры (side) включены в обед/ужин —
+/// раньше 10 side-рецептов были недостижимы ни в одном слоте.
 const Map<MealSlot, List<String>> slotCategories = {
   MealSlot.breakfast: ['breakfast'],
-  MealSlot.lunch: ['soup', 'main', 'salad'],
-  MealSlot.dinner: ['main', 'salad', 'soup'],
+  MealSlot.lunch: ['soup', 'main', 'salad', 'side'],
+  MealSlot.dinner: ['main', 'salad', 'soup', 'side'],
   MealSlot.snack: ['snack', 'dessert'],
 };
 

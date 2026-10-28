@@ -350,6 +350,12 @@ class IngredientMatcher {
     final result = <String, FridgeKey>{};
     for (final p in products) {
       if (p.status != ProductStatus.active) continue;
+      // AI-4 (аудит 2026-10-28): просроченные продукты (daysLeft < 0) НЕ
+      // закрывают ингредиенты — просроченное молоко не должно «закрывать»
+      // овсянку и делать план безопасным лишь видимость. О предупреждении
+      // пользователю см. RuleBasedPlanner._buildWarnings.
+      final daysLeft = _daysLeft(p.expiryDate, today);
+      if (daysLeft < 0) continue;
       final key = matchProduct(p.name) ?? 'raw:${p.id ?? p.name}';
       final existing = result[key];
       final grams = _gramsOf(p);
@@ -357,7 +363,7 @@ class IngredientMatcher {
         result[key] = FridgeKey(
           key: key,
           productName: p.name,
-          daysLeft: _daysLeft(p.expiryDate, today),
+          daysLeft: daysLeft,
           grams: grams,
         );
         continue;
@@ -368,7 +374,7 @@ class IngredientMatcher {
       result[key] = FridgeKey(
         key: key,
         productName: existing.productName,
-        daysLeft: _minDays(existing.daysLeft, _daysLeft(p.expiryDate, today)),
+        daysLeft: _minDays(existing.daysLeft, daysLeft),
         grams: mergedGrams,
       );
     }
@@ -539,7 +545,16 @@ class IngredientMatcher {
   /// в холодильнике граммов не меньше, чем нужно рецепту (когда масса
   /// известна). Счётные позиции (штуки/упаковки) закрывают всегда —
   /// масса штуки непредсказуема без таблицы весов.
-  RecipeMatch matchRecipe(Recipe recipe, Map<String, FridgeKey> fridge) {
+  ///
+  /// [remaining] — остатки на текущий день плана (AI-5, аудит
+  /// 2026-10-28): планировщик списывает подобранные блюда по дням, и
+  /// следующие дни видят уменьшенный запас. Ключ есть для каждого
+  /// ключа холодильника; значение null — счётная позиция (не убывает).
+  RecipeMatch matchRecipe(
+    Recipe recipe,
+    Map<String, FridgeKey> fridge, {
+    Map<String, double?>? remaining,
+  }) {
     var relevant = 0;
     var matched = 0;
     final keys = <String>{};
@@ -549,7 +564,9 @@ class IngredientMatcher {
       relevant++;
       final fk = fridge[ing.key];
       if (fk == null) continue;
-      final have = fk.grams;
+      final have = remaining != null && remaining.containsKey(ing.key)
+          ? remaining[ing.key]
+          : fk.grams;
       if (have != null && have < ing.grams) continue; // мало — не закрывает
       matched++;
       keys.add(ing.key);

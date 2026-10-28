@@ -237,6 +237,32 @@ void main() {
     }
   });
 
+  test(
+      'REC-2/REC-3 (аудит 2026-10-28): флаги vegan/gluten_free согласованы '
+      'с аллергенами и деривациями', () {
+    // REC-2: веганское блюдо не может нести молочный/яичный аллерген —
+    // раньше r0518 «Банан с шоколадом» был vegan=true при аллергене milk
+    // (молочный шоколад), а r0489/r0490 — салаты с майонезом.
+    // REC-3: gluten_free несовместим с пшеницей — раньше 28 овсяных
+    // (деривация oat_flakes→wheat) и 5 соево-соусных помечались
+    // gluten_free=true.
+    final problems = <String>[];
+    for (final r in recipes) {
+      final keys = r.allergens.map((a) => a.key).toSet();
+      if (r.vegan &&
+          keys.intersection({'milk', 'eggs', 'fish', 'honey'}).isNotEmpty) {
+        problems.add('${r.id}: vegan при аллергенах $keys');
+      }
+      if (r.vegan && r.hasDairy) {
+        problems.add('${r.id}: vegan при has_dairy');
+      }
+      if (r.glutenFree && keys.contains('wheat')) {
+        problems.add('${r.id}: gluten_free при аллергене wheat');
+      }
+    }
+    expect(problems, isEmpty, reason: problems.join('; '));
+  });
+
   test('в базе есть рецепты для каждого слота планирования', () {
     final categories = recipes.map((r) => r.category).toSet();
     expect(categories, containsAll(['breakfast', 'soup', 'main', 'snack']));

@@ -22,6 +22,7 @@ import 'dart:math';
 
 import '../data/models/meal_plan.dart';
 import '../data/models/medical_diet.dart';
+import '../data/models/product.dart';
 import '../data/models/recipe.dart';
 import '../data/models/user_profile.dart';
 import 'calorie_target.dart';
@@ -113,6 +114,19 @@ class RuleBasedPlanner implements MealPlanner {
     final coveredKeys = <String>{};
     final days = <PlanDay>[];
     final skippedSlots = <String>[];
+    // AI-5 (аудит 2026-10-28): накопленный учёт остатков по дням.
+    // Граммы холодильника не «бесконечны» на всю неделю: подобранное
+    // блюдо списывает свои ингредиенты, и следующие дни видят остаток
+    // (null — счётная позиция, не убывает). Ключ есть для каждого
+    // ключа холодильника — отличаем «счётная» от «нет в холодильнике».
+    final stock = <String, double?>{
+      for (final e in fridge.entries) e.key: e.value.grams,
+    };
+    // Дефицит, накопленный в моменты подбора: то, чего не хватило
+    // именно тогда, когда блюдо выбиралось. Список покупок строится из
+    // него — двойной вычет (списание + повторный пересчёт спроса)
+    // невозможен.
+    final deficits = <String, double>{};
 
     for (var d = 0; d < request.days; d++) {
       final date = DateTime(
@@ -128,6 +142,7 @@ class RuleBasedPlanner implements MealPlanner {
           slot: split.slot,
           targetKcal: target,
           fridge: fridge,
+          stock: stock,
           usedRecipes: usedRecipes,
           usedFamilies: usedFamilies,
           usedSides: usedSides,
@@ -138,7 +153,7 @@ class RuleBasedPlanner implements MealPlanner {
           skippedSlots.add('день ${d + 1}, ${split.slot.key}');
           continue;
         }
-        final match = _matcher.matchRecipe(recipe, fridge);
+        final match = _matcher.matchRecipe(recipe, fridge, remaining: stock);
         coveredKeys.addAll(match.matchedKeys);
         // Нелюбимое в малом количестве (приправа) — допустимо, но план
         // честно помечает «содержит: лук» (v0.5.4).
@@ -163,6 +178,21 @@ class RuleBasedPlanner implements MealPlanner {
           usedSides[recipe.secondFamily] =
               (usedSides[recipe.secondFamily] ?? 0) + 1;
         }
+        // AI-5: списание подобранного блюда — потребность ингредиентов
+        // уменьшает остаток; нехватка в момент подбора копится в дефицит
+        // (он попадёт в список покупок, без двойного вычета).
+        for (final ing in recipe.ingredients) {
+          if (ing.pantry) continue;
+          final cur = stock[ing.key];
+          if (cur == null) continue; // счётная позиция
+          if (cur >= ing.grams) {
+            stock[ing.key] = cur - ing.grams;
+          } else {
+            deficits[ing.key] =
+                (deficits[ing.key] ?? 0) + (ing.grams - cur);
+            stock[ing.key] = 0.0;
+          }
+        }
       }
       days.add(PlanDay(dayIndex: d, date: date, meals: meals));
     }
@@ -174,6 +204,13 @@ class RuleBasedPlanner implements MealPlanner {
       days: days,
       dailyTarget: request.profile.dailyCalories,
       slotPools: _slotPools(diagnostics.allowed),
+      expiredNames: request.products
+          .where((p) => p.status == ProductStatus.active)
+          .where((p) => p.expiryDate
+              .isBefore(DateTime(request.startDate.year,
+                  request.startDate.month, request.startDate.day)))
+          .map((p) => p.name)
+          .toList(),
     );
 
     return GeneratedPlan(
@@ -188,7 +225,12 @@ class RuleBasedPlanner implements MealPlanner {
       seed: request.seed,
       source: id,
       days: days,
-      shoppingList: _shoppingList(pool: pool, days: days, fridge: fridge),
+      shoppingList: _shoppingList(
+        pool: pool,
+        days: days,
+        fridge: fridge,
+        deficits: deficits,
+      ),
       warnings: warnings,
       excludedCounts: diagnostics.excludedCounts,
       excludedExamples: diagnostics.excludedExamples,
@@ -362,6 +404,7 @@ class RuleBasedPlanner implements MealPlanner {
     required MealSlot slot,
     required int targetKcal,
     required Map<String, FridgeKey> fridge,
+    required Map<String, double?> stock,
     required Map<String, int> usedRecipes,
     required Map<String, int> usedFamilies,
     required Map<String, int> usedSides,
@@ -387,6 +430,7 @@ class RuleBasedPlanner implements MealPlanner {
         targetKcal: targetKcal,
         slot: slot,
         fridge: fridge,
+        stock: stock,
         usedRecipes: usedRecipes,
         usedFamilies: usedFamilies,
         usedSides: usedSides,
@@ -406,13 +450,14 @@ class RuleBasedPlanner implements MealPlanner {
     required int targetKcal,
     required MealSlot slot,
     required Map<String, FridgeKey> fridge,
+    required Map<String, double?> stock,
     required Map<String, int> usedRecipes,
     required Map<String, int> usedFamilies,
     required Map<String, int> usedSides,
     required List<Diet> diets,
     required Random rnd,
   }) {
-    final match = _matcher.matchRecipe(recipe, fridge);
+    final match = _matcher.matchRecipe(recipe, fridge, remaining: stock);
     var s = match.coverage * ScoreWeights.coverage;
 
     // Приоритет сроков (№2 после безопасности): срочные продукты
@@ -429,9 +474,19 @@ class RuleBasedPlanner implements MealPlanner {
     s += min(expiring, ScoreWeights.expiringCap);
 
     // Калораж слота (№3): чем ближе к цели, тем лучше.
-    s -= ScoreWeights.kcalPenalty *
+    var kcalPenalty = ScoreWeights.kcalPenalty *
         (recipe.kcal - targetKcal).abs() /
         max(targetKcal, 1);
+    // AI-3 (аудит 2026-10-28): «суп на обед» декларирован в
+    // preferredCategories, но штраф 45·|Δ|/target ронял средний суп
+    // (236 ккал при цели 800) на ~200-е место из 399 — супы/салаты
+    // системно меньше main-порции, поэтому для них в основных слотах
+    // штраф умножается на 0.3. Иначе заявленный приоритет не работает.
+    if ((slot == MealSlot.lunch || slot == MealSlot.dinner) &&
+        (recipe.category == 'soup' || recipe.category == 'salad')) {
+      kcalPenalty *= 0.3;
+    }
+    s -= kcalPenalty;
 
     // Диета low_carb — мягкое предпочтение (среди прочих выбранных диет).
     if (diets.contains(Diet.lowCarb)) {
@@ -466,15 +521,18 @@ class RuleBasedPlanner implements MealPlanner {
   // --------------------------------------------------- покупки и варнинги
 
   /// Недостающие ингредиенты: некладовые ингредиенты выбранных рецептов,
-  /// которых в холодильнике нет или не хватает по массе (v0.5.0:
-  /// граммы). Потребность по ключу суммируется по всем выбранным
-  /// рецептам недели; недостача = потребность − есть (для счётных
-  /// позиций масса в холодильнике неизвестна — граммовая подсказка
-  /// не даётся).
+  /// которых в холодильнике нет или не хватало ПО СОСТОЯНИЮ НА МОМЕНТ
+  /// подбора (AI-5, аудит 2026-10-28: раньше граммы считались достаточными
+  /// для всех блюд недели одновременно — 400 г риса «хватало» на три
+  /// блюда по 300 г, и подсказка «докупить ≈N г» занижала недостачу;
+  /// дефицит копится в [deficits] во время генерации плана — двойного
+  /// вычета нет). Для счётных позиций (масса неизвестна) подсказка
+  /// в граммах не даётся.
   List<PlanShoppingItem> _shoppingList({
     required List<Recipe> pool,
     required List<PlanDay> days,
     required Map<String, FridgeKey> fridge,
+    required Map<String, double> deficits,
   }) {
     final pickedIds = days
         .expand((d) => d.meals)
@@ -493,12 +551,18 @@ class RuleBasedPlanner implements MealPlanner {
     final keys = neededBy.keys.toList()..sort();
     for (final k in keys) {
       final fk = fridge[k];
-      final have = fk?.grams;
-      if (fk != null && (have == null || have >= neededBy[k]!)) {
-        continue; // есть и хватает (или счётная позиция — масса неизвестна)
+      if (fk == null) {
+        // Ключа нет в холодильнике вовсе — полная потребность.
+        items.add(PlanShoppingItem(
+          key: k,
+          name: nameBy[k]!,
+          missingGrams: neededBy[k]!,
+        ));
+        continue;
       }
-      final missing =
-          fk == null ? neededBy[k]! : (neededBy[k]! - have!).ceil();
+      final deficit = deficits[k] ?? 0.0;
+      if (deficit <= 0) continue; // хватило (или счётная позиция)
+      final missing = deficit.ceil();
       items.add(PlanShoppingItem(
         key: k,
         name: nameBy[k]!,
@@ -515,8 +579,22 @@ class RuleBasedPlanner implements MealPlanner {
     required List<PlanDay> days,
     required int dailyTarget,
     required Map<MealSlot, int> slotPools,
+    required List<String> expiredNames,
   }) {
     final warnings = <String>[];
+
+    // AI-4 (аудит 2026-10-28): просроченные продукты не участвуют в
+    // подборе — пользователь должен знать, что именно выпало из плана.
+    if (expiredNames.isNotEmpty) {
+      final shown = expiredNames.take(5).join(', ');
+      final more = expiredNames.length > 5
+          ? ' и ещё ${expiredNames.length - 5}'
+          : '';
+      warnings.add(
+        'Просроченные продукты не участвуют в подборе меню: $shown$more. '
+        'Замените или удалите их.',
+      );
+    }
 
     // Срочные продукты, не закрытые планом.
     final urgentUnused = fridge.values

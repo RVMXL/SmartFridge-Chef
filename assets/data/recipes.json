@@ -2599,7 +2599,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -2681,7 +2681,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -2771,7 +2771,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -2861,7 +2861,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -2944,7 +2944,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -3027,7 +3027,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -3117,7 +3117,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -3208,7 +3208,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -3299,7 +3299,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -3389,7 +3389,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -3472,7 +3472,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -3562,7 +3562,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -3652,7 +3652,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -3735,7 +3735,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -3832,7 +3832,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -3929,7 +3929,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -4019,7 +4019,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -4109,7 +4109,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -4206,7 +4206,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -4304,7 +4304,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -4402,7 +4402,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -4499,7 +4499,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -4589,7 +4589,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -4686,7 +4686,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -4783,7 +4783,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -8453,7 +8453,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -12408,7 +12408,7 @@
    "flags": {
     "vegetarian": false,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": true,
     "has_meat": false,
     "has_fish": true,
@@ -24520,7 +24520,7 @@
    "flags": {
     "vegetarian": false,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": true,
     "has_fish": false,
@@ -28613,7 +28613,7 @@
    "flags": {
     "vegetarian": false,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": true,
@@ -37440,7 +37440,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": true,
     "has_meat": false,
     "has_fish": false,
@@ -37751,7 +37751,7 @@
    "flags": {
     "vegetarian": false,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": true,
@@ -46697,7 +46697,7 @@
    },
    "flags": {
     "vegetarian": true,
-    "vegan": true,
+    "vegan": false,
     "gluten_free": true,
     "low_carb": true,
     "has_meat": false,
@@ -46787,7 +46787,7 @@
    },
    "flags": {
     "vegetarian": true,
-    "vegan": true,
+    "vegan": false,
     "gluten_free": true,
     "low_carb": false,
     "has_meat": false,
@@ -49208,7 +49208,7 @@
    },
    "flags": {
     "vegetarian": true,
-    "vegan": true,
+    "vegan": false,
     "gluten_free": true,
     "low_carb": false,
     "has_meat": false,
@@ -49217,7 +49217,7 @@
     "has_alcohol": false,
     "has_beef": false,
     "has_shellfish": false,
-    "has_dairy": false
+    "has_dairy": true
    },
    "allergens": [
     "milk"
@@ -49269,7 +49269,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,
@@ -50439,7 +50439,7 @@
    "flags": {
     "vegetarian": true,
     "vegan": false,
-    "gluten_free": true,
+    "gluten_free": false,
     "low_carb": false,
     "has_meat": false,
     "has_fish": false,

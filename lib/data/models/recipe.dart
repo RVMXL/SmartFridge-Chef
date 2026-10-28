@@ -226,14 +226,23 @@ class Recipe {
     final ingredients = j['ingredients'] as List<dynamic>? ?? const [];
     for (final raw in ingredients) {
       final key = (raw as Map<String, Object?>)['key'] as String?;
+      // AI-9 (аудит 2026-10-28): карта может отдавать НЕСКОЛЬКО аллергенов
+      // на ключ (соевый соус — соя + пшеница, майонез — яйца) — инвариант
+ // «ингредиент ⇒ аллерген» теперь полный на runtime, без ставки на то,
+      // что генератор базы что-то пометил в JSON.
       final derived = _allergenByKey[key];
-      if (derived != null) result.add(derived);
+      if (derived != null) result.addAll(derived);
     }
     return result.toList(growable: false);
   }
 
-  /// Ключ ингредиента → аллерген (вывод по составу). Уксус помечается
+  /// Ключ ингредиента → аллергены (вывод по составу). Уксус помечается
   /// сульфитами консервативно: винный/бальзамический уксус их содержит.
+  /// С AI-9 (аудит 2026-10-28) ключ может выводить несколько аллергенов:
+  /// соевый соус — соя И пшеница (содержит пшеницу), майонез — яйца
+  /// (эмульсия яиц и масла; раньше инвариант держался только на генераторе
+  /// базы, помечавшем эти аллергены в JSON — пропуск генератора не
+  /// восстанавливался на runtime).
   ///
   /// v0.5.7 — расширенный список частых аллергенов:
   ///  • wheat дополнен овсяными хлопьями (рожь/ячмень и пшеничные крупы —
@@ -243,69 +252,72 @@ class Recipe {
   ///    выводятся из ключей ингредиентов;
   ///  • группа «персики, абрикосы, виноград» покрывается изюмом (сушёный
   ///    виноград); свежих персиков/абрикосов/ананасов в базе нет.
-  static const Map<String, Allergen> _allergenByKey = {
-    'celery': Allergen.celery,
-    'mustard': Allergen.mustard,
-    'vinegar': Allergen.sulphites,
+  static const Map<String, List<Allergen>> _allergenByKey = {
+    'celery': [Allergen.celery],
+    'mustard': [Allergen.mustard],
+    'vinegar': [Allergen.sulphites],
     // Злаки с глютеном: овёс (рожь/ячмень уже помечены генератором).
-    'oat_flakes': Allergen.wheat,
+    'oat_flakes': [Allergen.wheat],
     // Мёд и продукты пчеловодства.
-    'honey': Allergen.honey,
+    'honey': [Allergen.honey],
     // Шоколад/какао (кофе в рецептах не встречается).
-    'chocolate': Allergen.chocolate,
+    'chocolate': [Allergen.chocolate],
     // Красные и оранжевые плоды: цитрусовые, красные ягоды, томаты,
     // морковь, свёкла, тыква. Общие «ягоды» — консервативно сюда же.
-    'orange': Allergen.redProduce,
-    'lemon': Allergen.redProduce,
-    'strawberry': Allergen.redProduce,
-    'raspberry': Allergen.redProduce,
-    'cherry': Allergen.redProduce,
-    'berries': Allergen.redProduce,
-    'tomato': Allergen.redProduce,
-    'tomato_paste': Allergen.redProduce,
-    'carrot': Allergen.redProduce,
-    'beetroot': Allergen.redProduce,
-    'pumpkin': Allergen.redProduce,
+    'orange': [Allergen.redProduce],
+    'lemon': [Allergen.redProduce],
+    'strawberry': [Allergen.redProduce],
+    'raspberry': [Allergen.redProduce],
+    'cherry': [Allergen.redProduce],
+    'berries': [Allergen.redProduce],
+    'tomato': [Allergen.redProduce],
+    'tomato_paste': [Allergen.redProduce],
+    'carrot': [Allergen.redProduce],
+    'beetroot': [Allergen.redProduce],
+    'pumpkin': [Allergen.redProduce],
     // Грибы.
-    'mushroom': Allergen.mushrooms,
+    'mushroom': [Allergen.mushrooms],
     // Пряности: чеснок, корица, чёрный перец, смеси, травы, лавр.
-    'garlic': Allergen.spices,
-    'cinnamon': Allergen.spices,
-    'spices': Allergen.spices,
-    'pepper': Allergen.spices,
-    'herbs_dried': Allergen.spices,
-    'bay_leaf': Allergen.spices,
+    'garlic': [Allergen.spices],
+    'cinnamon': [Allergen.spices],
+    'spices': [Allergen.spices],
+    'pepper': [Allergen.spices],
+    'herbs_dried': [Allergen.spices],
+    'bay_leaf': [Allergen.spices],
     // Курица и другая птица.
-    'chicken_breast': Allergen.poultry,
-    'chicken_thigh': Allergen.poultry,
-    'minced_chicken': Allergen.poultry,
-    'turkey': Allergen.poultry,
-    'minced_turkey': Allergen.poultry,
-    'chicken_liver': Allergen.poultry,
+    'chicken_breast': [Allergen.poultry],
+    'chicken_thigh': [Allergen.poultry],
+    'minced_chicken': [Allergen.poultry],
+    'turkey': [Allergen.poultry],
+    'minced_turkey': [Allergen.poultry],
+    'chicken_liver': [Allergen.poultry],
     // Говядина.
-    'beef': Allergen.beef,
-    'minced_beef': Allergen.beef,
+    'beef': [Allergen.beef],
+    'minced_beef': [Allergen.beef],
     // Свинина.
-    'pork': Allergen.pork,
+    'pork': [Allergen.pork],
     // Фрукты умеренной аллергенности (виноград = изюм).
-    'raisins': Allergen.mildFruits,
+    'raisins': [Allergen.mildFruits],
     // Крупы умеренной аллергенности.
-    'rice': Allergen.mildCereals,
-    'buckwheat': Allergen.mildCereals,
-    'corn': Allergen.mildCereals,
+    'rice': [Allergen.mildCereals],
+    'buckwheat': [Allergen.mildCereals],
+    'corn': [Allergen.mildCereals],
     // Овощи умеренной аллергенности.
-    'bell_pepper': Allergen.mildVegetables,
-    'potato': Allergen.mildVegetables,
-    'green_peas': Allergen.mildVegetables,
-    'split_peas': Allergen.mildVegetables,
-    // Соя и её производные: соевый соус содержит сою (и пшеницу —
-    // её уже помечает генератор), тофу — соевый творог.
-    'soy_sauce': Allergen.soy,
-    'tofu': Allergen.soy,
+    'bell_pepper': [Allergen.mildVegetables],
+    'potato': [Allergen.mildVegetables],
+    'green_peas': [Allergen.mildVegetables],
+    'split_peas': [Allergen.mildVegetables],
+    // Соя и её производные: соевый соус содержит сою И пшеницу
+    // (AI-9: ранее пшеница держалась только на генераторе базы),
+    // тофу — соевый творог.
+    'soy_sauce': [Allergen.soy, Allergen.wheat],
+    'tofu': [Allergen.soy],
     // Морепродукты: ракообразные и моллюски — разные аллергены ЕС
     // (LEG-2, аудит 2026-10-28); раньше деривации не было вовсе.
-    'shrimp': Allergen.crustaceans,
-    'squid': Allergen.molluscs,
+    'shrimp': [Allergen.crustaceans],
+    'squid': [Allergen.molluscs],
+    // Яичная эмульсия (AI-9, аудит 2026-10-28): майонез — яйца + масло.
+    'mayo': [Allergen.eggs],
   };
 
   Map<String, Object?> toJson() => {
