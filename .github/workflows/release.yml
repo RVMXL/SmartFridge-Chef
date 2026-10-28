@@ -141,7 +141,7 @@ jobs:
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           # Отчёт в лог: три per-ABI APK вместо одного универсального
-          ls -lh build/app/outputs/flutter-apk/app-*-release.apk
+          du -h build/app/outputs/flutter-apk/app-*-release.apk
           ASSETS=()
           for APK in build/app/outputs/flutter-apk/app-*-release.apk; do
             ABI=$(basename "$APK" | sed -E 's/^app-(.+)-release\.apk$/\1/')
