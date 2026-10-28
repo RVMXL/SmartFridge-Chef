@@ -17,11 +17,13 @@ Copyright 2026 RVMXL. All rights reserved.
 - google_mlkit_text_recognition — MIT (плагин); сам ML Kit — условия
   Google ML Kit, распознавание выполняется on-device, изображения
   чеков никуда не отправляются
-- flutter_tesseract_ocr — BSD-3-Clause (плагин); нативный движок
-  Tesseract 4 (tesseract4android) — Apache-2.0 (Google LLC); русская
-  модель tessdata_fast (rus.traineddata) — Apache-2.0
-  (tesseract-ocr project). OCR-1, v0.6.2: распознавание кириллических
-  чеков, выполняется on-device
+- flutter_tesseract_ocr — BSD-3-Clause (плагин); вендоренная копия
+  0.4.31 в vendor/flutter_tesseract_ocr (сборочный build.gradle
+  адаптирован под Gradle 9, функциональный код без изменений);
+  нативный движок Tesseract 4 (tesseract4android, вендоренный AAR) —
+  Apache-2.0 (adaptech); русская модель tessdata_fast
+  (rus.traineddata) — Apache-2.0 (tesseract-ocr project). OCR-1,
+  v0.6.2: распознавание кириллических чеков, выполняется on-device
 - image_picker — Apache-2.0 / BSD-3-Clause (Flutter team); двойная
   лицензия: основная реализация Apache-2.0, интеграции — BSD-3-Clause
 - flutter_local_notifications — BSD-3-Clause

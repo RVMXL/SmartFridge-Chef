@@ -1,0 +1,35 @@
+// Вендоренная копия flutter_tesseract_ocr 0.4.31 (BSD-3, см. LICENSE) —
+// OCR-1 (v0.6.2): оригинальный build.gradle несовместим с Gradle 9
+// (jcenter() удалён; rootProject.allprojects с flatDir вызывал NPE при
+// оценке проекта). Исправления: убран buildscript/jcenter (AGP приходит
+// из приложения), flatDir локален, lint-блок современный.
+group 'io.paratoner.flutter_tesseract_ocr'
+version '1.0'
+
+apply plugin: 'com.android.library'
+
+android {
+    namespace "io.paratoner.flutter_tesseract_ocr"
+    compileSdk 34
+
+    defaultConfig {
+        minSdkVersion 21
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    lint {
+        disable 'InvalidPackage'
+    }
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+// Нативный Tesseract 4 для Android (Apache-2.0, adaptech) —
+// вендоренный AAR рядом (android/libs/tesseract4android-release.aar).
+dependencies {
+    api(name: 'tesseract4android-release', ext: 'aar')
+}

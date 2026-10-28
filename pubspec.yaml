@@ -43,7 +43,11 @@ dependencies:
   # OCR-1 (аудит 2026-10-28): второй OCR-движок — Tesseract с русской
   # моделью (tessdata_fast rus): ML Kit Text Recognition v2 поддерживает
   # только latin/chinese/devanagari/japanese/korean, кириллицу — нет.
-  flutter_tesseract_ocr: ^0.4.31
+  # Вендоренная копия 0.4.31 (BSD-3, vendor/.../LICENSE): у релиза с
+  # pub.dev build.gradle несовместим с Gradle 9 (jcenter() удалён) —
+  # починенный вариант в vendor/flutter_tesseract_ocr/android/build.gradle.
+  flutter_tesseract_ocr:
+    path: vendor/flutter_tesseract_ocr
   image_picker: ^1.2.4
   http: ^1.2.0
   flutter_local_notifications: ^22.3.2
