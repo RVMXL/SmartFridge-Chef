@@ -118,6 +118,39 @@ x
     });
   });
 
+  group('SCAN-1: границы слов стоп-слов (аудит 2026-10-28)', () {
+    test('товары со «стоп-подстрокой» внутри выживают', () {
+      final items = parseReceipt(
+          'Картофель 59,90\nКартошка 45,00\nПакетик чая 89,90\n'
+          'Cashews 2.49\nCardamom 0.50');
+      final names = items.map((i) => i.name).toSet();
+      expect(names, contains('Картофель'));
+      expect(names, contains('Картошка'));
+      expect(names, contains('Пакетик чая'));
+      expect(names, contains('Cashews'));
+      expect(names, contains('Cardamom'));
+    });
+
+    test('служебные строки по-прежнему выбрасываются', () {
+      final items = parseReceipt(
+          'ИТОГ 500,00\nИтого к оплате 500,00\nКасса 1\nКарта оплаты\n'
+          'Сдача 0,00\nПакет 5,00\nTOTAL 25.00\nCASH 100.00\n'
+          'Card 25.00\nCHANGE DUE 75.00\nМолоко 89,90');
+      expect(items, hasLength(1));
+      expect(items.single.name, 'Молоко');
+    });
+
+    test('словоформы стоп-слов ловятся, чужие слова — нет', () {
+      // «Итог/Итого/Итоги» — стоп; «Чек» — стоп; «Чечевица» — товар.
+      final items = parseReceipt(
+          'Чечевица 120,00\nЧек №123456\nСайт магазина\n'
+          'Магазин «У дома»');
+      final names = items.map((i) => i.name).toSet();
+      expect(names, contains('Чечевица'));
+      expect(names, hasLength(1));
+    });
+  });
+
   group('ReceiptCandidate', () {
     test('равенство по имени без учёта регистра', () {
       const a = ReceiptCandidate(name: 'Молоко', rawLine: 'Молоко');

@@ -116,24 +116,37 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
   }
 
   /// Грубая эвристика категории по ключевым словам названия.
+  /// Аудит 2026-10-28 (OCR): EN-чеки распознаются, но категоризатор
+  /// понимал только русские слова — добавлены EN-стемы.
   ProductCategory _categoryFor(ReceiptCandidate c) {
     final n = c.name.toLowerCase();
-    if (RegExp(r'молок|кефир|сметан|творог|йогурт|сыр|масло слив').hasMatch(n)) {
+    if (RegExp(
+        'молок|кефир|сметан|творог|йогурт|сыр|масло слив|'
+        'milk|cheese|yogurt|yoghurt|kefir|sour cream|cottage|butter|cream')
+        .hasMatch(n)) {
       return ProductCategory.dairy;
     }
-    if (RegExp(r'курин|свинин|говядин|фарш|индейк|колбас|сосиск').hasMatch(n)) {
+    if (RegExp(
+        'курин|свинин|говядин|фарш|индейк|колбас|сосиск|'
+        'chicken|pork|beef|turkey|minced|sausage|ham|bacon').hasMatch(n)) {
       return ProductCategory.meat;
     }
-    if (RegExp(r'рыб|лосос|тунец|селедк|креветк').hasMatch(n)) {
+    if (RegExp('рыб|лосос|тунец|селедк|креветк|'
+        'fish|salmon|tuna|herring|shrimp|cod|trout').hasMatch(n)) {
       return ProductCategory.fish;
     }
-    if (RegExp(r'хлеб|батон|булк|лаваш|пирог').hasMatch(n)) {
+    if (RegExp('хлеб|батон|булк|лаваш|пирог|'
+        'bread|bun|baguette|loaf|roll|pastry|bagel').hasMatch(n)) {
       return ProductCategory.bakery;
     }
-    if (RegExp(r'яблок|банан|апельсин|груш|лимон|мандарин').hasMatch(n)) {
+    if (RegExp('яблок|банан|апельсин|груш|лимон|мандарин|'
+        'apple|banana|orange|pear|lemon|grape|berry|berries|strawberry')
+        .hasMatch(n)) {
       return ProductCategory.fruits;
     }
-    if (RegExp(r'помидор|огур|капуст|картош|морков|лук|перец').hasMatch(n)) {
+    if (RegExp('помидор|огур|капуст|картош|морков|лук|перец|'
+        'tomato|cucumber|cabbage|potato|carrot|onion|pepper|lettuce')
+        .hasMatch(n)) {
       return ProductCategory.vegetables;
     }
     return ProductCategory.other;

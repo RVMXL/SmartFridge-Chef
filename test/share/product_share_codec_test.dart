@@ -3,6 +3,8 @@
 /// дедупликация, восстановление порядка, устойчивость к мусору.
 library;
 
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:smart_fridge_chef/data/models/product.dart';
@@ -202,6 +204,73 @@ void main() {
       expect(result.products, hasLength(1));
       expect(result.products.single.name, 'Молоко');
       expect(result.duplicateIds, hasLength(2));
+    });
+  });
+
+  group('SHARE-5: враждебные значения внутри валидного payload', () {
+    String hostile(List<List<Object?>> items) =>
+        '{"v":1,"i":${jsonEncode(items)}}';
+
+    test('отрицательное/нулевое quantity → 1.0', () {
+      final r = ProductShareCodec.decodePayload(hostile([
+        ['Зло-1', 'dairy', '2026-11-01', -5, 'g', ''],
+        ['Зло-2', 'dairy', '2026-11-01', 0, 'g', ''],
+      ]));
+      expect(r.products.map((p) => p.quantity), everyElement(1.0));
+    });
+
+    test('1e999 → Infinity quantity → 1.0 (не течёт в базу)', () {
+      // 1e999 — валидный JSON-токен; Dart парсит его как double.infinity,
+      // поэтому собираем payload вручную (jsonEncode не кодирует Infinity).
+      final r = ProductShareCodec.decodePayload('{"v":1,"i":[['
+          '"Бесконечность","dairy","2026-11-01",1e999,"g",""]]}');
+      expect(r.products.single.quantity, 1.0);
+    });
+
+    test('гигантское quantity зажимается до 1 000 000', () {
+      final r = ProductShareCodec.decodePayload(hostile([
+        ['Море молока', 'dairy', '2026-11-01', 5e9, 'ml', ''],
+      ]));
+      expect(r.products.single.quantity, 1000000);
+    });
+
+    test('гигантское имя обрезается до 200 символов, control-символы чистятся',
+        () {
+      final r = ProductShareCodec.decodePayload(hostile([
+        ['A' * 500, 'dairy', '2026-11-01', 1, 'g', ''],
+        ['Зло\u0000влево', 'dairy', '2026-11-01', 1, 'g', ''],
+      ]));
+      expect(r.products[0].name.length, 200);
+      expect(r.products[1].name, 'Зловлево'); // control-символ удалён
+    });
+
+    test('имя из одних пробелов/control-символов отбрасывается', () {
+      final r = ProductShareCodec.decodePayload(hostile([
+        ['   ', 'dairy', '2026-11-01', 1, 'g', ''],
+        ['\u0000\u0003', 'dairy', '2026-11-01', 1, 'g', ''],
+      ]));
+      expect(r.products, isEmpty);
+    });
+
+    test('недопустимый штрих-код → null (буквы, длинный, пустой)', () {
+      final r = ProductShareCodec.decodePayload(hostile([
+        ['Буквы', 'dairy', '2026-11-01', 1, 'g', 'abc123'],
+        ['Длинный', 'dairy', '2026-11-01', 1, 'g', '12345678901234567890'],
+        ['Пустой', 'dairy', '2026-11-01', 1, 'g', '   '],
+      ]));
+      expect(r.products.map((p) => p.barcode), everyElement(isNull));
+    });
+
+    test('БЖУ: отрицательные → null, бесконечность → null, гигант → 10000',
+        () {
+      final r = ProductShareCodec.decodePayload('{"v":1,"i":[['
+          '"Питание","dairy","2026-11-01",1,"g","",'
+          '[-5,1e999,999999,12.5]]]}');
+      final p = r.products.single;
+      expect(p.kcalPer100, isNull); // отрицательный → null
+      expect(p.proteinPer100, isNull); // Infinity → null
+      expect(p.fatPer100, 10000); // зажат сверху
+      expect(p.carbsPer100, 12.5);
     });
   });
 }

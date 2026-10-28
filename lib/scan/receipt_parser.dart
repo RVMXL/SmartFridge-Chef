@@ -42,22 +42,52 @@ class ReceiptCandidate {
 }
 
 /// Служебные слова чеков, по которым строка выбрасывается целиком
-/// (итоги, касса, оплата, налоги, шапка магазина). Совпадение — по
-/// подстроке в нижнем регистре.
+/// (итоги, касса, оплата, налоги, шапка магазина).
+///
+/// SCAN-1 (аудит 2026-10-28): совпадение — НЕ по подстроке, а по границам
+/// слов: токен строки равен стему или стему + падежному окончанию
+/// (см. [_isServiceLine]). Иначе «карт» выбрасывал «Картофель/Картошка»,
+/// «пакет» — «Пакетик чая», EN «cash» — «Cashews», «card» — «Cardamom»,
+/// «market» ловил чужие бренды подстрокой. Многословные фразы — в
+/// [kReceiptServicePhrases] (проверка по подстроке — внутри фразы граница
+/// и так есть).
 const List<String> kReceiptServiceWords = [
-  // RU
+  // RU (стемы: токен = стем + падежное окончание из _ruEndings)
   'итог', 'сумма', 'касс', 'чек', 'сдача', 'налич', 'карт', 'безнал',
   'скидк', 'бонус', 'ндс', 'ндфл', 'налог', 'фискаль', 'знв', 'окп',
   'смен', 'транзакц', 'терминал', 'спасибо', 'балл', 'пакет', 'внесен',
   'продавец', 'инн', 'кассир', 'приход', 'возврат', 'штрих',
-  'ооо', 'оао', 'зао', 'ип ', 'обществ', 'супермаркет', 'магазин',
+  'ооо', 'оао', 'зао', 'ип', 'обществ', 'супермаркет', 'магазин',
   'сайт', 'заказ', 'доставка',
-  // EN
+  // EN (токен = стем + -s/-es или точное совпадение)
   'total', 'subtotal', 'cash', 'change', 'card', 'visa', 'mastercard',
-  'payment', 'tax', 'vat', 'discount', 'receipt', 'thank', 'change due',
+  'payment', 'tax', 'vat', 'discount', 'receipt', 'thank',
   'balance', 'loyalty', 'points', 'cashier', 'store', 'terminal',
-  'market', 'order', 'delivery', 'llc', 'inc.',
+  'market', 'supermarket', 'order', 'delivery', 'llc', 'inc.',
 ];
+
+/// Многословные служебные фразы чеков (проверка по подстроке).
+const List<String> kReceiptServicePhrases = [
+  'change due',
+  'сумма документа',
+  'итого к оплате',
+];
+
+/// Падежные окончания, которые «доращивают» стем до словоформы
+/// (итог/итого/итоги, касса/кассы, картой/карту — но не картофель).
+const Set<String> _ruEndings = {
+  '', 'а', 'я', 'ы', 'и', 'у', 'ю', 'е', 'о',
+  'ой', 'ом', 'ам', 'ах', 'ями', 'ами', 'ов', 'ев', 'ей', 'ий', 'ия',
+  'ые', 'ый', 'ими', 'ыми', 'ую', 'юю', 'ем', 'ях', 'ии', 'ие', 'ь',
+  // прилагательные: наличные/наличным/сменные…
+  'ные', 'ный', 'ная', 'ной', 'ному', 'ными',
+};
+
+/// Английские словоформы стемов (total → totals, card → cards).
+const Set<String> _enEndings = {'', 's', 'es'};
+
+/// Токен — последовательность букв/цифр (латиница + кириллица).
+final RegExp _tokenSeparator = RegExp(r'[^a-zа-яё0-9]+');
 
 /// Регулярка цены в конце строки: «59,90» / «59.90» / «59 90».
 final RegExp _priceEnd = RegExp(r'(\d{1,6})[.,\s](\d{2})(?=\s*$)');
@@ -80,7 +110,7 @@ List<ReceiptCandidate> parseReceipt(String text) {
     final line = rawLine.trim();
     if (line.length < 3) continue;
     final lowered = line.toLowerCase();
-    if (kReceiptServiceWords.any(lowered.contains)) continue;
+    if (_isServiceLine(lowered)) continue;
 
     double? price;
     var body = line;
@@ -144,6 +174,23 @@ List<ReceiptCandidate> parseReceipt(String text) {
   }
 
   return [for (final k in order) merged[k]!];
+}
+
+/// SCAN-1: строка служебная, если хотя бы один её токен равен стему
+/// стоп-слова или является стемом с падежным окончанием.
+bool _isServiceLine(String lowered) {
+  if (kReceiptServicePhrases.any(lowered.contains)) return true;
+  for (final token in lowered.split(_tokenSeparator)) {
+    if (token.isEmpty) continue;
+    for (final stem in kReceiptServiceWords) {
+      if (!token.startsWith(stem)) continue;
+      final rest = token.substring(stem.length);
+      if (_ruEndings.contains(rest) || _enEndings.contains(rest)) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 /// Чистит «тело» строки до названия товара.

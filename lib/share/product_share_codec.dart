@@ -72,6 +72,22 @@ class ProductShareCodec {
   /// 2953 байта; payload до 2400 байт передаём одним кодом как есть.
   static const int singleLimit = 2400;
 
+  // --- SHARE-1 (аудит 2026-10-28): пределы валидации чужого QR-приёма ---
+  /// Максимальная длина имени продукта.
+  static const int _maxNameLength = 200;
+
+  /// Максимальное количество (г/мл/шт) — защита от 1e999.
+  static const double _maxQuantity = 1000000;
+
+  /// Максимальное значение БЖУ/ккал на 100 г.
+  static const double _maxNutrient = 10000;
+
+  /// Штрих-код: только цифры, 1–14 знаков (EAN-8/UPC/EAN-13).
+  static final RegExp _barcodePattern = RegExp(r'^\d{1,14}$');
+
+  /// Control-символы, вычищаемые из имён чужих продуктов.
+  static final RegExp _controlChars = RegExp(r'[\x00-\x1F\x7F]');
+
   // ------------------------------------------------------------ кодирование
 
   /// Компактный payload из продуктов.
@@ -180,6 +196,13 @@ class ProductShareCodec {
   /// Payload → продукты. Бросает FormatException при повреждённых данных;
   /// продукты с неизвестной категорией/единицей получают дефолты,
   /// дубликаты штрих-кодов внутри передачи отбрасываются.
+  ///
+  /// SHARE-1 (аудит 2026-10-28): значения из чужого QR валидируются и
+  /// зажимаются так же, как ручная форма: quantity ≤ 0 / NaN / Infinity →
+  /// 1.0 (иначе 1e999 → Infinity попадал в SQLite), БЖУ/ккал — конечные,
+  /// отрицательные → null, свыше 10000 → 10000; имя обрезается до 200
+  /// символов и чистится от control-символов; штрих-код — только цифры,
+  /// до 14 знаков, иначе null.
   static SharedProducts decodePayload(String payload) {
     final obj = jsonDecode(payload);
     if (obj is! Map || obj['v'] != 1) {
@@ -195,25 +218,46 @@ class ProductShareCodec {
     final seenBarcodes = <String>{};
     for (final raw in items) {
       if (raw is! List || raw.length < 6) continue;
-      final name = '${raw[0]}'.trim();
+      // SHARE-1: имя — непустое, без control-символов, до 200 символов.
+      var name = '${raw[0]}'.trim().replaceAll(_controlChars, '');
       if (name.isEmpty) continue;
+      if (name.length > _maxNameLength) {
+        name = name.substring(0, _maxNameLength);
+      }
       final category = ProductCategory.fromKey('${raw[1]}');
       final expiry = _parseDateOr('${raw[2]}', now);
-      final quantity = (raw[3] is num) ? (raw[3] as num).toDouble() : 1.0;
+      // SHARE-1: quantity — конечное положительное число, как в ручной
+      // форме (qty ≤ 0 → 1.0); 1e999 → Infinity отбрасывается.
+      double quantity = 1.0;
+      if (raw[3] is num) {
+        final q = (raw[3] as num).toDouble();
+        if (q.isFinite && q > 0) {
+          quantity = q > _maxQuantity ? _maxQuantity : q;
+        }
+      }
       final unit = ProductUnit.fromKey('${raw[4]}');
       final barcodeRaw = raw[5];
-      final barcode = barcodeRaw is String && barcodeRaw.trim().isNotEmpty
-          ? barcodeRaw
+      // SHARE-1: штрих-код — цифровой, до 14 знаков (EAN-8/UPC/EAN-13),
+      // мусор → null (не превращаем чужой QR в битые коды в базе).
+      final barcodeStr =
+          barcodeRaw is String ? barcodeRaw.trim() : null;
+      final barcode = (barcodeStr != null && _barcodePattern.hasMatch(barcodeStr))
+          ? barcodeStr
           : null;
       double? kcal, protein, fat, carbs;
       if (raw.length >= 7 && raw[6] is List) {
         final nut = raw[6] as List;
-        num? at(int i) =>
-            i < nut.length && nut[i] is num ? nut[i] as num : null;
-        kcal = at(0)?.toDouble();
-        protein = at(1)?.toDouble();
-        fat = at(2)?.toDouble();
-        carbs = at(3)?.toDouble();
+        double? sane(int i) {
+          if (i >= nut.length || nut[i] is! num) return null;
+          final v = (nut[i] as num).toDouble();
+          if (!v.isFinite || v < 0) return null;
+          return v > _maxNutrient ? _maxNutrient : v;
+        }
+
+        kcal = sane(0);
+        protein = sane(1);
+        fat = sane(2);
+        carbs = sane(3);
       }
       if (barcode != null && !seenBarcodes.add(barcode)) {
         duplicateIds.add(barcode);
