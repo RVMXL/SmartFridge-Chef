@@ -246,6 +246,107 @@ class SettingsController extends ChangeNotifier {
     return false;
   }
 
+  // ------------------------- экспорт/импорт настроек (v0.6.3)
+
+  /// Белый список ключей для конверта резервной копии: оформление, язык,
+  /// напоминания, настройки источников цен. Секреты (KEYS-1:
+  /// _kKrogerClientId, _kKrogerClientSecret, _kWegmansKey) в экспорт
+  /// НЕ входят — открытый JSON им не место, после импорта вводятся заново.
+  static const List<String> _backupPrefKeys = [
+    _kThemeMode,
+    _kLanguage,
+    _kNotifEnabled,
+    _kNotifDays,
+    _kNotifHour,
+    _kPriceEnabled,
+    _kPriceSource,
+    _kPyatStoreCode,
+    _kKrogerZip,
+    _kKrogerLocationId,
+    _kKrogerLocationLabel,
+    _kWegmansStoreNumber,
+    _kWegmansStoreLabel,
+  ];
+
+  /// Срез не-секретных настроек для блока `settings` конверта.
+  /// Значения — фактические типы prefs (String/bool/int); отсутствующие
+  /// ключи (дефолты) не включаются — импорт оставит дефолты.
+  Map<String, Object?> exportSettings() {
+    final out = <String, Object?>{};
+    for (final key in _backupPrefKeys) {
+      final value = _prefs.get(key);
+      if (value != null) out[key] = value;
+    }
+    return out;
+  }
+
+  /// Применяет блок `settings` из конверта. Неизвестные ключи и ключи вне
+  /// белого списка (в т.ч. секреты — от рук/подделки) игнорируются.
+  /// Значения enum-подобных ключей (тема, язык, источник цен) проверяются —
+  /// мусор из файла не должен дойти до UI. Возвращает число применённых.
+  Future<int> applyBackupSettings(Map<String, Object?> settings) async {
+    var applied = 0;
+    Future<void> put(String key, Object? value) async {
+      switch (value) {
+        case final String s:
+          await _prefs.setString(key, s);
+          applied++;
+        case final bool b:
+          await _prefs.setBool(key, b);
+          applied++;
+        case final int i:
+          await _prefs.setInt(key, i);
+          applied++;
+        case final num n:
+          // JSON может выдать 9.0 для int-ключа — нормализуем.
+          await _prefs.setInt(key, n.round());
+          applied++;
+        default:
+          break; // null/список/карта — не настройки prefs, пропускаем
+      }
+    }
+
+    for (final entry in settings.entries) {
+      final key = entry.key;
+      if (!_backupPrefKeys.contains(key)) continue;
+      final value = entry.value;
+      // Санитизация enum-подобных ключей: неизвестное значение опасно
+      // тем, что живёт в prefs дольше одной сессии.
+      if (key == _kThemeMode &&
+          ![_themeSystem, _themeLight, _themeDark].contains(value)) {
+        continue;
+      }
+      if (key == _kLanguage &&
+          !['system', 'ru', 'en'].contains(value)) {
+        continue;
+      }
+      if (key == _kPriceSource &&
+          ![
+            'pyaterochka',
+            'kroger',
+            'open_prices',
+            'mercadona',
+            'aldi',
+            'wegmans',
+          ].contains(value)) {
+        continue;
+      }
+      if (key == _kNotifHour) {
+        final hour = value is int
+            ? value
+            : value is num
+                ? value.round()
+                : -1;
+        if (hour < 0 || hour > 23) continue;
+        await put(key, hour);
+        continue;
+      }
+      await put(key, value);
+    }
+    notifyListeners();
+    return applied;
+  }
+
   /// Загрузка предпочтений до runApp, чтобы не мигать темой при старте.
   static Future<SettingsController> load() async {
     final prefs = await SharedPreferences.getInstance();

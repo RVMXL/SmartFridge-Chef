@@ -2161,6 +2161,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'At least one days option must remain — otherwise reminders would lose their point.'**
   String get notifLastDayNote;
+
+  /// No description provided for @dataSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get dataSectionTitle;
+
+  /// No description provided for @exportDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export data'**
+  String get exportDataTitle;
+
+  /// No description provided for @exportDataSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup: products, plans, profile, settings'**
+  String get exportDataSubtitle;
+
+  /// No description provided for @exportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The system share sheet will open — save the file somewhere safe. Store secrets are never included in the backup.'**
+  String get exportHint;
+
+  /// No description provided for @importDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import data'**
+  String get importDataTitle;
+
+  /// No description provided for @importDataSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from a backup file'**
+  String get importDataSubtitle;
+
+  /// No description provided for @importConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace all data?'**
+  String get importConfirmTitle;
+
+  /// No description provided for @importConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your current products, meal plans, profile and settings will be replaced with the file contents. This cannot be undone.'**
+  String get importConfirmBody;
+
+  /// No description provided for @importConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get importConfirmAction;
+
+  /// No description provided for @exportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup ready — send the file to a safe place'**
+  String get exportSuccess;
+
+  /// No description provided for @exportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create the backup'**
+  String get exportFailed;
+
+  /// No description provided for @importSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Data restored: {products} products, {plans} plans'**
+  String importSuccess(int products, int plans);
+
+  /// No description provided for @importFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Import failed — the file is corrupted'**
+  String get importFailed;
+
+  /// No description provided for @importNotBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not a SmartFridge backup file'**
+  String get importNotBackup;
+
+  /// No description provided for @importNewerVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'The file was created by a newer app version. Update SmartFridge and try again.'**
+  String get importNewerVersion;
 }
 
 class _AppLocalizationsDelegate

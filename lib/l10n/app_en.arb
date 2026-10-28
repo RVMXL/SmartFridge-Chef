@@ -519,5 +519,30 @@
       }
     }
   },
-  "notifLastDayNote": "At least one days option must remain — otherwise reminders would lose their point."
+  "notifLastDayNote": "At least one days option must remain — otherwise reminders would lose their point.",
+  "dataSectionTitle": "Data",
+  "exportDataTitle": "Export data",
+  "exportDataSubtitle": "Backup: products, plans, profile, settings",
+  "exportHint": "The system share sheet will open — save the file somewhere safe. Store secrets are never included in the backup.",
+  "importDataTitle": "Import data",
+  "importDataSubtitle": "Restore from a backup file",
+  "importConfirmTitle": "Replace all data?",
+  "importConfirmBody": "Your current products, meal plans, profile and settings will be replaced with the file contents. This cannot be undone.",
+  "importConfirmAction": "Replace",
+  "exportSuccess": "Backup ready — send the file to a safe place",
+  "exportFailed": "Failed to create the backup",
+  "importSuccess": "Data restored: {products} products, {plans} plans",
+  "@importSuccess": {
+    "placeholders": {
+      "products": {
+        "type": "int"
+      },
+      "plans": {
+        "type": "int"
+      }
+    }
+  },
+  "importFailed": "Import failed — the file is corrupted",
+  "importNotBackup": "This is not a SmartFridge backup file",
+  "importNewerVersion": "The file was created by a newer app version. Update SmartFridge and try again."
 }

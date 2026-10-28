@@ -1175,4 +1175,56 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get notifLastDayNote =>
       'Хотя бы один вариант дней должен остаться — иначе напоминания потеряют смысл.';
+
+  @override
+  String get dataSectionTitle => 'Данные';
+
+  @override
+  String get exportDataTitle => 'Экспорт данных';
+
+  @override
+  String get exportDataSubtitle =>
+      'Резервная копия: продукты, планы, профиль, настройки';
+
+  @override
+  String get exportHint =>
+      'Файл откроется в системном меню — сохраните его в надёжное место. Секреты (ключи магазинов) в копию не включаются.';
+
+  @override
+  String get importDataTitle => 'Импорт данных';
+
+  @override
+  String get importDataSubtitle => 'Восстановить из файла резервной копии';
+
+  @override
+  String get importConfirmTitle => 'Заменить все данные?';
+
+  @override
+  String get importConfirmBody =>
+      'Текущие продукты, планы меню, профиль и настройки будут заменены содержимым файла. Отменить это будет нельзя.';
+
+  @override
+  String get importConfirmAction => 'Заменить';
+
+  @override
+  String get exportSuccess =>
+      'Резервная копия готова — отправьте файл в надёжное место';
+
+  @override
+  String get exportFailed => 'Не удалось создать резервную копию';
+
+  @override
+  String importSuccess(int products, int plans) {
+    return 'Данные восстановлены: продуктов — $products, планов — $plans';
+  }
+
+  @override
+  String get importFailed => 'Импорт не выполнен — файл повреждён';
+
+  @override
+  String get importNotBackup => 'Это не файл резервной копии SmartFridge';
+
+  @override
+  String get importNewerVersion =>
+      'Файл создан более новой версией приложения. Обновите SmartFridge и повторите импорт.';
 }

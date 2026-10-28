@@ -16,6 +16,7 @@ import '../../state/profile_controller.dart';
 import '../../state/product_controller.dart';
 import '../../state/settings_controller.dart';
 import '../widgets/common.dart';
+import 'data_section.dart';
 import 'profile_edit_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -223,6 +224,9 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
           ),
+
+          // ---------------- Данные (экспорт/импорт, v0.6.3)
+          const DataSection(),
 
           // ---------------- Оформление
           SectionHeader(l.settingsAppearance),

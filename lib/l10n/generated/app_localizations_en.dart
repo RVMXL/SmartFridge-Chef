@@ -1170,4 +1170,54 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notifLastDayNote =>
       'At least one days option must remain — otherwise reminders would lose their point.';
+
+  @override
+  String get dataSectionTitle => 'Data';
+
+  @override
+  String get exportDataTitle => 'Export data';
+
+  @override
+  String get exportDataSubtitle => 'Backup: products, plans, profile, settings';
+
+  @override
+  String get exportHint =>
+      'The system share sheet will open — save the file somewhere safe. Store secrets are never included in the backup.';
+
+  @override
+  String get importDataTitle => 'Import data';
+
+  @override
+  String get importDataSubtitle => 'Restore from a backup file';
+
+  @override
+  String get importConfirmTitle => 'Replace all data?';
+
+  @override
+  String get importConfirmBody =>
+      'Your current products, meal plans, profile and settings will be replaced with the file contents. This cannot be undone.';
+
+  @override
+  String get importConfirmAction => 'Replace';
+
+  @override
+  String get exportSuccess => 'Backup ready — send the file to a safe place';
+
+  @override
+  String get exportFailed => 'Failed to create the backup';
+
+  @override
+  String importSuccess(int products, int plans) {
+    return 'Data restored: $products products, $plans plans';
+  }
+
+  @override
+  String get importFailed => 'Import failed — the file is corrupted';
+
+  @override
+  String get importNotBackup => 'This is not a SmartFridge backup file';
+
+  @override
+  String get importNewerVersion =>
+      'The file was created by a newer app version. Update SmartFridge and try again.';
 }
