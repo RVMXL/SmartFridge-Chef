@@ -1,10 +1,14 @@
 // Вендоренная копия flutter_tesseract_ocr 0.4.31 (BSD-3, см. LICENSE) —
 // OCR-1 (v0.6.2): оригинальный build.gradle несовместим с Gradle 9
-// (jcenter() удалён; rootProject.allprojects с flatDir вызывал NPE при
-// оценке проекта). Исправления: убран buildscript/jcenter (AGP приходит
-// из приложения), flatDir локален, lint-блок современный.
+// (jcenter() удалён; rootProject.allprojects с project(':...') внутри
+// вызывал NPE при оценке проекта). Исправления: убран buildscript/
+// jcenter (AGP приходит из приложения), flatDir регистрируется на всех
+// проектах через захваченную СТРОКУ пути (без project() — Gradle 9
+// запрещает кросс-проектный доступ при оценке), lint-блок современный.
 group 'io.paratoner.flutter_tesseract_ocr'
 version '1.0'
+
+def pluginLibsDir = projectDir.absolutePath + '/libs'
 
 apply plugin: 'com.android.library'
 
@@ -24,7 +28,18 @@ android {
 
 repositories {
     flatDir {
-        dirs 'libs'
+        dirs pluginLibsDir
+    }
+}
+
+// AAR виден и приложению (app его упаковывает) — потому flatDir
+// регистрируется на ВСЕХ проектах; inside — только строка пути,
+// никаких обращений к project().
+rootProject.allprojects {
+    repositories {
+        flatDir {
+            dirs pluginLibsDir
+        }
     }
 }
 
