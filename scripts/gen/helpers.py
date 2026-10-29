@@ -9,7 +9,8 @@
   ingredients[{key,ru,en,grams}], steps{ru[],en[]}
 """
 
-from foods import FOODS, PANTRY_KEYS
+from foods import (FOODS, PANTRY_KEYS, REQUIRED_ALLERGEN_BY_KEY,  # noqa: F401
+                   ALLERGEN_CANONICAL, DIET_FLAG_KEYS, DAIRY_EXTRA_KEYS)
 
 MEAT_CLASSES = {"meat"}
 # REC-4 (аудит 2026-10-28, v0.6.2): креветки/кальмары (cls="seafood") —
@@ -17,7 +18,39 @@ MEAT_CLASSES = {"meat"}
 FISH_CLASSES = {"fish"}
 SEAFOOD_CLASSES = {"seafood"}
 ANIMAL_CLASSES = {"meat", "fish", "seafood", "dairy", "egg"}
-NON_VEGAN_FOODS = {"honey"}  # не животный продукт, но не веганский
+NON_VEGAN_FOODS = {"honey",  # не животный продукт, но не веганский
+                   "mayo"}   # яичная эмульсия (AI-9): веганом не считается
+
+
+def compute_allergens(keys):
+    """Аллергены рецепта — конвейер патчей базы (v0.4.x + LEG-2).
+
+    1. База: объединение аллергенов FOODS по ключам ингредиентов,
+       алфавитный порядок (как в исходном генераторе).
+    2. Оверлей REQUIRED_ALLERGEN_BY_KEY (fix_recipe_allergens.py):
+       если по карте не хватает аллергена, список сортируется в
+       каноническом порядке ALLERGEN_CANONICAL — ровно как делал патч
+       (он сортировал только изменённые рецепты).
+    3. LEG-2 (wave1_leg2_patches.py): ключ "shellfish" снимается,
+       "crustaceans"/"molluscs" дописываются в конец при наличии
+       shrimp/squid.
+    """
+    base = set()
+    for k in keys:
+        base |= FOODS[k].get("allergens", set())
+    need = {REQUIRED_ALLERGEN_BY_KEY[k] for k in keys
+            if k in REQUIRED_ALLERGEN_BY_KEY}
+    if need - base:
+        out = sorted(base | need, key=ALLERGEN_CANONICAL.index)
+    else:
+        out = sorted(base)
+    if "shellfish" in out:
+        out = [a for a in out if a != "shellfish"]
+        if "shrimp" in keys:
+            out.append("crustaceans")
+        if "squid" in keys:
+            out.append("molluscs")
+    return out
 
 
 def draft(category, title_ru, title_en, minutes, servings, ings,
@@ -28,7 +61,6 @@ def draft(category, title_ru, title_en, minutes, servings, ings,
     масло, специи) разрешены и просто помечаются pantry в валидаторе.
     """
     kcal = prot = fat = carb = 0.0
-    allergens = set()
     has_meat = has_fish = has_seafood = has_animal = has_gluten = False
 
     # Слияние дубликатов ключей (соль встречается и в базе, и в блюде)
@@ -36,6 +68,7 @@ def draft(category, title_ru, title_en, minutes, servings, ings,
     for key, grams in ings:
         merged[key] = merged.get(key, 0) + grams
     ings = list(merged.items())
+    keys = set(merged)
 
     for key, grams in ings:
         f = FOODS[key]
@@ -44,7 +77,6 @@ def draft(category, title_ru, title_en, minutes, servings, ings,
         prot += f["p"] * share
         fat += f["f"] * share
         carb += f["c"] * share
-        allergens |= f.get("allergens", set())
         if f["cls"] in MEAT_CLASSES:
             has_meat = True
         if f["cls"] in FISH_CLASSES:
@@ -66,6 +98,11 @@ def draft(category, title_ru, title_en, minutes, servings, ings,
         family = ranked[0][0] if ranked else ""
     second_family = next((k for k, _ in ranked if k != family), "")
 
+    # REC-2 (v0.6.2): шоколад в базе молочный — влияет на has_dairy/vegan.
+    extra_dairy = bool(keys & DAIRY_EXTRA_KEYS)
+    if extra_dairy:
+        has_animal = True
+
     return {
         "title": {"ru": title_ru, "en": title_en},
         "category": category,
@@ -77,6 +114,8 @@ def draft(category, title_ru, title_en, minutes, servings, ings,
             "fat": int(round(fat / servings)),
             "carbs": int(round(carb / servings)),
         },
+        # Порядок ключей флагов важен: он совпадает с порядком в
+        # assets/data/recipes.json (11 флагов после v0.4.3/v0.6.2).
         "flags": {
             "vegetarian": not has_meat and not has_fish and not has_seafood,
             "vegan": (not has_meat and not has_fish and not has_animal),
@@ -84,8 +123,14 @@ def draft(category, title_ru, title_en, minutes, servings, ings,
             "low_carb": round(carb / servings) <= 30,
             "has_meat": has_meat,
             "has_fish": has_fish,
+            "has_pork": bool(keys & DIET_FLAG_KEYS["has_pork"]),
+            "has_alcohol": bool(keys & DIET_FLAG_KEYS["has_alcohol"]),
+            "has_beef": bool(keys & DIET_FLAG_KEYS["has_beef"]),
+            "has_shellfish": bool(keys & DIET_FLAG_KEYS["has_shellfish"]),
+            "has_dairy": bool(keys & DIET_FLAG_KEYS["has_dairy"])
+                         or extra_dairy,
         },
-        "allergens": sorted(allergens),
+        "allergens": compute_allergens(keys),
         "family": family,
         "second_family": second_family,
         "ingredients": [

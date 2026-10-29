@@ -183,7 +183,8 @@ FOODS = {
     "buckwheat_cooked": dict(ru="гречка отварная", en="cooked buckwheat",
                              kcal=110, p=4, f=1, c=21, cls="grain"),
     "oat_flakes": dict(ru="овсяные хлопья", en="oat flakes",
-                       kcal=366, p=12, f=7, c=62, cls="grain"),
+                       kcal=366, p=12, f=7, c=62, cls="grain",
+                       gluten=True),  # все овсяные рецепты ассета — не GF
     "pasta": dict(ru="макароны", en="pasta",
                   kcal=350, p=12, f=1.3, c=72, cls="grain", gluten=True),
     "bulgur_cooked": dict(ru="булгур отварной", en="cooked bulgur",
@@ -246,7 +247,8 @@ FOODS = {
                          kcal=82, p=4.4, f=0.5, c=15, cls="pantry"),
     "soy_sauce": dict(ru="соевый соус", en="soy sauce",
                       kcal=53, p=8, f=0, c=6, cls="pantry",
-                      allergens={"soy"}),
+                      allergens={"soy"},
+                      gluten=True),  # классический соус с пшеницей
     "mustard": dict(ru="горчица", en="mustard",
                     kcal=66, p=4, f=3, c=5, cls="pantry"),
     "mayo": dict(ru="майонез", en="mayonnaise",
@@ -280,5 +282,67 @@ FOODS = {
 # не участвуют в покрытии холодильника и не попадают в список покупок.
 PANTRY_KEYS = {k for k, v in FOODS.items() if v["cls"] == "pantry"}
 
-ALLERGEN_KEYS = {"milk", "eggs", "fish", "shellfish",
+# Аллергены: «большая 14» ЕС (LEG-2, аудит 2026-10-28): shellfish разделён
+# на crustaceans + molluscs. В FOODS ниже shrimp/squid исторически несут
+# старый ключ "shellfish" — конвейер аллергенов в helpers.draft() переводит
+# его в новые (важно для воспроизведения порядка в ассете).
+ALLERGEN_KEYS = {"milk", "eggs", "fish", "crustaceans", "molluscs",
                  "nuts", "peanuts", "soy", "wheat", "sesame"}
+
+# ---- инвариант аллергенов (fix_recipe_allergens.py, v0.4.x) ------------
+# Ключ ингредиента -> аллерген, который обязан быть у рецепта, даже если
+# FOODS его не несёт. Инвариант закреплён тестом
+# test/ai/recipe_repository_test.dart.
+REQUIRED_ALLERGEN_BY_KEY = {
+    "flour": "wheat",            # мука пшеничная
+    "bread": "wheat",            # пшеничный хлеб/батон
+    "bread_rye": "wheat",        # ржаной хлеб (глютен)
+    "pasta": "wheat",            # макароны — пшеница
+    "semolina": "wheat",         # манка — пшеничная крупа
+    "bulgur_cooked": "wheat",    # булгур — пшеница
+    "couscous_cooked": "wheat",  # кускус — манка/пшеница
+    "pearl_barley": "wheat",     # перловка — ячмень (глютен)
+    "barley_cooked": "wheat",    # ячка — ячмень (глютен)
+    "soy_sauce": "wheat",        # классический соевый соус с пшеницей
+    "mayo": "eggs",              # майонез всегда содержит яйцо
+    "milk": "milk", "kefir": "milk", "yogurt": "milk",
+    "sour_cream": "milk", "cottage_cheese": "milk", "cheese": "milk",
+    "butter": "milk", "cream": "milk",
+    "egg": "eggs",
+    "salmon": "fish", "cod": "fish", "pollock": "fish",
+    "herring": "fish", "tuna_can": "fish", "minced_fish": "fish",
+    "shrimp": "shellfish", "squid": "shellfish",  # до LEG-2-конвертации
+    "walnut": "nuts", "almond": "nuts",
+    "peanut_butter": "peanuts",
+    "tofu": "soy",
+    # oat_flakes сознательно НЕ в карте: в базе есть безглютеновая овсянка.
+}
+
+# Канонический порядок аллергенов из fix_recipe_allergens.py: рецепты,
+# которым патч ДОБАВЛЯЛ аллерген, хранят список в этом порядке; остальные —
+# в алфавитном (как выходило из старого draft()). Порядок воспроизводится
+# конвейером в helpers.draft().
+ALLERGEN_CANONICAL = ["milk", "eggs", "fish", "shellfish", "nuts",
+                      "peanuts", "soy", "wheat", "sesame"]
+
+# ---- наборы diet-флагов (enrich_recipe_diet_flags.py, v0.4.3) ----------
+# Значение флага = «в рецепте есть ключ из набора». Наборы — надмножества
+# того, что реально есть в базе.
+DIET_FLAG_KEYS = {
+    "has_pork": {"pork", "bacon", "lard", "ham", "salami", "prosciutto",
+                 "chorizo", "pancetta", "jamon", "speck", "gelatin"},
+    "has_alcohol": {"wine", "white_wine", "red_wine", "beer", "cognac",
+                    "rum", "brandy", "vodka", "champagne", "whiskey",
+                    "liquor", "sake", "tequila", "mulled_wine"},
+    "has_beef": {"beef", "minced_beef", "veal"},
+    # крабовые палочки сознательно НЕ здесь (сурими = белая рыба)
+    "has_shellfish": {"shrimp", "prawns", "squid", "crab", "mussels",
+                      "oysters", "octopus", "scallops", "lobster",
+                      "clams", "crayfish"},
+    "has_dairy": {"milk", "kefir", "cream", "sour_cream", "butter",
+                  "cheese", "cottage_cheese", "yogurt", "condensed_milk",
+                  "ryazhenka", "varenets"},
+}
+# REC-2 (v0.6.2): шоколад в базе — молочный («Банан с шоколадом»:
+# vegan=false, has_dairy=true при аллергене milk).
+DAIRY_EXTRA_KEYS = {"chocolate"}
