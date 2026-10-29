@@ -263,13 +263,13 @@ def specials():
           ("sour_cream", 100), ("mustard", 10), ("vegetable_oil", 20)],
          ["Говядину нарежьте тонкой соломкой и обжарьте порциями 3–4 минуты.",
           "Отдельно обжарьте лук и грибы.",
-          "Соедините, добавьте сметану с горчицей и прогрейте 5 минут "
-          "на слабом огне."],
+          "Соедините всё в сковороде, добавьте сметану с горчицей и "
+          "тушите 5 минут на слабом огне."],
          ["Slice the beef into thin strips and fry in batches for 3–4 "
           "minutes.",
           "Separately fry the onion and mushrooms.",
-          "Combine, add the sour cream with mustard and heat through for "
-          "5 minutes over low heat."]),
+          "Combine everything in the pan, add the sour cream with mustard "
+          "and simmer for 5 minutes over low heat."]),
         ("Ленивые голубцы", "Lazy cabbage rolls", 60,
          [("minced_beef", 350), ("cabbage", 250), ("rice", 80),
           ("onion", 60), ("tomato_paste", 40), ("sour_cream", 40)],
@@ -365,20 +365,23 @@ def specials():
          ["Отварите макароны до аль денте.",
           "Фарш обжарьте с луком и морковью 10 минут, добавьте томатную "
           "пасту при желании.",
-          "Соедините с макаронами и прогрейте 3 минуты."],
+          "Добавьте макароны в сковороду к фаршу, перемешайте и "
+          "готовьте 3 минуты на среднем огне."],
          ["Boil the pasta until al dente.",
           "Fry the ground beef with the onion and carrot for 10 minutes.",
-          "Fold in the pasta and heat through for 3 minutes."]),
+          "Fold the pasta into the pan with the mince and cook for 3 "
+          "minutes over medium heat."]),
         ("Паста в сливочном соусе с курицей", "Creamy chicken pasta", 35,
          [("pasta", 180), ("chicken_breast", 250), ("cream", 120),
           ("onion", 60), ("garlic", 6), ("cheese", 40),
           ("olive_oil", 15)],
          ["Курицу нарежьте полосками и обжарьте 6–7 минут.",
-          "Добавьте лук и чеснок, влейте сливки, прогрейте 3 минуты.",
+          "Добавьте лук и чеснок, влейте сливки и томите соус на "
+          "сковороде 3 минуты на слабом огне.",
           "Соедините с макаронами, посыпьте сыром."],
          ["Slice the chicken into strips and fry for 6–7 minutes.",
-          "Add the onion and garlic, pour in the cream and heat for 3 "
-          "minutes.",
+          "Add the onion and garlic, pour in the cream and simmer the "
+          "sauce in the pan for 3 minutes over low heat.",
           "Fold in the pasta and sprinkle with cheese."]),
         ("Рыба в томатном соусе с овощами", "Fish in tomato sauce with "
          "vegetables", 40,
@@ -408,10 +411,12 @@ def specials():
           ("sesame_oil_placeholder", 0)],
          ["Тофу нарежьте кубиками и обжарьте до румяности.",
           "Добавьте овощи и жарьте 5 минут.",
-          "Влейте соус из соевого соуса, мёда и чеснока, прогрейте 2 минуты."],
+          "Влейте соус из соевого соуса, мёда и чеснока и готовьте "
+          "на сковороде 2 минуты, помешивая."],
          ["Dice the tofu and fry until golden.",
           "Add the vegetables and fry for 5 minutes.",
-          "Pour in the soy-honey-garlic sauce and heat for 2 minutes."]),
+          "Pour in the soy-honey-garlic sauce and cook in the pan for "
+          "2 minutes, stirring."]),
         ("Нут, тушённый в томате", "Chickpeas simmered in tomato sauce", 35,
          [("chickpeas", 250), ("tomato_paste", 50), ("onion", 80),
           ("carrot", 60), ("spices", 3), ("olive_oil", 15)],
@@ -497,16 +502,20 @@ def pasta_dishes():
                 [("salt", 2), ("pepper", 1)])
         sru = ["Отварите макароны в подсоленной воде до аль денте, откиньте, "
                "сохранив полстакана воды от варки.",
-               "Приготовьте соус: обжарьте основу, добавьте жидкие "
-               "ингредиенты и прогрейте 3–5 минут.",
-               "Соедините пасту с соусом, при необходимости подлейте воду "
-               "от варки, прогрейте 1–2 минуты и подавайте."]
+               "Приготовьте соус: обжарьте основу на сковороде, добавьте "
+               "жидкие ингредиенты и потушите 3–5 минут на слабом огне, "
+               "помешивая.",
+               "Выложите пасту в сковороду к соусу, при необходимости "
+               "подлейте воду от варки и перемешайте на среднем огне "
+               "1–2 минуты; подавайте сразу."]
         sen = ["Boil the pasta in salted water until al dente; drain, "
                "reserving half a cup of the cooking water.",
-               "Make the sauce: fry the base, add the liquid ingredients "
-               "and heat for 3–5 minutes.",
-               "Toss the pasta with the sauce, loosen with the reserved "
-               "water if needed and serve."]
+               "Make the sauce: fry the base in a pan, add the liquid "
+               "ingredients and simmer for 3–5 minutes over low heat, "
+               "stirring.",
+               "Toss the pasta with the sauce in the pan, loosen with the "
+               "reserved water if needed, cook for 1–2 minutes over "
+               "medium heat and serve."]
         out.append(draft("main", ru, en, 30, 2, ings, sru, sen))
     return out
 

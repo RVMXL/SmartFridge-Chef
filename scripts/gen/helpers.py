@@ -231,8 +231,8 @@ def main_steps(method_key, prot, garn, sauce=None):
               f"Heat the {oil_en} in a pan and fry the {prot['en']} for "
               "7–10 minutes until golden."]
         if sauce:
-            ru.append(f"Добавьте ингредиенты соуса и прогрейте 3–4 минуты "
-                      "на слабом огне.")
+            ru.append(f"Добавьте ингредиенты соуса и потушите 3–4 минуты "
+                      "на слабом огне, помешивая.")
             en.append("Add the sauce ingredients and simmer for 3–4 minutes "
                       "over low heat.")
     elif method_key == "bake":

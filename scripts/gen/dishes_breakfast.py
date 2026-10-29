@@ -277,10 +277,12 @@ def pancakes_toasts():
          20, 1,
          ["Банан разомните вилкой в пюре.",
           "Смешайте с яйцом, хлопьями и мукой; дайте постоять 5 минут.",
-          "Выпекайте маленькие панкейки по 1–2 минуты с каждой стороны."],
+          "Обжаривайте маленькие панкейки на разогретой сковороде с маслом "
+          "по 1–2 минуты с каждой стороны."],
          ["Mash the banana with a fork.",
           "Mix with the egg, oats and flour; let rest for 5 minutes.",
-          "Cook small pancakes for 1–2 minutes per side."]),
+          "Fry small pancakes in a lightly oiled pan for 1–2 minutes "
+          "per side."]),
         ("Оладьи из кабачков", "Zucchini fritters",
          [("zucchini", 120), ("egg", 60), ("flour", 30), ("garlic", 4),
           ("salt", 2), ("vegetable_oil", 10)],

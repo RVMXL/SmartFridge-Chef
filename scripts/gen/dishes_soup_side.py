@@ -46,7 +46,8 @@ def soups():
             "minced_chicken": "Сформируйте фрикадельки из фарша и опустите "
                               "в кипящий бульон, варите 10 минут.",
         }
-        return names.get(key, "Соедините всё и прогрейте 5 минут.")
+        return names.get(key, "Поварите всё вместе в кастрюле ещё 5 минут "
+                              "на слабом огне.")
 
     def extra_step_en(extra):
         key = extra[0][0] if extra else ""
@@ -65,7 +66,8 @@ def soups():
                               "drop them into the boiling broth; cook for "
                               "10 minutes.",
         }
-        return names.get(key, "Combine and heat through for 5 minutes.")
+        return names.get(key, "Simmer everything together in the pot for "
+                              "another 5 minutes over low heat.")
 
     chicken("Куриная лапша", "Chicken noodle soup", [("pasta", 80)],
             drop_potato=True)
@@ -176,8 +178,10 @@ def soups():
                        "пюре.")
             sen.append("Add the cream and blend until smooth.")
         else:
-            sru.append("Прогрейте ещё 3–5 минут и подавайте.")
-            sen.append("Heat through for another 3–5 minutes and serve.")
+            sru.append("Поварите ещё 3–5 минут в кастрюле на слабом огне "
+                       "и подавайте.")
+            sen.append("Simmer in the pot for another 3–5 minutes over low "
+                       "heat and serve.")
         out.append(draft("soup", ru, en, minutes, 4, ings + [("salt", 2)],
                          sru, sen))
 

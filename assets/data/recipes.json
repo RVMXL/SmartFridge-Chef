@@ -2,7 +2,7 @@
  "schema": "recipes.v1",
  "generated_at": "2026-10-24",
  "generator": "scripts/gen_recipes.py (rvmxl, Apache-2.0)",
- "count": 541,
+ "count": 554,
  "note": "Встроенная база рецептов для RuleBasedPlanner. КБЖУ приблизительные, на порцию. Панtry-ингредиенты (соль/масло/специи) считаются всегда доступными.",
  "recipes": [
   {
@@ -86,12 +86,12 @@
     "ru": [
      "Банан разомните вилкой в пюре.",
      "Смешайте с яйцом, хлопьями и мукой; дайте постоять 5 минут.",
-     "Выпекайте маленькие панкейки по 1–2 минуты с каждой стороны."
+     "Обжаривайте маленькие панкейки на разогретой сковороде с маслом по 1–2 минуты с каждой стороны."
     ],
     "en": [
      "Mash the banana with a fork.",
      "Mix with the egg, oats and flour; let rest for 5 minutes.",
-     "Cook small pancakes for 1–2 minutes per side."
+     "Fry small pancakes in a lightly oiled pan for 1–2 minutes per side."
     ]
    },
    "id": "r0001"
@@ -10095,12 +10095,12 @@
     "ru": [
      "Овощи нарежьте и залейте 1–1,2 л воды.",
      "Варите 20–25 минут до мягкости, посолите.",
-     "Прогрейте ещё 3–5 минут и подавайте."
+     "Поварите ещё 3–5 минут в кастрюле на слабом огне и подавайте."
     ],
     "en": [
      "Chop the vegetables and cover with 1–1.2 L of water.",
      "Cook for 20–25 minutes until soft; season with salt.",
-     "Heat through for another 3–5 minutes and serve."
+     "Simmer in the pot for another 3–5 minutes over low heat and serve."
     ]
    },
    "id": "r0110"
@@ -10287,12 +10287,12 @@
     "ru": [
      "Овощи нарежьте и залейте 1–1,2 л воды.",
      "Варите 20–25 минут до мягкости, посолите.",
-     "Прогрейте ещё 3–5 минут и подавайте."
+     "Поварите ещё 3–5 минут в кастрюле на слабом огне и подавайте."
     ],
     "en": [
      "Chop the vegetables and cover with 1–1.2 L of water.",
      "Cook for 20–25 minutes until soft; season with salt.",
-     "Heat through for another 3–5 minutes and serve."
+     "Simmer in the pot for another 3–5 minutes over low heat and serve."
     ]
    },
    "id": "r0112"
@@ -10446,12 +10446,12 @@
     "ru": [
      "Овощи нарежьте и залейте 1–1,2 л воды.",
      "Варите 20–25 минут до мягкости, посолите.",
-     "Прогрейте ещё 3–5 минут и подавайте."
+     "Поварите ещё 3–5 минут в кастрюле на слабом огне и подавайте."
     ],
     "en": [
      "Chop the vegetables and cover with 1–1.2 L of water.",
      "Cook for 20–25 minutes until soft; season with salt.",
-     "Heat through for another 3–5 minutes and serve."
+     "Simmer in the pot for another 3–5 minutes over low heat and serve."
     ]
    },
    "id": "r0114"
@@ -10641,12 +10641,12 @@
     "ru": [
      "Овощи нарежьте и залейте 1–1,2 л воды.",
      "Варите 20–25 минут до мягкости, посолите.",
-     "Прогрейте ещё 3–5 минут и подавайте."
+     "Поварите ещё 3–5 минут в кастрюле на слабом огне и подавайте."
     ],
     "en": [
      "Chop the vegetables and cover with 1–1.2 L of water.",
      "Cook for 20–25 minutes until soft; season with salt.",
-     "Heat through for another 3–5 minutes and serve."
+     "Simmer in the pot for another 3–5 minutes over low heat and serve."
     ]
    },
    "id": "r0116"
@@ -11410,13 +11410,13 @@
     "ru": [
      "Курицу залейте 1,5 л воды, доведите до кипения, снимите пену и варите 25 минут.",
      "Добавьте нарезанные картофель, морковь и лук, варите 10 минут.",
-     "Соедините всё и прогрейте 5 минут.",
+     "Поварите всё вместе в кастрюле ещё 5 минут на слабом огне.",
      "Дайте супу настояться под крышкой 10 минут и подавайте."
     ],
     "en": [
      "Cover the chicken with 1.5 L of water, bring to a boil, skim and cook for 25 minutes.",
      "Add the chopped potatoes, carrot and onion and cook for 10 minutes.",
-     "Combine and heat through for 5 minutes.",
+     "Simmer everything together in the pot for another 5 minutes over low heat.",
      "Let the soup rest, covered, for 10 minutes and serve."
     ]
    },
@@ -11926,12 +11926,12 @@
     "ru": [
      "Овощи нарежьте и залейте 1–1,2 л воды.",
      "Варите 20–25 минут до мягкости, посолите.",
-     "Прогрейте ещё 3–5 минут и подавайте."
+     "Поварите ещё 3–5 минут в кастрюле на слабом огне и подавайте."
     ],
     "en": [
      "Chop the vegetables and cover with 1–1.2 L of water.",
      "Cook for 20–25 minutes until soft; season with salt.",
-     "Heat through for another 3–5 minutes and serve."
+     "Simmer in the pot for another 3–5 minutes over low heat and serve."
     ]
    },
    "id": "r0129"
@@ -12921,12 +12921,12 @@
     "ru": [
      "Овощи нарежьте и залейте 1–1,2 л воды.",
      "Варите 20–25 минут до мягкости, посолите.",
-     "Прогрейте ещё 3–5 минут и подавайте."
+     "Поварите ещё 3–5 минут в кастрюле на слабом огне и подавайте."
     ],
     "en": [
      "Chop the vegetables and cover with 1–1.2 L of water.",
      "Cook for 20–25 minutes until soft; season with salt.",
-     "Heat through for another 3–5 minutes and serve."
+     "Simmer in the pot for another 3–5 minutes over low heat and serve."
     ]
    },
    "id": "r0139"
@@ -13002,12 +13002,12 @@
     "ru": [
      "Овощи нарежьте и залейте 1–1,2 л воды.",
      "Варите 20–25 минут до мягкости, посолите.",
-     "Прогрейте ещё 3–5 минут и подавайте."
+     "Поварите ещё 3–5 минут в кастрюле на слабом огне и подавайте."
     ],
     "en": [
      "Chop the vegetables and cover with 1–1.2 L of water.",
      "Cook for 20–25 minutes until soft; season with salt.",
-     "Heat through for another 3–5 minutes and serve."
+     "Simmer in the pot for another 3–5 minutes over low heat and serve."
     ]
    },
    "id": "r0140"
@@ -13335,12 +13335,12 @@
     "ru": [
      "Говядину нарежьте тонкой соломкой и обжарьте порциями 3–4 минуты.",
      "Отдельно обжарьте лук и грибы.",
-     "Соедините, добавьте сметану с горчицей и прогрейте 5 минут на слабом огне."
+     "Соедините всё в сковороде, добавьте сметану с горчицей и тушите 5 минут на слабом огне."
     ],
     "en": [
      "Slice the beef into thin strips and fry in batches for 3–4 minutes.",
      "Separately fry the onion and mushrooms.",
-     "Combine, add the sour cream with mustard and heat through for 5 minutes over low heat."
+     "Combine everything in the pan, add the sour cream with mustard and simmer for 5 minutes over low heat."
     ]
    },
    "id": "r0143"
@@ -32789,12 +32789,12 @@
     "ru": [
      "Отварите макароны до аль денте.",
      "Фарш обжарьте с луком и морковью 10 минут, добавьте томатную пасту при желании.",
-     "Соедините с макаронами и прогрейте 3 минуты."
+     "Добавьте макароны в сковороду к фаршу, перемешайте и готовьте 3 минуты на среднем огне."
     ],
     "en": [
      "Boil the pasta until al dente.",
      "Fry the ground beef with the onion and carrot for 10 minutes.",
-     "Fold in the pasta and heat through for 3 minutes."
+     "Fold the pasta into the pan with the mince and cook for 3 minutes over medium heat."
     ]
    },
    "id": "r0345"
@@ -32887,13 +32887,13 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу, добавьте жидкие ингредиенты и прогрейте 3–5 минут.",
-     "Соедините пасту с соусом, при необходимости подлейте воду от варки, прогрейте 1–2 минуты и подавайте."
+     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
+     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base, add the liquid ingredients and heat for 3–5 minutes.",
-     "Toss the pasta with the sauce, loosen with the reserved water if needed and serve."
+     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
+     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
     ]
    },
    "id": "r0346"
@@ -33956,13 +33956,13 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу, добавьте жидкие ингредиенты и прогрейте 3–5 минут.",
-     "Соедините пасту с соусом, при необходимости подлейте воду от варки, прогрейте 1–2 минуты и подавайте."
+     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
+     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base, add the liquid ingredients and heat for 3–5 minutes.",
-     "Toss the pasta with the sauce, loosen with the reserved water if needed and serve."
+     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
+     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
     ]
    },
    "id": "r0357"
@@ -34067,13 +34067,13 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу, добавьте жидкие ингредиенты и прогрейте 3–5 минут.",
-     "Соедините пасту с соусом, при необходимости подлейте воду от варки, прогрейте 1–2 минуты и подавайте."
+     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
+     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base, add the liquid ingredients and heat for 3–5 minutes.",
-     "Toss the pasta with the sauce, loosen with the reserved water if needed and serve."
+     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
+     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
     ]
    },
    "id": "r0358"
@@ -34165,13 +34165,13 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу, добавьте жидкие ингредиенты и прогрейте 3–5 минут.",
-     "Соедините пасту с соусом, при необходимости подлейте воду от варки, прогрейте 1–2 минуты и подавайте."
+     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
+     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base, add the liquid ingredients and heat for 3–5 minutes.",
-     "Toss the pasta with the sauce, loosen with the reserved water if needed and serve."
+     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
+     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
     ]
    },
    "id": "r0359"
@@ -34277,12 +34277,12 @@
    "steps": {
     "ru": [
      "Курицу нарежьте полосками и обжарьте 6–7 минут.",
-     "Добавьте лук и чеснок, влейте сливки, прогрейте 3 минуты.",
+     "Добавьте лук и чеснок, влейте сливки и томите соус на сковороде 3 минуты на слабом огне.",
      "Соедините с макаронами, посыпьте сыром."
     ],
     "en": [
      "Slice the chicken into strips and fry for 6–7 minutes.",
-     "Add the onion and garlic, pour in the cream and heat for 3 minutes.",
+     "Add the onion and garlic, pour in the cream and simmer the sauce in the pan for 3 minutes over low heat.",
      "Fold in the pasta and sprinkle with cheese."
     ]
    },
@@ -34376,13 +34376,13 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу, добавьте жидкие ингредиенты и прогрейте 3–5 минут.",
-     "Соедините пасту с соусом, при необходимости подлейте воду от варки, прогрейте 1–2 минуты и подавайте."
+     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
+     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base, add the liquid ingredients and heat for 3–5 minutes.",
-     "Toss the pasta with the sauce, loosen with the reserved water if needed and serve."
+     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
+     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
     ]
    },
    "id": "r0361"
@@ -34482,13 +34482,13 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу, добавьте жидкие ингредиенты и прогрейте 3–5 минут.",
-     "Соедините пасту с соусом, при необходимости подлейте воду от варки, прогрейте 1–2 минуты и подавайте."
+     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
+     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base, add the liquid ingredients and heat for 3–5 minutes.",
-     "Toss the pasta with the sauce, loosen with the reserved water if needed and serve."
+     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
+     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
     ]
    },
    "id": "r0362"
@@ -34581,13 +34581,13 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу, добавьте жидкие ингредиенты и прогрейте 3–5 минут.",
-     "Соедините пасту с соусом, при необходимости подлейте воду от варки, прогрейте 1–2 минуты и подавайте."
+     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
+     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base, add the liquid ingredients and heat for 3–5 minutes.",
-     "Toss the pasta with the sauce, loosen with the reserved water if needed and serve."
+     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
+     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
     ]
    },
    "id": "r0363"
@@ -34679,13 +34679,13 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу, добавьте жидкие ингредиенты и прогрейте 3–5 минут.",
-     "Соедините пасту с соусом, при необходимости подлейте воду от варки, прогрейте 1–2 минуты и подавайте."
+     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
+     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base, add the liquid ingredients and heat for 3–5 minutes.",
-     "Toss the pasta with the sauce, loosen with the reserved water if needed and serve."
+     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
+     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
     ]
    },
    "id": "r0364"
@@ -34776,13 +34776,13 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу, добавьте жидкие ингредиенты и прогрейте 3–5 минут.",
-     "Соедините пасту с соусом, при необходимости подлейте воду от варки, прогрейте 1–2 минуты и подавайте."
+     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
+     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base, add the liquid ingredients and heat for 3–5 minutes.",
-     "Toss the pasta with the sauce, loosen with the reserved water if needed and serve."
+     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
+     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
     ]
    },
    "id": "r0365"
@@ -34875,13 +34875,13 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу, добавьте жидкие ингредиенты и прогрейте 3–5 минут.",
-     "Соедините пасту с соусом, при необходимости подлейте воду от варки, прогрейте 1–2 минуты и подавайте."
+     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
+     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base, add the liquid ingredients and heat for 3–5 minutes.",
-     "Toss the pasta with the sauce, loosen with the reserved water if needed and serve."
+     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
+     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
     ]
    },
    "id": "r0366"
@@ -34973,13 +34973,13 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу, добавьте жидкие ингредиенты и прогрейте 3–5 минут.",
-     "Соедините пасту с соусом, при необходимости подлейте воду от варки, прогрейте 1–2 минуты и подавайте."
+     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
+     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base, add the liquid ingredients and heat for 3–5 minutes.",
-     "Toss the pasta with the sauce, loosen with the reserved water if needed and serve."
+     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
+     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
     ]
    },
    "id": "r0367"
@@ -35077,13 +35077,13 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу, добавьте жидкие ингредиенты и прогрейте 3–5 минут.",
-     "Соедините пасту с соусом, при необходимости подлейте воду от варки, прогрейте 1–2 минуты и подавайте."
+     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
+     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base, add the liquid ingredients and heat for 3–5 minutes.",
-     "Toss the pasta with the sauce, loosen with the reserved water if needed and serve."
+     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
+     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
     ]
    },
    "id": "r0368"
@@ -35176,13 +35176,13 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу, добавьте жидкие ингредиенты и прогрейте 3–5 минут.",
-     "Соедините пасту с соусом, при необходимости подлейте воду от варки, прогрейте 1–2 минуты и подавайте."
+     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
+     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base, add the liquid ingredients and heat for 3–5 minutes.",
-     "Toss the pasta with the sauce, loosen with the reserved water if needed and serve."
+     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
+     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
     ]
    },
    "id": "r0369"
@@ -37412,13 +37412,13 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу, добавьте жидкие ингредиенты и прогрейте 3–5 минут.",
-     "Соедините пасту с соусом, при необходимости подлейте воду от варки, прогрейте 1–2 минуты и подавайте."
+     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
+     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base, add the liquid ingredients and heat for 3–5 minutes.",
-     "Toss the pasta with the sauce, loosen with the reserved water if needed and serve."
+     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
+     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
     ]
    },
    "id": "r0390"
@@ -37518,12 +37518,12 @@
     "ru": [
      "Тофу нарежьте кубиками и обжарьте до румяности.",
      "Добавьте овощи и жарьте 5 минут.",
-     "Влейте соус из соевого соуса, мёда и чеснока, прогрейте 2 минуты."
+     "Влейте соус из соевого соуса, мёда и чеснока и готовьте на сковороде 2 минуты, помешивая."
     ],
     "en": [
      "Dice the tofu and fry until golden.",
      "Add the vegetables and fry for 5 minutes.",
-     "Pour in the soy-honey-garlic sauce and heat for 2 minutes."
+     "Pour in the soy-honey-garlic sauce and cook in the pan for 2 minutes, stirring."
     ]
    },
    "id": "r0391"

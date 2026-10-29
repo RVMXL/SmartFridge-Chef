@@ -125,7 +125,7 @@
 | `lib/l10n/` | ARB-источники RU/EN + сгенерированные локализации |
 | `docs/ARCHITECTURE.md` | Архитектура системы и дизайн AI-слоя и слоя уведомлений |
 | `docs/DATABASE.md` | Схема БД v9: таблицы, индексы, даты, миграции |
-| `test/` | 511 тестов: данные (вкл. резервное копирование), планировщик, напоминания, парсер чеков, OCR-движки, автопоиски, контроллеры (реальная SQLite через sqflite_common_ffi). TEST-3, v0.6.2: фактическое число публикует CI — артефакт `test_count` |
+| `test/` | 512 тестов: данные (вкл. резервное копирование), планировщик, напоминания, парсер чеков, OCR-движки, автопоиски, контроллеры (реальная SQLite через sqflite_common_ffi). TEST-3, v0.6.2: фактическое число публикует CI — артефакт `test_count` |
 | `.github/workflows/ci.yml` | CI: analyze --fatal-infos + test --coverage; счётчик тестов — артефакт `test_count` (TEST-3) |
 | `.github/workflows/release.yml` | Релиз по тегу `v*`: analyze + тесты → три per-ABI APK `SmartFridge-<версия>-<архитектура>.apk` → GitHub Release (пре-релиз) |
 | `.github/workflows/codeql.yaml` | CodeQL (code scanning): security-анализ воркфлоу Actions, еженедельно + на пуш; Dart не поддерживается CodeQL и проверяется `flutter analyze` в CI |
