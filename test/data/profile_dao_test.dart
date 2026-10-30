@@ -192,7 +192,8 @@ void main() {
       expect(loaded.equipment, isNull);
     });
 
-    test('неизвестные ключи техники отбрасываются при чтении', () async {
+    test('неизвестные ключи техники отбрасываются, v1-массив мигрирует',
+        () async {
       await db.execute(
         'INSERT OR REPLACE INTO user_profile '
         '(allergies, created_at, updated_at, equipment) '
@@ -205,7 +206,14 @@ void main() {
         ],
       );
       final loaded = (await dao.getProfile())!;
-      expect(loaded.equipment, [KitchenEquipment.oven]);
+      // Мусорный ключ (airfryer_3000) отброшен; v1-массив (чипов
+      // гриля/пароварки до v0.6.7 не было) консервативно дополнен
+      // обоими новыми видами техники.
+      expect(loaded.equipment, contains(KitchenEquipment.oven));
+      expect(loaded.equipment, isNot(contains('airfryer_3000')));
+      expect(loaded.equipment,
+          containsAll([KitchenEquipment.grill, KitchenEquipment.steamer]));
+      expect(loaded.equipment, hasLength(3));
     });
   });
 }

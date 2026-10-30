@@ -29,7 +29,9 @@
 /// мелких значений) в SQLite (SCAN-6, аудит 2026-10-28).
 /// v9 — (v0.6.3, UI-6): `products.currency` — валюта цены продукта.
 /// v10 — (v0.6.4): `user_profile.equipment` — техника на кухне
-/// (JSON-массив ключей oven/blender/toaster, lib/ai/equipment.dart).
+/// (JSON: v0.6.4–0.6.6 — массив ключей oven/blender/toaster, с v0.6.7 —
+/// объект {"v":2,"owned":[…]} из пяти ключей; чтение понимает оба,
+/// lib/ai/equipment.dart).
 /// Nullable: null/пусто = «неизвестно/всё есть» — профили до v0.6.4
 /// продолжают работать без фильтрации по технике.
 library;

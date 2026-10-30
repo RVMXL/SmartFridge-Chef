@@ -1006,6 +1006,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get equipmentToaster => 'Тостер';
 
   @override
+  String get equipmentGrill => 'Гриль';
+
+  @override
+  String get equipmentSteamer => 'Пароварка';
+
+  @override
   String get equipmentSubstOvenShort => 'плита';
 
   @override
@@ -1013,6 +1019,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get equipmentSubstToasterShort => 'сухая сковорода';
+
+  @override
+  String get equipmentSubstGrillShort => 'сковорода';
+
+  @override
+  String get equipmentSubstSteamerShort => 'кастрюля с крышкой';
 
   @override
   String menuEquipmentNote(String names) {

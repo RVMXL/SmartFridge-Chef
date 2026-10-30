@@ -300,9 +300,13 @@
   "equipmentOven": "Духовка",
   "equipmentBlender": "Блендер",
   "equipmentToaster": "Тостер",
+  "equipmentGrill": "Гриль",
+  "equipmentSteamer": "Пароварка",
   "equipmentSubstOvenShort": "плита",
   "equipmentSubstBlenderShort": "толкушка/сито",
   "equipmentSubstToasterShort": "сухая сковорода",
+  "equipmentSubstGrillShort": "сковорода",
+  "equipmentSubstSteamerShort": "кастрюля с крышкой",
   "menuEquipmentNote": "замена: {names}",
   "@menuEquipmentNote": {
     "placeholders": {

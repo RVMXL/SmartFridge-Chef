@@ -112,11 +112,14 @@ IconData slotIcon(MealSlot s) => switch (s) {
       MealSlot.dinner => Icons.dinner_dining_outlined,
     };
 
-/// Локализованное название кухонной техники (v0.6.4).
+/// Локализованное название кухонной техники (v0.6.4; гриль и пароварка —
+/// с v0.6.7).
 String equipmentLabel(AppLocalizations l, KitchenEquipment e) => switch (e) {
       KitchenEquipment.oven => l.equipmentOven,
       KitchenEquipment.blender => l.equipmentBlender,
       KitchenEquipment.toaster => l.equipmentToaster,
+      KitchenEquipment.grill => l.equipmentGrill,
+      KitchenEquipment.steamer => l.equipmentSteamer,
     };
 
 /// Короткая подсказка замены техники для пометки в списке блюд
@@ -126,6 +129,8 @@ String equipmentSubstShort(AppLocalizations l, KitchenEquipment e) =>
       KitchenEquipment.oven => l.equipmentSubstOvenShort,
       KitchenEquipment.blender => l.equipmentSubstBlenderShort,
       KitchenEquipment.toaster => l.equipmentSubstToasterShort,
+      KitchenEquipment.grill => l.equipmentSubstGrillShort,
+      KitchenEquipment.steamer => l.equipmentSubstSteamerShort,
     };
 
 /// Заголовок секции настроек/экранов.

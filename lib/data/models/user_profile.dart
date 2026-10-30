@@ -243,11 +243,15 @@ class UserProfile {
   /// Количество приёмов пищи в день (2–6).
   final int mealsPerDay;
 
-  /// Техника на кухне (v0.6.4): духовка, блендер, тостер — по составу
-  /// базы рецептов. null = «неизвестно/всё есть» (старые профили);
-  /// явный пустой список = «техники нет» — духовочные блюда на 4+
-  /// порций исключаются, остальные предлагаются с пометкой замены
-  /// (см. lib/ai/equipment.dart).
+  /// Техника на кухне (v0.6.4; с v0.6.7 — духовка, блендер, тостер,
+  /// гриль, пароварка — по составу базы рецептов). null =
+  /// «неизвестно/всё есть» (старые профили); явный пустой список =
+  /// «техники нет» — духовочные блюда на 4+ порций исключаются,
+  /// остальные предлагаются с пометкой замены (см.
+  /// lib/ai/equipment.dart). Хранение: v0.6.4–0.6.6 писали голый
+  /// массив ключей, с v0.6.7 — объект {"v":2,"owned":[…]} (чтение
+  /// понимает оба; при чтении массива гриль/пароварка добавляются —
+  /// чипов в той версии ещё не было).
   final List<KitchenEquipment>? equipment;
 
   /// Геолокация (город/регион) — для учёта сезонности продуктов на рынках.
@@ -330,9 +334,17 @@ class UserProfile {
         'meals_per_day': mealsPerDay,
         // null пишется явно: колонка nullable, старые бэкапы/профили
         // читаются как «всё есть» (см. [equipment]).
+        // С v0.6.7 формат — объект {"v":2,"owned":[ключи]}: маркер
+        // версии внутри самого значения отличает список, сохранённый
+        // ДО появления чипов гриля/пароварки (массив — консервативная
+        // миграция добавляет оба), от списка, сохранённого ПОСЛЕ
+        // (объект — читается как есть, снятые галочки не теряются).
         'equipment': equipment == null
             ? null
-            : jsonEncode(equipment!.map((e) => e.key).toList()),
+            : jsonEncode({
+                'v': 2,
+                'owned': equipment!.map((e) => e.key).toList(),
+              }),
         'region_name': regionName,
         'latitude': latitude,
         'longitude': longitude,
@@ -355,10 +367,32 @@ class UserProfile {
       // неизвестна — считаем «всё есть», поведение не меняется.
       equipment = null;
     } else {
-      equipment = (jsonDecode(rawEquipment) as List<dynamic>)
-          .map((k) => KitchenEquipment.fromKey(k as String))
-          .whereType<KitchenEquipment>()
-          .toList();
+      final decoded = jsonDecode(rawEquipment);
+      if (decoded is Map<String, dynamic>) {
+        // Формат v2 (v0.6.7+): читаем как есть — пользователь уже видел
+        // чипы гриля/пароварки, его выбор не трогаем.
+        equipment = (decoded['owned'] as List<dynamic>)
+            .map((k) => KitchenEquipment.fromKey(k as String))
+            .whereType<KitchenEquipment>()
+            .toList();
+      } else {
+        // Формат v1 (массив, v0.6.4–0.6.6): чипов гриля/пароварки ещё
+        // не было, их отсутствие не выражает выбор. Миграция по
+        // прецеденту shellfish (LEG-2): консервативно добавляем оба —
+        // покрытие пометок не расширяется против воли пользователя.
+        // Пустой список НЕ трогаем: «ничего не выбрано — работают
+        // замены» — сознательный выбор, добавлять в него нечестно.
+        final legacy = (decoded as List<dynamic>)
+            .map((k) => KitchenEquipment.fromKey(k as String))
+            .whereType<KitchenEquipment>()
+            .toSet();
+        if (legacy.isNotEmpty) {
+          legacy
+            ..add(KitchenEquipment.grill)
+            ..add(KitchenEquipment.steamer);
+        }
+        equipment = legacy.toList();
+      }
     }
     // v0.5.0: источник истины — колонка diets (JSON-массив).
     // Старые записи (до миграции данных) читаются по колонке diet.

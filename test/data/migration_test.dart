@@ -453,4 +453,61 @@ void main() {
         unorderedEquals([KitchenEquipment.oven, KitchenEquipment.toaster]));
     await db.close();
   });
+
+  group('equipment JSON: миграция формата v1 → v2 (v0.6.7)', () {
+    final now = DateTime(2026, 10, 31);
+
+    UserProfile profileWith(List<KitchenEquipment>? equipment) =>
+        UserProfile(createdAt: now, updatedAt: now, equipment: equipment);
+
+    Map<String, Object?> mapWith(String rawEquipment) =>
+        profileWith(null).toMap()..['equipment'] = rawEquipment;
+
+    test('v1-массив без новых ключей → grill и steamer добавляются', () {
+      // Чипов гриля/пароварки до v0.6.7 не было — их отсутствие не
+      // выражает выбор (прецедент shellfish LEG-2: консервативно).
+      final restored = UserProfile.fromMap(
+          mapWith('["oven","toaster"]'));
+      expect(
+        restored.equipment,
+        unorderedEquals([
+          KitchenEquipment.oven,
+          KitchenEquipment.toaster,
+          KitchenEquipment.grill,
+          KitchenEquipment.steamer,
+        ]),
+      );
+    });
+
+    test('v1-массив со всеми тремя → все пять', () {
+      final restored = UserProfile.fromMap(
+          mapWith('["oven","blender","toaster"]'));
+      expect(restored.equipment, hasLength(5));
+    });
+
+    test('v1-пустой массив не трогаем: «ничего нет» — сознательный выбор',
+        () {
+      // Пользователь снял все галочки («Ничего не выбрано — работают
+      // замены»); добавлять ему технику нельзя.
+      final restored = UserProfile.fromMap(mapWith('[]'));
+      expect(restored.equipment, isEmpty);
+    });
+
+    test('toMap пишет {"v":2,"owned":[…]}, fromMap читает как есть', () {
+      // Снятые grill/steamer в новом формате переживают чтение —
+      // в отличие от v1-массива, миграция больше не срабатывает.
+      final saved = profileWith([KitchenEquipment.oven]);
+      final raw = saved.toMap()['equipment'] as String;
+      expect(raw, contains('"v":2'));
+      expect(raw, contains('"owned"'));
+      final restored = UserProfile.fromMap(saved.toMap());
+      expect(restored.equipment, [KitchenEquipment.oven]);
+    });
+
+    test('null остаётся null: «всё есть» не превращается в список', () {
+      final restored =
+          UserProfile.fromMap(profileWith(null).toMap());
+      expect(restored.equipment, isNull);
+    });
+  });
 }

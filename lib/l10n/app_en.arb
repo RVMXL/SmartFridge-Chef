@@ -438,9 +438,13 @@
   "equipmentOven": "Oven",
   "equipmentBlender": "Blender",
   "equipmentToaster": "Toaster",
+  "equipmentGrill": "Grill",
+  "equipmentSteamer": "Steamer",
   "equipmentSubstOvenShort": "stove",
   "equipmentSubstBlenderShort": "masher/sieve",
   "equipmentSubstToasterShort": "dry pan",
+  "equipmentSubstGrillShort": "frying pan",
+  "equipmentSubstSteamerShort": "covered pot",
   "menuEquipmentNote": "substitute: {names}",
   "@menuEquipmentNote": {
     "placeholders": {

@@ -1856,6 +1856,18 @@ abstract class AppLocalizations {
   /// **'Toaster'**
   String get equipmentToaster;
 
+  /// No description provided for @equipmentGrill.
+  ///
+  /// In en, this message translates to:
+  /// **'Grill'**
+  String get equipmentGrill;
+
+  /// No description provided for @equipmentSteamer.
+  ///
+  /// In en, this message translates to:
+  /// **'Steamer'**
+  String get equipmentSteamer;
+
   /// No description provided for @equipmentSubstOvenShort.
   ///
   /// In en, this message translates to:
@@ -1873,6 +1885,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'dry pan'**
   String get equipmentSubstToasterShort;
+
+  /// No description provided for @equipmentSubstGrillShort.
+  ///
+  /// In en, this message translates to:
+  /// **'frying pan'**
+  String get equipmentSubstGrillShort;
+
+  /// No description provided for @equipmentSubstSteamerShort.
+  ///
+  /// In en, this message translates to:
+  /// **'covered pot'**
+  String get equipmentSubstSteamerShort;
 
   /// No description provided for @menuEquipmentNote.
   ///

@@ -1001,6 +1001,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get equipmentToaster => 'Toaster';
 
   @override
+  String get equipmentGrill => 'Grill';
+
+  @override
+  String get equipmentSteamer => 'Steamer';
+
+  @override
   String get equipmentSubstOvenShort => 'stove';
 
   @override
@@ -1008,6 +1014,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get equipmentSubstToasterShort => 'dry pan';
+
+  @override
+  String get equipmentSubstGrillShort => 'frying pan';
+
+  @override
+  String get equipmentSubstSteamerShort => 'covered pot';
 
   @override
   String menuEquipmentNote(String names) {

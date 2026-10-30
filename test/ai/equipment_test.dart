@@ -52,6 +52,56 @@ void main() {
       );
     });
 
+    test('«обжарьте на гриле» → grill (ключ без мягкого знака)', () {
+      // В базе предложный падеж: «Обжарьте на грилЕ» — ключ «гриль»
+      // не нашёл бы ни одного рецепта (v0.6.7).
+      expect(
+        KitchenEquipmentEngine.requiredForSteps(
+            'обжарьте на гриле по 4–5 минут с каждой стороны'.toLowerCase()),
+        {KitchenEquipment.grill},
+      );
+      // Именительный тоже ловится.
+      expect(
+        KitchenEquipmentEngine.requiredForSteps(
+            'разогрейте гриль-сковороду'.toLowerCase()),
+        {KitchenEquipment.grill},
+      );
+    });
+
+    test('«готовьте на пару» и «в пароварке» → steamer', () {
+      expect(
+        KitchenEquipmentEngine.requiredForSteps(
+            'готовьте на пару 20–25 минут до готовности'.toLowerCase()),
+        {KitchenEquipment.steamer},
+      );
+      expect(
+        KitchenEquipmentEngine.requiredForSteps(
+            'выложите в пароварку и готовьте 15 минут'.toLowerCase()),
+        {KitchenEquipment.steamer},
+      );
+    });
+
+    test('«на пару минут» — время, НЕ пароварка (lookahead)', () {
+      // Защита на будущее: «стоять на пару минут» — это не готовка
+      // на пару. В текущей базе таких фраз нет (скан 2026-10-31).
+      expect(
+        KitchenEquipmentEngine.requiredForSteps(
+            'дайте тесту отдохнуть на пару минут'.toLowerCase()),
+        isEmpty,
+      );
+      expect(
+        KitchenEquipmentEngine.requiredForSteps(
+            'оставьте на пару часов в холодильнике'.toLowerCase()),
+        isEmpty,
+      );
+      // …а «на пару 20 минут» — готовка: после «пару» идёт число.
+      expect(
+        KitchenEquipmentEngine.requiredForSteps(
+            'варите на пару 20 минут'.toLowerCase()),
+        {KitchenEquipment.steamer},
+      );
+    });
+
     test('плита без техники — пустое множество', () {
       expect(
         KitchenEquipmentEngine.requiredForSteps(
@@ -113,10 +163,12 @@ void main() {
       expect(KitchenEquipmentEngine.hasBlocking(gaps), isTrue);
     });
 
-    test('блендер и тостер замещаемы всегда', () {
+    test('блендер, тостер, гриль и пароварка замещаемы всегда', () {
       for (final e in [
         KitchenEquipment.blender,
         KitchenEquipment.toaster,
+        KitchenEquipment.grill,
+        KitchenEquipment.steamer,
       ]) {
         final gaps = KitchenEquipmentEngine.gaps(
           needed: {e},
@@ -189,6 +241,44 @@ void main() {
             KitchenEquipmentEngine.stepsTextOf(byId['r0547']!.stepsRu)),
         isEmpty,
       );
+    });
+
+    test('r0144 — grill, r0272 — steamer, r0330 — oven+steamer (v0.6.7)',
+        () {
+      // «Обжарьте на гриле…» — предложный падеж ловится ключом «грил».
+      expect(
+        KitchenEquipmentEngine.requiredForSteps(
+            KitchenEquipmentEngine.stepsTextOf(byId['r0144']!.stepsRu)),
+        {KitchenEquipment.grill},
+      );
+      // «Готовьте на пару 20–25 минут…».
+      expect(
+        KitchenEquipmentEngine.requiredForSteps(
+            KitchenEquipmentEngine.stepsTextOf(byId['r0272']!.stepsRu)),
+        {KitchenEquipment.steamer},
+      );
+      // «Курица на пару с запечённым картофелем»: и пар (гарнир
+      // запекается), и плита (курица) — две техники сразу.
+      expect(
+        KitchenEquipmentEngine.requiredForSteps(
+            KitchenEquipmentEngine.stepsTextOf(byId['r0330']!.stepsRu)),
+        {KitchenEquipment.oven, KitchenEquipment.steamer},
+      );
+    });
+
+    test('в базе 20 гриль- и 41 паровых рецепта (скан 2026-10-31)', () {
+      // Инвариант базы для v0.6.7: если изменился — перечитай пометки
+      // в меню и подсказки замен (grill → сковорода, steamer →
+      // кастрюля с крышкой).
+      int grillCount = 0, steamCount = 0;
+      for (final r in byId.values) {
+        final needed = KitchenEquipmentEngine.requiredForSteps(
+            KitchenEquipmentEngine.stepsTextOf(r.stepsRu));
+        if (needed.contains(KitchenEquipment.grill)) grillCount++;
+        if (needed.contains(KitchenEquipment.steamer)) steamCount++;
+      }
+      expect(grillCount, 20);
+      expect(steamCount, 41);
     });
 
     test('больших духовочных рецептов ровно два: r0536, r0539', () {
