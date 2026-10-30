@@ -986,6 +986,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Dishes needing equipment you lack are planned with a substitution note (e.g., a small casserole in a covered pan); large oven dishes (4+ servings) are excluded.';
 
   @override
+  String get settingsEquipmentAll => 'All equipment available';
+
+  @override
+  String get settingsEquipmentNone => 'Nothing selected — substitutions apply';
+
+  @override
   String get equipmentOven => 'Oven';
 
   @override

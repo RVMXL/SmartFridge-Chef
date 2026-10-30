@@ -433,6 +433,8 @@
   "onbEquipmentBody": "Untick what you don't have. Recipes won't disappear: we'll suggest how to cook without it (oven → covered pan, blender → masher) — only very large oven dishes are dropped.",
   "profileEquipment": "Kitchen equipment",
   "profileEquipmentHint": "Dishes needing equipment you lack are planned with a substitution note (e.g., a small casserole in a covered pan); large oven dishes (4+ servings) are excluded.",
+  "settingsEquipmentAll": "All equipment available",
+  "settingsEquipmentNone": "Nothing selected — substitutions apply",
   "equipmentOven": "Oven",
   "equipmentBlender": "Blender",
   "equipmentToaster": "Toaster",

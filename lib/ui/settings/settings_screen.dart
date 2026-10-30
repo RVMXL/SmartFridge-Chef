@@ -17,6 +17,7 @@ import '../../state/product_controller.dart';
 import '../../state/settings_controller.dart';
 import '../widgets/common.dart';
 import 'data_section.dart';
+import 'equipment_edit_screen.dart';
 import 'profile_edit_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -31,6 +32,14 @@ class SettingsScreen extends StatelessWidget {
     final products = context.watch<ProductController>();
     // Контроллеры для асинхронных колбэков — захватываем заранее.
     final scheduler = context.read<ReminderScheduler>();
+    // Сводка техники для подзаголовка плитки (v0.6.6): null-список
+    // (профиль до v0.6.4) означает «всё есть» — как в редакторах.
+    final equipmentSubtitle = () {
+      final eq = profile.profile?.equipment;
+      if (eq == null) return l.settingsEquipmentAll;
+      if (eq.isEmpty) return l.settingsEquipmentNone;
+      return eq.map((e) => equipmentLabel(l, e)).join(', ');
+    }();
 
     return Scaffold(
       appBar: AppBar(title: Text(l.settingsTitle)),
@@ -66,6 +75,20 @@ class SettingsScreen extends StatelessWidget {
                 // Профиль мог измениться — напоминалки не зависят,
                 // но меню пересоберётся при следующей генерации.
               },
+            ),
+          ),
+          // Техника на кухне (v0.6.6): отдельная точка входа. Чипы
+          // техники жили в самом низу профиля питания и не находились
+          // (репорт владельца: «не могу поменять оборудование»).
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.countertops_outlined),
+              title: Text(l.profileEquipment),
+              subtitle: Text(equipmentSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => const EquipmentEditScreen(),
+              )),
             ),
           ),
 

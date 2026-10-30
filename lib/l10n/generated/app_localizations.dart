@@ -1826,6 +1826,18 @@ abstract class AppLocalizations {
   /// **'Dishes needing equipment you lack are planned with a substitution note (e.g., a small casserole in a covered pan); large oven dishes (4+ servings) are excluded.'**
   String get profileEquipmentHint;
 
+  /// No description provided for @settingsEquipmentAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All equipment available'**
+  String get settingsEquipmentAll;
+
+  /// No description provided for @settingsEquipmentNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing selected — substitutions apply'**
+  String get settingsEquipmentNone;
+
   /// No description provided for @equipmentOven.
   ///
   /// In en, this message translates to:

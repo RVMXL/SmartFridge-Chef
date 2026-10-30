@@ -991,6 +991,12 @@ class AppLocalizationsRu extends AppLocalizations {
       'Блюда, которым нужна отсутствующая техника, попадают в план с подсказкой замены (например, небольшую запеканку можно приготовить на плите под крышкой); большие духовочные блюда (4+ порций) исключаются.';
 
   @override
+  String get settingsEquipmentAll => 'Вся техника есть';
+
+  @override
+  String get settingsEquipmentNone => 'Ничего не выбрано — работают замены';
+
+  @override
   String get equipmentOven => 'Духовка';
 
   @override
