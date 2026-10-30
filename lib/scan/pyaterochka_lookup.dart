@@ -8,8 +8,8 @@
 /// превращается в [PriceUnavailable]: приложение просто остаётся
 /// без цены, всё остальное работает как раньше (offline-first).
 ///
-/// Документированные эндпоинты (см. scripts/pyaterochka_fixture_search.json
-/// и worklog, Task 14-pyaterochka-close):
+/// Документированные эндпоинты (сохранённый ответ API —
+/// test/fixtures/pyaterochka_search.json; worklog Task 14-pyaterochka-close):
 ///   GET https://5d.5ka.ru/api/catalog/v3/stores/{sapCode}/search
 ///       ?mode=store&include_restrict=true&q={запрос}&limit={n}
 /// Заголовки, которые шлёт веб-фронт (без них — блокировка):
