@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../ai/equipment.dart';
+import '../../core/household_measures.dart';
 import '../../data/models/meal_plan.dart';
 import '../../data/models/recipe.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -394,6 +395,9 @@ class _DayCard extends StatelessWidget {
                 title: Text(meal.recipe.title(localeTag)),
                 subtitle: Text(
                   '${slotLabel(l, meal.slot)} · ${meal.kcal} ${l.unitKcal}'
+                  // Порции (v0.6.8): план добирает калораж слота порциями —
+                  // честно показываем «×2 порции», калорийность уже с ними.
+                  '${meal.servings > 1 ? ' · ${l.menuPlannedServings(meal.servings)}' : ''}'
                   '${meal.usesExpiring.isEmpty ? '' : ' · ★ ${meal.usesExpiring.length}'}'
                   '${equipmentNote.isEmpty ? '' : ' · ${l.menuEquipmentNote(equipmentNote.join(', '))}'}',
                   style: theme.textTheme.bodySmall,
@@ -434,23 +438,53 @@ class _DayCard extends StatelessWidget {
       showDragHandle: true,
       builder: (_) => FractionallySizedBox(
         heightFactor: 0.85,
-        child: RecipeSheet(recipe: meal.recipe, localeTag: localeTag),
+        child: RecipeSheet(
+          recipe: meal.recipe,
+          localeTag: localeTag,
+          // Порции плана (v0.6.8): КБЖУ, ингредиенты и «Приготовил»
+          // масштабируются к запланированному числу порций.
+          plannedServings: meal.servings,
+        ),
       ),
     );
   }
 }
 
 /// Детали блюда: КБЖУ, ингредиенты, пошаговое приготовление.
+///
+/// [plannedServings] (v0.6.8) — запланированное число порций, когда лист
+/// открыт из плана меню: чипы, КБЖУ и ингредиенты масштабируются к нему
+/// (план добирает калораж порциями). null — рецепт «как написан».
+/// Ингредиенты показываются бытовой мерой + граммами
+/// (core/household_measures.dart): «2 чайные ложки / 12 г».
 class RecipeSheet extends StatelessWidget {
-  const RecipeSheet({super.key, required this.recipe, required this.localeTag});
+  const RecipeSheet({
+    super.key,
+    required this.recipe,
+    required this.localeTag,
+    this.plannedServings,
+  });
 
   final Recipe recipe;
   final String localeTag;
+
+  /// Запланированное число порций (из плана меню) или null.
+  final int? plannedServings;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final theme = Theme.of(context);
+
+    // Масштаб к запланированным порциям. КБЖУ задано НА ПОРЦИЮ —
+    // умножается на число запланированных порций; ингредиенты заданы
+    // НА ВЕСЬ РЕЦЕПТ — умножаются на plannedServings / recipe.servings
+    // (v0.6.8; вне плана — как написано).
+    final int planned = plannedServings ?? 1;
+    final double ingScale = plannedServings == null
+        ? 1.0
+        : plannedServings! / recipe.servings;
+    int scaled(int perServing) => perServing * planned;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -466,7 +500,7 @@ class RecipeSheet extends StatelessWidget {
                 avatar: const Icon(Icons.local_fire_department_outlined,
                     size: 16),
                 label: Text(
-                    '${recipe.kcal} ${l.unitKcal}'),
+                    '${scaled(recipe.kcal)} ${l.unitKcal}'),
               ),
               Chip(
                 avatar: const Icon(Icons.schedule, size: 16),
@@ -474,13 +508,15 @@ class RecipeSheet extends StatelessWidget {
               ),
               Chip(
                 avatar: const Icon(Icons.restaurant_outlined, size: 16),
-                label: Text(l.menuServings(recipe.servings)),
+                label: Text(l.menuServings(plannedServings ?? recipe.servings)),
               ),
             ],
           ),
           const SizedBox(height: 4),
           Text(
-            '${l.unitP}/${l.unitF}/${l.unitC} ${recipe.protein}/${recipe.fat}/${recipe.carbs} ${l.perServing}',
+            '${l.unitP}/${l.unitF}/${l.unitC} '
+            '${scaled(recipe.protein)}/${scaled(recipe.fat)}/${scaled(recipe.carbs)}'
+            '${plannedServings == null ? ' ${l.perServing}' : ''}',
             style: theme.textTheme.bodySmall
                 ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
@@ -492,6 +528,7 @@ class RecipeSheet extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 2),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(
                     ing.pantry ? Icons.egg_alt : Icons.egg_outlined,
@@ -505,11 +542,32 @@ class RecipeSheet extends StatelessWidget {
                     child: Text(
                         localeTag.startsWith('ru') ? ing.ru : ing.en),
                   ),
-                  Text('${ing.grams} ${l.unitGram}',
-                      style: theme.textTheme.bodySmall),
+                  Flexible(
+                    child: Text(
+                      // Бытовая мера + граммы (v0.6.8): «2 чайные ложки /
+                      // 12 г»; без меры в таблице — только граммы.
+                      formatHouseholdAmount(
+                        key: ing.key,
+                        grams: (ing.grams * ingScale).ceil(),
+                        localeTag: localeTag,
+                        gramUnit: l.unitGram,
+                      ),
+                      style: theme.textTheme.bodySmall,
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
                 ],
               ),
             ),
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              l.recipeHouseholdNote,
+              style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontStyle: FontStyle.italic),
+            ),
+          ),
           const SizedBox(height: 16),
           Text(l.menuSteps, style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
@@ -532,9 +590,15 @@ class RecipeSheet extends StatelessWidget {
           const SizedBox(height: 16),
           // «Приготовил» (v0.5.1): подтверждаемое списание ингредиентов
           // из холодильника — скоропортящееся первым, штуки правятся.
+          // С plannedServings (v0.6.8) списание масштабируется к
+          // запланированным порциям.
           FilledButton.icon(
             onPressed: () async {
-              final ok = await showCookedSheet(context, recipe);
+              final ok = await showCookedSheet(
+                context,
+                recipe,
+                plannedServings: plannedServings,
+              );
               if (ok == true && context.mounted) {
                 Navigator.of(context).pop(); // закрыть и лист рецепта
               }

@@ -34,6 +34,9 @@
 /// lib/ai/equipment.dart).
 /// Nullable: null/пусто = «неизвестно/всё есть» — профили до v0.6.4
 /// продолжают работать без фильтрации по технике.
+/// v11 — (v0.6.8): `planned_meals.servings` — запланированное число
+/// порций блюда в приёме (планер добирает калораж слота порциями;
+/// DEFAULT 1 — старые планы читаются как одна порция, как раньше).
 library;
 
 import 'package:path/path.dart' as p;
@@ -43,7 +46,7 @@ class AppDatabase {
   AppDatabase._();
 
   static const String dbName = 'smart_fridge.db';
-  static const int dbVersion = 10;
+  static const int dbVersion = 11;
 
   /// Открывает базу.
   ///
@@ -88,6 +91,7 @@ class AppDatabase {
     // v9 (UI-6): валюта цены продукта.
     batch.execute('ALTER TABLE products ADD COLUMN currency TEXT;');
     createV10Columns(batch);
+    createV11Columns(batch);
     await batch.commit(noResult: true);
   }
 
@@ -150,6 +154,14 @@ class AppDatabase {
       // v9 -> v10: техника на кухне в профиле (v0.6.4) — фильтр/пометки
       // планера. Nullable: старые профили читаются как «всё есть».
       await upgradeToV10(db);
+    }
+    if (oldVersion < 11) {
+      // v10 -> v11: порции в приёмах плана (v0.6.8) — планер добирает
+      // калораж слота числом порций. DEFAULT 1: старые планы остаются
+      // валидными (одна порция = прежняя семантика).
+      final batch = db.batch();
+      createV11Columns(batch);
+      await batch.commit(noResult: true);
     }
     assert(oldVersion >= 1 && newVersion == dbVersion,
         'Неизвестная версия: $oldVersion -> $newVersion');
@@ -367,6 +379,16 @@ class AppDatabase {
   static Future<void> upgradeToV10(Database db) async {
     await db.execute(
       'ALTER TABLE user_profile ADD COLUMN equipment TEXT',
+    );
+  }
+
+  /// v11 (v0.6.8): порции в приёмах плана. DEFAULT 1: старые планы
+  /// (и строки без явного значения) читаются как одна порция —
+  /// прежняя семантика kcal в записи сохраняется.
+  static void createV11Columns(Batch batch) {
+    batch.execute(
+      'ALTER TABLE planned_meals ADD COLUMN servings '
+      'INTEGER NOT NULL DEFAULT 1',
     );
   }
 

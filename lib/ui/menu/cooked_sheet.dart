@@ -22,7 +22,15 @@ import '../../l10n/generated/app_localizations.dart';
 import '../../state/product_controller.dart';
 
 /// Открывает лист подтверждения; true — списание выполнено.
-Future<bool> showCookedSheet(BuildContext context, Recipe recipe) async =>
+///
+/// [plannedServings] (v0.6.8): блюдо готовится под запланированные
+/// планом порции — весовые позиции списания масштабируются к ним
+/// (plannedServings / recipe.servings). null — рецепт «как написан».
+Future<bool> showCookedSheet(
+  BuildContext context,
+  Recipe recipe, {
+  int? plannedServings,
+}) async =>
     await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -30,7 +38,12 @@ Future<bool> showCookedSheet(BuildContext context, Recipe recipe) async =>
       showDragHandle: true,
       builder: (_) => FractionallySizedBox(
         heightFactor: 0.85,
-        child: CookedSheet(recipe: recipe),
+        child: CookedSheet(
+          recipe: recipe,
+          gramsScale: plannedServings == null
+              ? 1.0
+              : plannedServings / recipe.servings,
+        ),
       ),
     ) ??
     false;
@@ -73,9 +86,17 @@ class _Row {
 }
 
 class CookedSheet extends StatefulWidget {
-  const CookedSheet({super.key, required this.recipe});
+  const CookedSheet({
+    super.key,
+    required this.recipe,
+    this.gramsScale = 1,
+  });
 
   final Recipe recipe;
+
+  /// Коэффициент к граммам ингредиентов (v0.6.8): масштабирование к
+  /// запланированным планом порциям; 1 — рецепт «как написан».
+  final double gramsScale;
 
   @override
   State<CookedSheet> createState() => _CookedSheetState();
@@ -92,7 +113,11 @@ class _CookedSheetState extends State<CookedSheet> {
   void initState() {
     super.initState();
     final fridge = context.read<ProductController>().products;
-    _plan = DeductionPlan.build(widget.recipe, fridge);
+    _plan = DeductionPlan.build(
+      widget.recipe,
+      fridge,
+      gramsScale: widget.gramsScale,
+    );
   }
 
   // UI-2 (аудит 2026-10-28): Localizations.localeOf — dependOnInherited,

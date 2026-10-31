@@ -7,10 +7,12 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:smart_fridge_chef/ai/calorie_target.dart';
 import 'package:smart_fridge_chef/ai/equipment.dart';
 import 'package:smart_fridge_chef/ai/planner.dart';
 import 'package:smart_fridge_chef/ai/recipe_repository.dart';
 import 'package:smart_fridge_chef/ai/rule_based_planner.dart';
+import 'package:smart_fridge_chef/data/models/meal_plan.dart';
 import 'package:smart_fridge_chef/data/models/recipe.dart';
 import 'package:smart_fridge_chef/data/models/product.dart';
 import 'package:smart_fridge_chef/data/models/user_profile.dart';
@@ -892,6 +894,162 @@ void main() {
       }
       expect(ovenWonWithOven, isTrue,
           reason: 'с духовкой в наборе выбор между равными — джиттер');
+    });
+  });
+
+  group('порции в плане (v0.6.8) — добор калоража слота', () {
+    test('plannedServingsFor: округление к цели с потолком 3 и полом 1',
+        () {
+      expect(
+        plannedServingsFor(targetKcal: 825, kcalPerServing: 942),
+        1,
+        reason: 'плотное блюдо больше цели — одна порция',
+      );
+      expect(
+        plannedServingsFor(targetKcal: 1100, kcalPerServing: 528),
+        2,
+        reason: '1100/528 = 2.08 → 2 порции',
+      );
+      expect(
+        plannedServingsFor(targetKcal: 900, kcalPerServing: 200),
+        3,
+        reason: '4.5 округляется к 4, потолок kMaxPlannedServings = 3',
+      );
+      expect(
+        plannedServingsFor(targetKcal: 150, kcalPerServing: 624),
+        1,
+        reason: 'цель ниже одной порции — пол в 1',
+      );
+    });
+
+    test('PlannedMeal: КБЖУ × порции, граммы × порции/порции рецепта',
+        () {
+      // Рецепт на 2 порции, 300 ккал/порция, 300 г риса на весь рецепт.
+      final r = Recipe(
+        id: 'scaled',
+        titleRu: 'Рисовое блюдо',
+        titleEn: 'Rice dish',
+        category: 'main',
+        minutes: 25,
+        servings: 2,
+        kcal: 300,
+        protein: 10,
+        fat: 5,
+        carbs: 50,
+        vegetarian: true,
+        vegan: true,
+        glutenFree: true,
+        lowCarb: false,
+        hasMeat: false,
+        hasFish: false,
+        allergens: const [],
+        family: 'rice_family',
+        secondFamily: '',
+        ingredients: const [
+          RecipeIngredient(
+              key: 'rice', ru: 'рис', en: 'rice', grams: 300,
+              pantry: false),
+          RecipeIngredient(
+              key: 'salt', ru: 'соль', en: 'salt', grams: 4,
+              pantry: true),
+        ],
+        stepsRu: const ['Отварите рис.'],
+        stepsEn: const ['Boil the rice.'],
+      );
+      final meal = PlannedMeal(
+        dayIndex: 0,
+        slot: MealSlot.lunch,
+        slotOrder: 0,
+        recipe: r,
+        usesExpiring: const [],
+        coverage: 0,
+        servings: 3,
+      );
+      expect(meal.kcal, 900, reason: '3 порции × 300 ккал/порция');
+      expect(meal.protein, r.protein * 3);
+      // Рис: 300 г на 2 порции рецепта → 450 г на 3 запланированные.
+      final rice = r.ingredients.firstWhere((i) => i.key == 'rice');
+      expect(meal.scaledGrams(rice), 450);
+      // Соль кладовая — масштабируется так же, но в покупках не участвует.
+      final salt = r.ingredients.firstWhere((i) => i.key == 'salt');
+      expect(salt.pantry, isTrue);
+      expect(meal.scaledGrams(salt), (salt.grams * 3 / r.servings).ceil());
+    });
+
+    test('2750 ккал: дни больше не проваливаются втрое ниже цели',
+        () async {
+      // Регрессия на репорт пользователя: «выбрано 2750, сгенерировал
+      // на 810». Порции добирают калораж: каждый день в пределах
+      // ±30% цели, медиана всех дней — в пределах ±10%.
+      const target = 2750;
+      final allDays = <int>[];
+      var multiPortionMeals = 0;
+      for (var seed = 0; seed < 3; seed++) {
+        final plan = await planner.generate(request(
+          prof: profile(calories: target, mealsPerDay: 3),
+          seed: seed,
+        ));
+        for (final day in plan.days) {
+          expect(day.kcalTotal, greaterThanOrEqualTo(target * 0.7),
+              reason: 'seed=$seed, день ${day.dayIndex + 1}: '
+                  '${day.kcalTotal} ккал при цели $target');
+          expect(day.kcalTotal, lessThanOrEqualTo(target * 1.3),
+              reason: 'seed=$seed, день ${day.dayIndex + 1}: '
+                  '${day.kcalTotal} ккал при цели $target');
+          allDays.add(day.kcalTotal);
+          multiPortionMeals +=
+              day.meals.where((m) => m.servings > 1).length;
+        }
+      }
+      allDays.sort();
+      final median = allDays[allDays.length ~/ 2];
+      expect(median, inExclusiveRange(target * 0.9, target * 1.1),
+          reason: 'медиана $median при цели $target');
+      expect(multiPortionMeals, greaterThan(10),
+          reason: 'механизм порций должен реально работать на 2750');
+    });
+
+    test('лёгкий рецепт добирается порциями до цели слота (stub)',
+        () async {
+      // 200 ккал/порция при цели слота ~900 (2500 × 0.35) — план берёт
+      // 3 порции (потолок) вместо провала вчетверо.
+      final recipe = Recipe(
+        id: 'light_salad',
+        titleRu: 'Лёгкий салат',
+        titleEn: 'Light salad',
+        category: 'main',
+        minutes: 15,
+        servings: 1,
+        kcal: 200,
+        protein: 5,
+        fat: 3,
+        carbs: 35,
+        vegetarian: true,
+        vegan: true,
+        glutenFree: true,
+        lowCarb: false,
+        hasMeat: false,
+        hasFish: false,
+        allergens: const [],
+        family: 'light',
+        secondFamily: '',
+        ingredients: const [],
+        stepsRu: const ['Нарежьте и перемешайте.'],
+        stepsEn: const ['Chop and mix.'],
+      );
+      final planner2 = RuleBasedPlanner(_StubRepo([recipe]));
+      final plan = await planner2.generate(PlanRequest(
+        profile: profile(calories: 2500, mealsPerDay: 3),
+        products: const [],
+        startDate: DateTime(2026, 10, 26),
+        days: 1,
+        seed: 0,
+      ));
+      final lunch = plan.days.first.meals
+          .firstWhere((m) => m.slot == MealSlot.lunch);
+      expect(lunch.servings, kMaxPlannedServings,
+          reason: '900/200 = 4.5 → потолок 3 порции');
+      expect(lunch.kcal, 600);
     });
   });
 }

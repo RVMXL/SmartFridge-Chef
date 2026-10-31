@@ -510,4 +510,82 @@ void main() {
       expect(restored.equipment, isNull);
     });
   });
+
+  group('v10 -> v11: порции в приёмах плана (v0.6.8)', () {
+  test('колонка servings появилась; старые строки читаются как 1 порция',
+      () async {
+    // 1. База версии 10 (схема до v0.6.8).
+    final v10 = await databaseFactory.openDatabase(dbPath,
+        options: OpenDatabaseOptions(
+          version: 10,
+          onCreate: (db, version) async {
+            final batch = db.batch();
+            AppDatabase.createV1Tables(batch);
+            AppDatabase.createV2Tables(batch);
+            AppDatabase.createV3Tables(batch);
+            AppDatabase.createV4Columns(batch);
+            AppDatabase.createV5Columns(batch);
+            AppDatabase.createV6Columns(batch);
+            AppDatabase.createV7Columns(batch);
+            AppDatabase.createV8Tables(batch);
+            batch.execute(
+                'ALTER TABLE products ADD COLUMN currency TEXT;');
+            AppDatabase.createV10Columns(batch);
+            await batch.commit(noResult: true);
+          },
+        ));
+    // Строка, записанная старой версией: без колонки servings.
+    await v10.insert('meal_plans', {
+      'id': 'p_legacy',
+      'created_at': DateTime(2026, 10, 1).toIso8601String(),
+      'start_date': '2026-10-01',
+      'days_count': 1,
+      'kcal_target': 2000,
+      'seed': 1,
+      'source': 'rule_based',
+      'warnings': '[]',
+    });
+    await v10.insert('planned_meals', {
+      'plan_id': 'p_legacy',
+      'day_index': 0,
+      'slot': 'lunch',
+      'slot_order': 0,
+      'recipe_id': 'r1',
+      'recipe_json': '{"id":"r1"}',
+      'kcal': 400.0,
+      'uses_expiring': '[]',
+      'coverage': 0.0,
+    });
+    await v10.close();
+
+    // 2. Открытие текущей версией накатывает v11.
+    final db = await AppDatabase.open(absolutePath: dbPath);
+    expect(await db.getVersion(), AppDatabase.dbVersion);
+
+    // 3. Старая строка: servings = DEFAULT 1.
+    final legacy = await db.query('planned_meals', limit: 1);
+    expect(legacy.single['servings'], 1,
+        reason: 'DEFAULT 1: планы до v0.6.8 остаются валидными');
+
+    // 4. Новая запись с порциями переживает roundtrip через PlannedMeal.
+    await db.insert('planned_meals', {
+      'plan_id': 'p_legacy',
+      'day_index': 0,
+      'slot': 'dinner',
+      'slot_order': 1,
+      'recipe_id': 'r2',
+      'recipe_json': '{"id":"r2"}',
+      'kcal': 900.0,
+      'uses_expiring': '[]',
+      'coverage': 0.0,
+      'minor_dislikes': '[]',
+      'servings': 3,
+    });
+    final rows = await db.query('planned_meals',
+        where: 'servings = 3');
+    expect(rows, hasLength(1));
+    expect(rows.single['kcal'], 900.0);
+    await db.close();
+    });
+  });
 }

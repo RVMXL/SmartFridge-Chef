@@ -8,11 +8,15 @@
 ///  2. Категория рецепта должна подходить слоту (завтрак — завтраки,
 ///     обед — супы/основные/салаты, ужин — основные/салаты, перекус —
 ///     перекусы/десерты).
-///  3. Скоринг (см. [_score]): покрытие холодильника, бонус за продукты
+///  3. Порции (v0.6.8): число порций подбирается под целевой калораж
+///     слота ([plannedServingsFor]) — низкокалорийная база больше не
+///     рождает дни втрое ниже цели; остаток после добора штрафуется.
+///  4. Скоринг (см. [_score]): покрытие холодильника, бонус за продукты
 ///     с истекающим сроком (порог синхронизирован с core/freshness),
-///     попадание в целевую калорийность слота, анти-повторы (тот же
-///     рецепт и та же «семья» блюда штрафуются по нарастающей).
-///  4. Выбор максимума; зерно [Random] делает план воспроизводимым:
+///     попадание в целевую калорийность слота (с учётом порций),
+///     анти-повторы (тот же рецепт и та же «семья» блюда штрафуются
+///     по нарастающей).
+///  5. Выбор максимума; зерно [Random] делает план воспроизводимым:
 ///     тот же seed и данные — тот же план, новый seed — новая неделя.
 ///
 /// Подробности приоритетов — docs/ARCHITECTURE.md (AI-слой).
@@ -146,7 +150,7 @@ class RuleBasedPlanner implements MealPlanner {
       final meals = <PlannedMeal>[];
       for (final split in splits) {
         final target = slotTargetKcal(request.profile.dailyCalories, split);
-        final recipe = _pickRecipe(
+        final choice = _pickRecipe(
           pool: pool,
           slot: split.slot,
           targetKcal: target,
@@ -159,10 +163,12 @@ class RuleBasedPlanner implements MealPlanner {
           ownedEquipment: request.profile.equipment?.toSet(),
           seed: request.seed,
         );
-        if (recipe == null) {
+        if (choice == null) {
           skippedSlots.add('день ${d + 1}, ${split.slot.key}');
           continue;
         }
+        final recipe = choice.recipe;
+        final servings = choice.servings;
         final match = _matcher.matchRecipe(recipe, fridge, remaining: stock);
         coveredKeys.addAll(match.matchedKeys);
         // Нелюбимое в малом количестве (приправа) — допустимо, но план
@@ -178,6 +184,7 @@ class RuleBasedPlanner implements MealPlanner {
           usesExpiring: match.expiringNames,
           coverage: match.coverage,
           minorDislikes: tolerated,
+          servings: servings,
         ));
         usedRecipes[recipe.id] = (usedRecipes[recipe.id] ?? 0) + 1;
         if (recipe.family.isNotEmpty) {
@@ -189,17 +196,20 @@ class RuleBasedPlanner implements MealPlanner {
               (usedSides[recipe.secondFamily] ?? 0) + 1;
         }
         // AI-5: списание подобранного блюда — потребность ингредиентов
-        // уменьшает остаток; нехватка в момент подбора копится в дефицит
-        // (он попадёт в список покупок, без двойного вычета).
+        // (с учётом запланированных порций, v0.6.8) уменьшает остаток;
+        // нехватка в момент подбора копится в дефицит (он попадёт в
+        // список покупок, без двойного вычета).
+        final scale = servings / recipe.servings;
         for (final ing in recipe.ingredients) {
           if (ing.pantry) continue;
           final cur = stock[ing.key];
           if (cur == null) continue; // счётная позиция
-          if (cur >= ing.grams) {
-            stock[ing.key] = cur - ing.grams;
+          final need = ing.grams * scale;
+          if (cur >= need) {
+            stock[ing.key] = cur - need;
           } else {
             deficits[ing.key] =
-                (deficits[ing.key] ?? 0) + (ing.grams - cur);
+                (deficits[ing.key] ?? 0) + (need - cur);
             stock[ing.key] = 0.0;
           }
         }
@@ -236,7 +246,6 @@ class RuleBasedPlanner implements MealPlanner {
       source: id,
       days: days,
       shoppingList: _shoppingList(
-        pool: pool,
         days: days,
         fridge: fridge,
         deficits: deficits,
@@ -431,7 +440,10 @@ class RuleBasedPlanner implements MealPlanner {
 
   // ------------------------------------------------------------ скоринг
 
-  Recipe? _pickRecipe({
+  /// Выбор рецепта слота: лучшая пара «блюдо × число порций».
+  /// Порции подбираются под цель ([plannedServingsFor]), штраф за
+  /// отклонение считается по ИТОГОВОМУ калоражу порций (v0.6.8).
+  ({Recipe recipe, int servings})? _pickRecipe({
     required List<Recipe> pool,
     required MealSlot slot,
     required int targetKcal,
@@ -456,10 +468,16 @@ class RuleBasedPlanner implements MealPlanner {
     if (candidates.isEmpty) return null;
 
     Recipe best = candidates.first;
+    var bestServings = 1;
     var bestScore = double.negativeInfinity;
     for (final r in candidates) {
+      final servings = plannedServingsFor(
+        targetKcal: targetKcal,
+        kcalPerServing: r.kcal,
+      );
       final s = _score(
         recipe: r,
+        servings: servings,
         targetKcal: targetKcal,
         slot: slot,
         fridge: fridge,
@@ -474,13 +492,15 @@ class RuleBasedPlanner implements MealPlanner {
       if (s > bestScore) {
         bestScore = s;
         best = r;
+        bestServings = servings;
       }
     }
-    return best;
+    return (recipe: best, servings: bestServings);
   }
 
   double _score({
     required Recipe recipe,
+    required int servings,
     required int targetKcal,
     required MealSlot slot,
     required Map<String, FridgeKey> fridge,
@@ -508,9 +528,13 @@ class RuleBasedPlanner implements MealPlanner {
     }
     s += min(expiring, ScoreWeights.expiringCap);
 
-    // Калораж слота (№3): чем ближе к цели, тем лучше.
+    // Калораж слота (№3): чем ближе итог порций к цели, тем лучше.
+    // v0.6.8: сравнивается калораж ВСЕХ запланированных порций
+    // (recipe.kcal × servings), а не одной порции — иначе лёгкие блюда
+    // штрафовались одинаково с добором и без.
+    final plannedKcal = recipe.kcal * servings;
     var kcalPenalty = ScoreWeights.kcalPenalty *
-        (recipe.kcal - targetKcal).abs() /
+        (plannedKcal - targetKcal).abs() /
         max(targetKcal, 1);
     // AI-3 (аудит 2026-10-28): «суп на обед» декларирован в
     // preferredCategories, но штраф 45·|Δ|/target ронял средний суп
@@ -587,31 +611,31 @@ class RuleBasedPlanner implements MealPlanner {
 
   // --------------------------------------------------- покупки и варнинги
 
-  /// Недостающие ингредиенты: некладовые ингредиенты выбранных рецептов,
-  /// которых в холодильнике нет или не хватало ПО СОСТОЯНИЮ НА МОМЕНТ
-  /// подбора (AI-5, аудит 2026-10-28: раньше граммы считались достаточными
-  /// для всех блюд недели одновременно — 400 г риса «хватало» на три
-  /// блюда по 300 г, и подсказка «докупить ≈N г» занижала недостачу;
+  /// Недостающие ингредиенты: некладовые ингредиенты выбранных блюд
+  /// (с учётом запланированных порций, v0.6.8), которых в холодильнике
+  /// нет или не хватало ПО СОСТОЯНИЮ НА МОМЕНТ подбора (AI-5,
+  /// аудит 2026-10-28: раньше граммы считались достаточными для всех
+  /// блюд недели одновременно — 400 г риса «хватало» на три блюда
+  /// по 300 г, и подсказка «докупить ≈N г» занижала недостачу;
   /// дефицит копится в [deficits] во время генерации плана — двойного
   /// вычета нет). Для счётных позиций (масса неизвестна) подсказка
   /// в граммах не даётся.
   List<PlanShoppingItem> _shoppingList({
-    required List<Recipe> pool,
     required List<PlanDay> days,
     required Map<String, FridgeKey> fridge,
     required Map<String, double> deficits,
   }) {
-    final pickedIds = days
-        .expand((d) => d.meals)
-        .map((m) => m.recipe.id)
-        .toSet();
-    final picked = pool.where((r) => pickedIds.contains(r.id));
-    final neededBy = <String, int>{};
+    // Потребность идёт прямо из приёмов плана: одно блюдо может быть
+    // запланировано в неделе несколько раз с разным числом порций.
+    final neededBy = <String, double>{};
     final nameBy = <String, String>{};
-    for (final r in picked) {
-      for (final ing in r.cookingIngredients) {
-        neededBy[ing.key] = (neededBy[ing.key] ?? 0) + ing.grams;
-        nameBy.putIfAbsent(ing.key, () => ing.ru);
+    for (final day in days) {
+      for (final meal in day.meals) {
+        for (final ing in meal.recipe.cookingIngredients) {
+          neededBy[ing.key] =
+              (neededBy[ing.key] ?? 0) + meal.scaledGrams(ing);
+          nameBy.putIfAbsent(ing.key, () => ing.ru);
+        }
       }
     }
     final items = <PlanShoppingItem>[];
@@ -623,7 +647,7 @@ class RuleBasedPlanner implements MealPlanner {
         items.add(PlanShoppingItem(
           key: k,
           name: nameBy[k]!,
-          missingGrams: neededBy[k]!,
+          missingGrams: neededBy[k]!.ceil(),
         ));
         continue;
       }

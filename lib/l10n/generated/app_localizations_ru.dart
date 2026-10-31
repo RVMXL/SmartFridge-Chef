@@ -1292,4 +1292,21 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get importNewerVersion =>
       'Файл создан более новой версией приложения. Обновите SmartFridge и повторите импорт.';
+
+  @override
+  String menuPlannedServings(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '×$count порций',
+      many: '×$count порций',
+      few: '×$count порции',
+      one: '×1 порция',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recipeHouseholdNote =>
+      'Бытовые меры (ложки, стаканы, штуки) приблизительны — для точности ориентируйтесь на граммы.';
 }

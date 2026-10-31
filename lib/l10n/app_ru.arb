@@ -449,5 +449,7 @@
   },
   "importFailed": "Импорт не выполнен — файл повреждён",
   "importNotBackup": "Это не файл резервной копии SmartFridge",
-  "importNewerVersion": "Файл создан более новой версией приложения. Обновите SmartFridge и повторите импорт."
+  "importNewerVersion": "Файл создан более новой версией приложения. Обновите SmartFridge и повторите импорт.",
+  "menuPlannedServings": "{count, plural, =1{×1 порция} few{×{count} порции} many{×{count} порций} other{×{count} порций}}",
+  "recipeHouseholdNote": "Бытовые меры (ложки, стаканы, штуки) приблизительны — для точности ориентируйтесь на граммы."
 }

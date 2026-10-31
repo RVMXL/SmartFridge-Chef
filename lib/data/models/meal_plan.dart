@@ -9,6 +9,13 @@ import 'recipe.dart';
 
 /// Один приём пищи в плане. Рецепт хранится снимком (snapshot),
 /// поэтому сохранённые планы не ломаются при обновлении базы рецептов.
+///
+/// [servings] — запланированное число ПОРЦИЙ блюда в этом приёме
+/// (v0.6.8): планер добирает калораж слота количеством порций, а не
+/// только выбором блюда — 2750 ккал/день недостижимы одиночными
+/// порциями базы (медиана завтрака 403 ккал). Ингредиенты и КБЖУ
+/// считаются с коэффициентом servings / recipe.servings; у планов до
+/// v0.6.8 порции = 1 (колонка planned_meals.servings с DEFAULT 1).
 class PlannedMeal {
   const PlannedMeal({
     required this.dayIndex,
@@ -18,6 +25,7 @@ class PlannedMeal {
     required this.usesExpiring,
     required this.coverage,
     this.minorDislikes = const [],
+    this.servings = 1,
   });
 
   final int dayIndex;
@@ -40,7 +48,29 @@ class PlannedMeal {
   /// но помечается «содержит: лук». Пусто — пометки нет.
   final List<String> minorDislikes;
 
-  int get kcal => recipe.kcal;
+  /// Сколько порций блюда запланировано в этом приёме (v0.6.8).
+  /// Всегда >= 1; 1 — «как в рецепте».
+  final int servings;
+
+  /// КБЖУ — «на порцию» (recipe.kcal и т.п.), поэтому умножается на
+  /// число ЗАПЛАНИРОВАННЫХ порций, а не на отношение к recipe.servings.
+  int get kcal => recipe.kcal * servings;
+
+  int get protein => recipe.protein * servings;
+
+  int get fat => recipe.fat * servings;
+
+  int get carbs => recipe.carbs * servings;
+
+  /// Грамм ингредиента с учётом запланированных порций (округление вверх —
+  /// недобор продукта хуже небольшого перебора).
+  ///
+  /// ВАЖНО: ингредиенты заданы на ВЕСЬ рецепт (recipe.servings порций),
+  /// поэтому коэффициент другой — servings / recipe.servings.
+  /// Пример: рецепт на 2 порции с 300 г риса, план хочет 3 порции —
+  /// нужно 450 г риса, но КБЖУ приёма = 3 × ккал_порции.
+  int scaledGrams(RecipeIngredient ing) =>
+      (ing.grams * servings / recipe.servings).ceil();
 
   Map<String, Object?> toMap(String planId) => {
         'plan_id': planId,
@@ -49,10 +79,11 @@ class PlannedMeal {
         'slot_order': slotOrder,
         'recipe_id': recipe.id,
         'recipe_json': jsonEncode(recipe.toJson()),
-        'kcal': recipe.kcal,
+        'kcal': kcal,
         'uses_expiring': jsonEncode(usesExpiring),
         'coverage': coverage,
         'minor_dislikes': jsonEncode(minorDislikes),
+        'servings': servings,
       };
 
   static PlannedMeal fromMap(Map<String, Object?> map) => PlannedMeal(
@@ -69,11 +100,15 @@ class PlannedMeal {
             ((jsonDecode(map['minor_dislikes'] as String? ?? '[]')
                     as List<dynamic>))
                 .cast<String>(),
+        // Планы до v0.6.8: колонки нет — одна порция (совпадает со
+        // старой семантикой kcal в записи).
+        servings: ((map['servings'] as num?) ?? 1).toInt(),
       );
 
   @override
   String toString() =>
-      'PlannedMeal(d${dayIndex}_${slot.key}, ${recipe.titleRu}, $kcal ккал)';
+      'PlannedMeal(d${dayIndex}_${slot.key}, ${recipe.titleRu}, '
+      '$kcal ккал ×$servings)';
 }
 
 /// День плана: дата + слоты + итоги КБЖУ.
@@ -89,9 +124,9 @@ class PlanDay {
   final List<PlannedMeal> meals;
 
   int get kcalTotal => meals.fold(0, (s, m) => s + m.kcal);
-  int get proteinTotal => meals.fold(0, (s, m) => s + m.recipe.protein);
-  int get fatTotal => meals.fold(0, (s, m) => s + m.recipe.fat);
-  int get carbsTotal => meals.fold(0, (s, m) => s + m.recipe.carbs);
+  int get proteinTotal => meals.fold(0, (s, m) => s + m.protein);
+  int get fatTotal => meals.fold(0, (s, m) => s + m.fat);
+  int get carbsTotal => meals.fold(0, (s, m) => s + m.carbs);
 
   /// Все продукты с истекающим сроком, закрытые этим днём.
   List<String> get expiringUsed =>

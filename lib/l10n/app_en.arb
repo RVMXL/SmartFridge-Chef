@@ -587,5 +587,7 @@
   },
   "importFailed": "Import failed — the file is corrupted",
   "importNotBackup": "This is not a SmartFridge backup file",
-  "importNewerVersion": "The file was created by a newer app version. Update SmartFridge and try again."
+  "importNewerVersion": "The file was created by a newer app version. Update SmartFridge and try again.",
+  "menuPlannedServings": "{count, plural, =1{×1 serving} other{×{count} servings}}",
+  "recipeHouseholdNote": "Household measures (spoons, cups, pieces) are approximate — use grams for precision."
 }

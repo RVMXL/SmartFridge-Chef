@@ -102,10 +102,17 @@ class DeductionPlan {
   /// ингредиентов с одним ключом списывают один и тот же запас
   /// последовательно (demand копится). Повторный вызов с теми же
   /// данными даёт тот же план — детерминизм для тестов.
+  ///
+  /// [gramsScale] (v0.6.8) — коэффициент к граммам ингредиентов: когда
+  /// блюдо готовится под запланированные планом порции, потребность
+  /// масштабируется (plannedServings / recipe.servings). Штучные
+  /// позиции (масса штуки неизвестна) по-прежнему списываются по одной
+  /// с ручной правкой пользователя.
   static DeductionPlan build(
     Recipe recipe,
     List<Product> fridge, {
     IngredientMatcher matcher = const IngredientMatcher(),
+    double gramsScale = 1,
   }) {
     // Остатки в единицах продукта — снижаются по мере списания.
     final remaining = <Product, double>{
@@ -123,7 +130,7 @@ class DeductionPlan {
               ).toList()
             ..sort((a, b) => a.expiryDate.compareTo(b.expiryDate));
 
-      var demandLeft = ing.grams.toDouble();
+      var demandLeft = ing.grams * gramsScale;
       final targets = <DeductionTarget>[];
 
       for (final p in candidates) {

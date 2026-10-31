@@ -65,6 +65,31 @@ Product prod(
     );
 
 void main() {
+  group('масштаб порций (v0.6.8)', () {
+    test('gramsScale умножает весовую потребность', () {
+      // Блюдо готовится под 1.5 запланированных партии: 300 г → 450 г.
+      final plan = DeductionPlan.build(
+        recipe([ing('chicken_breast', 300)]),
+        [prod('Куриное филе', 1000, ProductUnit.gram)],
+        gramsScale: 1.5,
+      );
+      final t = plan.rows.single.targets;
+      expect(t.single.qty, 450);
+      expect(t.single.remaining, 550);
+    });
+
+    test('штучные позиции не масштабируются (правит пользователь)', () {
+      final plan = DeductionPlan.build(
+        recipe([ing('egg', 120)]),
+        [prod('Яйца', 10, ProductUnit.pcs)],
+        gramsScale: 2,
+      );
+      final t = plan.rows.single.targets;
+      expect(t.single.qty, 1, reason: 'штучное — по одной с правкой');
+      expect(t.single.editable, isTrue);
+    });
+  });
+
   group('весовые позиции', () {
     test('точные граммы: списывается ровно столько, сколько нужно', () {
       final plan = DeductionPlan.build(

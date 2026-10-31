@@ -2365,6 +2365,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The file was created by a newer app version. Update SmartFridge and try again.'**
   String get importNewerVersion;
+
+  /// No description provided for @menuPlannedServings.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{×1 serving} other{×{count} servings}}'**
+  String menuPlannedServings(num count);
+
+  /// No description provided for @recipeHouseholdNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Household measures (spoons, cups, pieces) are approximate — use grams for precision.'**
+  String get recipeHouseholdNote;
 }
 
 class _AppLocalizationsDelegate

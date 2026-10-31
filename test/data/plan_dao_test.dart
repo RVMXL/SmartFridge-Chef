@@ -3,6 +3,7 @@
 /// история и чекбоксы покупок (схема v2, Шаг 2).
 library;
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -328,6 +329,85 @@ void main() {
       expect(rest.first.id, 'pg-30');
       final all = await dao.listPlans(limit: 100);
       expect(all, hasLength(35));
+    });
+  });
+
+  group('порции в приёмах (v0.6.8)', () {
+    test('servings сохраняется и читается; kcal в записи — итог порций',
+        () async {
+      // Фикстура recipe(): servings 2, kcal 400, protein 25.
+      // План хочет 3 порции: КБЖУ приёма ×3, граммы ×3/2.
+      final p = plan(id: 'pserv');
+      final scaled = PlannedMeal(
+        dayIndex: 0,
+        slot: MealSlot.dinner,
+        slotOrder: 3,
+        recipe: recipe('r0099', kcal: 400),
+        usesExpiring: const [],
+        coverage: 0,
+        servings: 3,
+      );
+      final withServings = GeneratedPlan(
+        id: p.id,
+        createdAt: p.createdAt,
+        startDate: p.startDate,
+        kcalTarget: p.kcalTarget,
+        seed: p.seed,
+        source: p.source,
+        days: [
+          ...p.days,
+          PlanDay(dayIndex: 2, date: DateTime(2026, 10, 28), meals: [scaled]),
+        ],
+        shoppingList: p.shoppingList,
+        warnings: p.warnings,
+      );
+      await dao.savePlan(withServings);
+      final loaded = (await dao.getPlan('pserv'))!;
+      final meal = loaded.days
+          .expand((d) => d.meals)
+          .firstWhere((m) => m.recipe.id == 'r0099');
+      expect(meal.servings, 3);
+      expect(meal.kcal, 1200, reason: '400 ккал/порция × 3 порции');
+      expect(meal.protein, 75);
+      expect(meal.scaledGrams(meal.recipe.ingredients.first), 300,
+          reason: '200 г молока на 2 порции рецепта → 300 г на 3');
+    });
+
+    test('строка без servings (запись старой версии) читается как 1',
+        () async {
+      // Симуляция записи приложения до v0.6.8: колонка servings в
+      // INSERT не указывается — SQLite заполняет её DEFAULT 1.
+      await db.insert('meal_plans', {
+        'id': 'pold',
+        'created_at': DateTime(2026, 10, 26).toIso8601String(),
+        'start_date': '2026-10-26',
+        'days_count': 1,
+        'kcal_target': 2000,
+        'seed': 1,
+        'source': 'rule_based',
+        'warnings': '[]',
+      });
+      final r = recipe('r0old');
+      await db.insert('planned_meals', {
+        'plan_id': 'pold',
+        'day_index': 0,
+        'slot': 'lunch',
+        'slot_order': 0,
+        'recipe_id': r.id,
+        'recipe_json': jsonEncode(r.toJson()),
+        'kcal': 400,
+        'uses_expiring': '[]',
+        'coverage': 0.0,
+        'minor_dislikes': '[]',
+      });
+      final raw = await db.query('planned_meals',
+          where: "plan_id = 'pold'", limit: 1);
+      expect(raw.first['servings'], 1,
+          reason: 'DEFAULT 1: старые планы остаются валидными');
+      final loaded = (await dao.getPlan('pold'))!;
+      final meal = loaded.days.expand((d) => d.meals).single;
+      expect(meal.servings, 1);
+      expect(meal.kcal, 400);
     });
   });
 }
