@@ -46,7 +46,52 @@ CATEGORY_ORDER = ["breakfast", "soup", "main", "pasta", "salad", "side",
 
 # Дата генерации — константа (как в ассете); обновляется вручную
 # вместе с содержательным изменением базы.
-GENERATED_AT = "2026-10-24"
+GENERATED_AT = "2026-11-01"
+
+# FIX v0.6.11 (аудит неточностей): ингредиенты, которые нельзя съесть
+# сырыми и которые обязаны быть упомянуты в шагах (стем по шагам.ru).
+# grain/бобовые — везде (их время варки отличается от «овощей»);
+# potato/beetroot/egg/shrimp/chicken — только в salad/snack, где
+# сырой продукт неприемлем (в супах картошка покрыта словом «овощи»).
+COOK_MENTION_REQUIRED = {
+    "potato": ("картоф", {"salad", "snack"}),
+    "beetroot": ("свёкл|свекл", {"salad", "snack"}),
+    "egg": ("яиц|яйца|яйцо|яич", {"salad", "snack"}),
+    "shrimp": ("кревет", {"salad", "snack"}),
+    "chicken_breast": ("куриц", {"salad"}),
+    "rice": ("рис", None),
+    "buckwheat": ("греч", None),
+    "pasta": ("макарон|вермишель|лапш|пасту", None),
+    "millet": ("пшен", None),
+    "pearl_barley": ("перлов", None),
+    "barley_cooked": ("перлов", None),
+    "split_peas": ("горох", None),
+    "lentils": ("чечев", None),
+    "beans": ("фасол", None),
+    "chickpeas": ("нут", None),
+    "bulgur_cooked": ("булгур", None),
+    "couscous_cooked": ("кускус", None),
+}
+
+
+def validate_cooking_coverage(recipes):
+    """Защита от регрессии: ингредиент, требующий приготовления, должен
+    быть упомянут в шагах (v0.6.11: «Отварите добавку» не называл
+    картошку и др.)."""
+    import re
+    errors = []
+    for r in recipes:
+        text = " ".join(r["steps"]["ru"]).lower()
+        keys = {i["key"] for i in r["ingredients"]}
+        for key, (stem, cats) in COOK_MENTION_REQUIRED.items():
+            if key not in keys:
+                continue
+            if cats is not None and r["category"] not in cats:
+                continue
+            if not re.search(stem, text):
+                errors.append(
+                    f"{r['id']}: ингредиент «{key}» не упомянут в шагах")
+    return errors
 
 
 def assemble(garn_per: int):
@@ -110,7 +155,7 @@ def validate(recipes):
 
 def build_doc(garn_per: int):
     recipes = assemble(garn_per)
-    errors = validate(recipes)
+    errors = validate(recipes) + validate_cooking_coverage(recipes)
     if errors:
         print("ОШИБКИ ВАЛИДАЦИИ:")
         for e in errors[:40]:
@@ -122,7 +167,7 @@ def build_doc(garn_per: int):
         "generator": "scripts/gen_recipes.py (rvmxl, Apache-2.0)",
         "count": len(recipes),
         "note": "Встроенная база рецептов для RuleBasedPlanner. "
-                "КБЖУ приблизительные, на порцию. Панtry-ингредиенты "
+                "КБЖУ приблизительные, на порцию. Pantry-ингредиенты "
                 "(соль/масло/специи) считаются всегда доступными.",
         "recipes": recipes,
     }

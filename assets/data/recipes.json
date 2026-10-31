@@ -1,9 +1,9 @@
 {
  "schema": "recipes.v1",
- "generated_at": "2026-10-24",
+ "generated_at": "2026-11-01",
  "generator": "scripts/gen_recipes.py (rvmxl, Apache-2.0)",
  "count": 554,
- "note": "Встроенная база рецептов для RuleBasedPlanner. КБЖУ приблизительные, на порцию. Панtry-ингредиенты (соль/масло/специи) считаются всегда доступными.",
+ "note": "Встроенная база рецептов для RuleBasedPlanner. КБЖУ приблизительные, на порцию. Pantry-ингредиенты (соль/масло/специи) считаются всегда доступными.",
  "recipes": [
   {
    "title": {
@@ -9330,7 +9330,7 @@
     "en": "Toast with avocado and egg"
    },
    "category": "breakfast",
-   "minutes": 10,
+   "minutes": 12,
    "servings": 1,
    "nutrition": {
     "kcal": 351,
@@ -9396,12 +9396,14 @@
    ],
    "steps": {
     "ru": [
-     "Хлеб подсушите в тостере или на сухой сковороде.",
-     "Намажьте начинкой и подавайте сразу."
+     "Яйца отварите вкрутую 9–10 минут, остудите в холодной воде и нарежьте.",
+     "Хлеб подсушите в тостере или на сухой сковороде; авокадо разомните вилкой с лимонным соком и солью, намажьте на тост.",
+     "Выложите сверху яйцо и подавайте."
     ],
     "en": [
-     "Toast the bread in a toaster or dry pan.",
-     "Spread with the topping and serve right away."
+     "Hard-boil the eggs for 9–10 minutes; cool in cold water and slice.",
+     "Toast the bread in a toaster or a dry pan; mash the avocado with the lemon juice and salt and spread on the toast.",
+     "Top with the egg and serve."
     ]
    },
    "id": "r0102"
@@ -9465,11 +9467,11 @@
    "steps": {
     "ru": [
      "Хлеб подсушите в тостере или на сухой сковороде.",
-     "Намажьте начинкой и подавайте сразу."
+     "Намажьте арахисовой пастой, выложите кружочки банана."
     ],
     "en": [
-     "Toast the bread in a toaster or dry pan.",
-     "Spread with the topping and serve right away."
+     "Toast the bread in a toaster or a dry pan.",
+     "Spread with the peanut butter and top with banana slices."
     ]
    },
    "id": "r0103"
@@ -9540,11 +9542,11 @@
    "steps": {
     "ru": [
      "Хлеб подсушите в тостере или на сухой сковороде.",
-     "Намажьте начинкой и подавайте сразу."
+     "Намажьте маслом, выложите кружочки помидора и сыр, подавайте сразу."
     ],
     "en": [
-     "Toast the bread in a toaster or dry pan.",
-     "Spread with the topping and serve right away."
+     "Toast the bread in a toaster or a dry pan.",
+     "Spread with butter, top with the tomato slices and cheese and serve right away."
     ]
    },
    "id": "r0104"
@@ -9615,11 +9617,11 @@
    "steps": {
     "ru": [
      "Хлеб подсушите в тостере или на сухой сковороде.",
-     "Намажьте начинкой и подавайте сразу."
+     "Творог смешайте с рубленой зеленью и солью, намажьте на тост."
     ],
     "en": [
-     "Toast the bread in a toaster or dry pan.",
-     "Spread with the topping and serve right away."
+     "Toast the bread in a toaster or a dry pan.",
+     "Stir the chopped herbs and salt into the cottage cheese and spread on the toast."
     ]
    },
    "id": "r0105"
@@ -9691,11 +9693,11 @@
    "steps": {
     "ru": [
      "Хлеб подсушите в тостере или на сухой сковороде.",
-     "Намажьте начинкой и подавайте сразу."
+     "Тунец без жидкости смешайте с майонезом и намажьте на тост."
     ],
     "en": [
-     "Toast the bread in a toaster or dry pan.",
-     "Spread with the topping and serve right away."
+     "Toast the bread in a toaster or a dry pan.",
+     "Mix the drained tuna with the mayonnaise and spread on the toast."
     ]
    },
    "id": "r0106"
@@ -10011,15 +10013,17 @@
    "steps": {
     "ru": [
      "Говядину залейте 1,5–2 л воды, снимите пену и варите 40–50 минут до мягкости.",
-     "Достаньте, нарежьте и верните в бульон вместе с овощами и добавкой.",
+     "Достаньте, нарежьте и верните в бульон.",
+     "Свёклу натрите на крупной тёрке и потушите с томатной пастой и уксусом 5–7 минут, добавьте в борщ вместе с капустой и картофелем.",
      "Варите ещё 15–20 минут, посолите по вкусу.",
-     "Дайте настояться 10 минут. Борщ и щи подавайте со сметаной."
+     "Дайте настояться 10 минут и подавайте со сметаной."
     ],
     "en": [
      "Cover the beef with 1.5–2 L of water, skim and cook for 40–50 minutes until tender.",
-     "Take it out, slice and return to the broth with the vegetables and the add-ins.",
+     "Take it out, slice and return to the broth.",
+     "Grate the beetroot and simmer with the tomato paste and vinegar for 5–7 minutes; add to the borscht with the cabbage and potatoes.",
      "Cook for another 15–20 minutes and season to taste.",
-     "Rest for 10 minutes. Serve borscht and shchi with sour cream."
+     "Rest for 10 minutes and serve with sour cream."
     ]
    },
    "id": "r0109"
@@ -10093,14 +10097,16 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте и залейте 1–1,2 л воды.",
-     "Варите 20–25 минут до мягкости, посолите.",
-     "Поварите ещё 3–5 минут в кастрюле на слабом огне и подавайте."
+     "Горох промойте и замочите на 2–3 часа (колотый можно не замачивать).",
+     "Залейте 1,5 л воды, доведите до кипения и варите 40–50 минут до мягкости.",
+     "Добавьте нарезанные морковь и лук с лавровым листом, варите ещё 10–15 минут, посолите.",
+     "Поварите ещё 3–5 минут на слабом огне и подавайте."
     ],
     "en": [
-     "Chop the vegetables and cover with 1–1.2 L of water.",
-     "Cook for 20–25 minutes until soft; season with salt.",
-     "Simmer in the pot for another 3–5 minutes over low heat and serve."
+     "Rinse the split peas and soak for 2–3 hours (split peas can skip soaking).",
+     "Cover with 1.5 L of water, bring to a boil and cook for 40–50 minutes until soft.",
+     "Add the chopped carrot and onion with the bay leaf and cook for another 10–15 minutes; season with salt.",
+     "Simmer for another 3–5 minutes over low heat and serve."
     ]
    },
    "id": "r0110"
@@ -10285,14 +10291,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте и залейте 1–1,2 л воды.",
-     "Варите 20–25 минут до мягкости, посолите.",
-     "Поварите ещё 3–5 минут в кастрюле на слабом огне и подавайте."
+     "Картофель нарежьте и залейте 1–1,2 л воды, варите 10 минут.",
+     "Грибы с луком и морковью нарежьте и добавьте вместе с промытой гречкой, варите ещё 15 минут, посолите.",
+     "Поварите ещё 3–5 минут на слабом огне и подавайте."
     ],
     "en": [
-     "Chop the vegetables and cover with 1–1.2 L of water.",
-     "Cook for 20–25 minutes until soft; season with salt.",
-     "Simmer in the pot for another 3–5 minutes over low heat and serve."
+     "Chop the potatoes, cover with 1–1.2 L of water and cook for 10 minutes.",
+     "Chop the mushrooms, onion and carrot and add them with the rinsed buckwheat; cook for another 15 minutes and season with salt.",
+     "Simmer for another 3–5 minutes over low heat and serve."
     ]
    },
    "id": "r0112"
@@ -11411,11 +11417,13 @@
      "Курицу залейте 1,5 л воды, доведите до кипения, снимите пену и варите 25 минут.",
      "Добавьте нарезанные картофель, морковь и лук, варите 10 минут.",
      "Поварите всё вместе в кастрюле ещё 5 минут на слабом огне.",
+     "Поварите всё вместе в кастрюле ещё 5 минут на слабом огне.",
      "Дайте супу настояться под крышкой 10 минут и подавайте."
     ],
     "en": [
      "Cover the chicken with 1.5 L of water, bring to a boil, skim and cook for 25 minutes.",
      "Add the chopped potatoes, carrot and onion and cook for 10 minutes.",
+     "Simmer everything together in the pot for another 5 minutes over low heat.",
      "Simmer everything together in the pot for another 5 minutes over low heat.",
      "Let the soup rest, covered, for 10 minutes and serve."
     ]
@@ -11737,15 +11745,17 @@
    "steps": {
     "ru": [
      "Говядину залейте 1,5–2 л воды, снимите пену и варите 40–50 минут до мягкости.",
-     "Достаньте, нарежьте и верните в бульон вместе с овощами и добавкой.",
-     "Варите ещё 15–20 минут, посолите по вкусу.",
-     "Дайте настояться 10 минут. Борщ и щи подавайте со сметаной."
+     "Достаньте, нарежьте и верните в бульон.",
+     "Добавьте нарезанную морковь.",
+     "Варите 10 минут, затем всыпьте лапшу и варите ещё 5–7 минут, посолите по вкусу.",
+     "Дайте настояться 10 минут и подавайте."
     ],
     "en": [
      "Cover the beef with 1.5–2 L of water, skim and cook for 40–50 minutes until tender.",
-     "Take it out, slice and return to the broth with the vegetables and the add-ins.",
-     "Cook for another 15–20 minutes and season to taste.",
-     "Rest for 10 minutes. Serve borscht and shchi with sour cream."
+     "Take it out, slice and return to the broth.",
+     "Add the sliced carrot.",
+     "Cook for 10 minutes, then stir in the noodles and cook for another 5–7 minutes; season to taste.",
+     "Rest for 10 minutes and serve."
     ]
    },
    "id": "r0127"
@@ -11830,12 +11840,12 @@
    "steps": {
     "ru": [
      "Овощи залейте 1–1,2 л воды и варите 15 минут.",
-     "Добавьте рыбу/морепродукты и варите ещё 10–12 минут.",
+     "Добавьте рыбу и варите ещё 10–12 минут.",
      "Посолите, приправьте и дайте настояться 5 минут."
     ],
     "en": [
      "Cover the vegetables with 1–1.2 L of water and cook for 15 minutes.",
-     "Add the fish or seafood and cook for another 10–12 minutes.",
+     "Add the fish and cook for another 10–12 minutes.",
      "Season, add salt and let rest for 5 minutes."
     ]
    },
@@ -12043,15 +12053,17 @@
    "steps": {
     "ru": [
      "Говядину залейте 1,5–2 л воды, снимите пену и варите 40–50 минут до мягкости.",
-     "Достаньте, нарежьте и верните в бульон вместе с овощами и добавкой.",
-     "Варите ещё 15–20 минут, посолите по вкусу.",
-     "Дайте настояться 10 минут. Борщ и щи подавайте со сметаной."
+     "Достаньте, нарежьте и верните в бульон.",
+     "Перловку промойте (лучше замочить заранее на 1–2 часа) и добавьте в бульон вместе с картофелем и огурцами.",
+     "Варите ещё 25–30 минут до мягкости перловки, посолите по вкусу.",
+     "Дайте настояться 10 минут и подавайте."
     ],
     "en": [
      "Cover the beef with 1.5–2 L of water, skim and cook for 40–50 minutes until tender.",
-     "Take it out, slice and return to the broth with the vegetables and the add-ins.",
-     "Cook for another 15–20 minutes and season to taste.",
-     "Rest for 10 minutes. Serve borscht and shchi with sour cream."
+     "Take it out, slice and return to the broth.",
+     "Rinse the pearl barley (ideally soaked for 1–2 hours in advance) and add it to the broth with the potatoes and pickles.",
+     "Cook for another 25–30 minutes until the barley is tender and season to taste.",
+     "Rest for 10 minutes and serve."
     ]
    },
    "id": "r0130"
@@ -12135,12 +12147,12 @@
    "steps": {
     "ru": [
      "Овощи залейте 1–1,2 л воды и варите 15 минут.",
-     "Добавьте рыбу/морепродукты и варите ещё 10–12 минут.",
+     "Добавьте рыбу и варите ещё 10–12 минут.",
      "Посолите, приправьте и дайте настояться 5 минут."
     ],
     "en": [
      "Cover the vegetables with 1–1.2 L of water and cook for 15 minutes.",
-     "Add the fish or seafood and cook for another 10–12 minutes.",
+     "Add the fish and cook for another 10–12 minutes.",
      "Season, add salt and let rest for 5 minutes."
     ]
    },
@@ -12258,15 +12270,17 @@
    "steps": {
     "ru": [
      "Говядину залейте 1,5–2 л воды, снимите пену и варите 40–50 минут до мягкости.",
-     "Достаньте, нарежьте и верните в бульон вместе с овощами и добавкой.",
+     "Достаньте, нарежьте и верните в бульон.",
+     "Добавьте нарезанные картофель, сельдерей, помидоры и перец.",
      "Варите ещё 15–20 минут, посолите по вкусу.",
-     "Дайте настояться 10 минут. Борщ и щи подавайте со сметаной."
+     "Дайте настояться 10 минут и подавайте."
     ],
     "en": [
      "Cover the beef with 1.5–2 L of water, skim and cook for 40–50 minutes until tender.",
-     "Take it out, slice and return to the broth with the vegetables and the add-ins.",
+     "Take it out, slice and return to the broth.",
+     "Add the chopped potatoes, celery, tomatoes and bell pepper.",
      "Cook for another 15–20 minutes and season to taste.",
-     "Rest for 10 minutes. Serve borscht and shchi with sour cream."
+     "Rest for 10 minutes and serve."
     ]
    },
    "id": "r0132"
@@ -12380,12 +12394,14 @@
      "Курицу залейте 1,5 л воды, доведите до кипения, снимите пену и варите 25 минут.",
      "Добавьте нарезанные картофель, морковь и лук, варите 10 минут.",
      "Сформируйте фрикадельки из фарша и опустите в кипящий бульон, варите 10 минут.",
+     "Всыпьте вермишель и варите ещё 5–7 минут.",
      "Дайте супу настояться под крышкой 10 минут и подавайте."
     ],
     "en": [
      "Cover the chicken with 1.5 L of water, bring to a boil, skim and cook for 25 minutes.",
      "Add the chopped potatoes, carrot and onion and cook for 10 minutes.",
      "Shape meatballs from the ground chicken and drop them into the boiling broth; cook for 10 minutes.",
+     "Stir in the noodles and cook for another 5–7 minutes.",
      "Let the soup rest, covered, for 10 minutes and serve."
     ]
    },
@@ -12485,14 +12501,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи залейте 1–1,2 л воды и варите 15 минут.",
-     "Добавьте рыбу/морепродукты и варите ещё 10–12 минут.",
-     "Посолите, приправьте и дайте настояться 5 минут."
+     "Овощи с грибами залейте 1 л воды и варите 10 минут.",
+     "Добавьте креветки и соевый соус, варите 3–4 минуты — креветки готовятся очень быстро.",
+     "Снимите с огня, добавьте лимонный сок, посолите и дайте настояться 5 минут."
     ],
     "en": [
-     "Cover the vegetables with 1–1.2 L of water and cook for 15 minutes.",
-     "Add the fish or seafood and cook for another 10–12 minutes.",
-     "Season, add salt and let rest for 5 minutes."
+     "Cover the vegetables and mushrooms with 1 L of water and cook for 10 minutes.",
+     "Add the shrimp and soy sauce and cook for 3–4 minutes — shrimp cook very quickly.",
+     "Remove from the heat, add the lemon juice, season with salt and let rest for 5 minutes."
     ]
    },
    "id": "r0134"
@@ -12749,12 +12765,12 @@
    "steps": {
     "ru": [
      "Овощи залейте 1–1,2 л воды и варите 15 минут.",
-     "Добавьте рыбу/морепродукты и варите ещё 10–12 минут.",
+     "Добавьте рыбу и варите ещё 10–12 минут.",
      "Посолите, приправьте и дайте настояться 5 минут."
     ],
     "en": [
      "Cover the vegetables with 1–1.2 L of water and cook for 15 minutes.",
-     "Add the fish or seafood and cook for another 10–12 minutes.",
+     "Add the fish and cook for another 10–12 minutes.",
      "Season, add salt and let rest for 5 minutes."
     ]
    },
@@ -12839,12 +12855,14 @@
    "steps": {
     "ru": [
      "Овощи залейте 1–1,2 л воды и варите 15 минут.",
-     "Добавьте рыбу/морепродукты и варите ещё 10–12 минут.",
+     "Всыпьте промытое пшено и варите 10 минут.",
+     "Добавьте минтая и варите ещё 10–12 минут.",
      "Посолите, приправьте и дайте настояться 5 минут."
     ],
     "en": [
      "Cover the vegetables with 1–1.2 L of water and cook for 15 minutes.",
-     "Add the fish or seafood and cook for another 10–12 minutes.",
+     "Stir in the rinsed millet and cook for 10 minutes.",
+     "Add the pollock and cook for another 10–12 minutes.",
      "Season, add salt and let rest for 5 minutes."
     ]
    },
@@ -12919,14 +12937,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте и залейте 1–1,2 л воды.",
-     "Варите 20–25 минут до мягкости, посолите.",
-     "Поварите ещё 3–5 минут в кастрюле на слабом огне и подавайте."
+     "Фасоль замочите на ночь и отварите 40–50 минут до мягкости (консервированную просто промойте и добавьте за 10 минут до конца).",
+     "Добавьте нарезанные картофель, морковь и помидоры, варите 15–20 минут, посолите.",
+     "Поварите ещё 3–5 минут на слабом огне и подавайте."
     ],
     "en": [
-     "Chop the vegetables and cover with 1–1.2 L of water.",
-     "Cook for 20–25 minutes until soft; season with salt.",
-     "Simmer in the pot for another 3–5 minutes over low heat and serve."
+     "Soak the beans overnight and cook for 40–50 minutes until tender (canned beans: just rinse and add 10 minutes before the end).",
+     "Add the chopped potatoes, carrot and tomatoes and cook for 15–20 minutes; season with salt.",
+     "Simmer for another 3–5 minutes over low heat and serve."
     ]
    },
    "id": "r0139"
@@ -13000,14 +13018,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте и залейте 1–1,2 л воды.",
-     "Варите 20–25 минут до мягкости, посолите.",
-     "Поварите ещё 3–5 минут в кастрюле на слабом огне и подавайте."
+     "Чечевицу промойте, залейте 1,2–1,5 л воды и варите 10 минут.",
+     "Добавьте нарезанные лук и морковь с томатной пастой, варите ещё 15–20 минут до мягкости, посолите.",
+     "Дайте настояться 5 минут и подавайте."
     ],
     "en": [
-     "Chop the vegetables and cover with 1–1.2 L of water.",
-     "Cook for 20–25 minutes until soft; season with salt.",
-     "Simmer in the pot for another 3–5 minutes over low heat and serve."
+     "Rinse the lentils, cover with 1.2–1.5 L of water and cook for 10 minutes.",
+     "Add the chopped onion and carrot with the tomato paste and cook for another 15–20 minutes until tender; season with salt.",
+     "Let rest for 5 minutes and serve."
     ]
    },
    "id": "r0140"
@@ -13110,15 +13128,17 @@
    "steps": {
     "ru": [
      "Говядину залейте 1,5–2 л воды, снимите пену и варите 40–50 минут до мягкости.",
-     "Достаньте, нарежьте и верните в бульон вместе с овощами и добавкой.",
-     "Варите ещё 15–20 минут, посолите по вкусу.",
-     "Дайте настояться 10 минут. Борщ и щи подавайте со сметаной."
+     "Достаньте, нарежьте и верните в бульон.",
+     "Промойте чечевицу и добавьте в суп вместе с томатной пастой и морковью.",
+     "Варите ещё 20–25 минут до мягкости чечевицы, посолите по вкусу.",
+     "Дайте настояться 10 минут и подавайте."
     ],
     "en": [
      "Cover the beef with 1.5–2 L of water, skim and cook for 40–50 minutes until tender.",
-     "Take it out, slice and return to the broth with the vegetables and the add-ins.",
-     "Cook for another 15–20 minutes and season to taste.",
-     "Rest for 10 minutes. Serve borscht and shchi with sour cream."
+     "Take it out, slice and return to the broth.",
+     "Rinse the lentils and add them to the soup with the tomato paste and carrot.",
+     "Cook for another 20–25 minutes until the lentils are tender and season to taste.",
+     "Rest for 10 minutes and serve."
     ]
    },
    "id": "r0141"
@@ -13228,15 +13248,17 @@
    "steps": {
     "ru": [
      "Говядину залейте 1,5–2 л воды, снимите пену и варите 40–50 минут до мягкости.",
-     "Достаньте, нарежьте и верните в бульон вместе с овощами и добавкой.",
+     "Достаньте, нарежьте и верните в бульон.",
+     "Капусту нашинкуйте и добавьте в бульон вместе с картофелем.",
      "Варите ещё 15–20 минут, посолите по вкусу.",
-     "Дайте настояться 10 минут. Борщ и щи подавайте со сметаной."
+     "Дайте настояться 10 минут и подавайте со сметаной."
     ],
     "en": [
      "Cover the beef with 1.5–2 L of water, skim and cook for 40–50 minutes until tender.",
-     "Take it out, slice and return to the broth with the vegetables and the add-ins.",
+     "Take it out, slice and return to the broth.",
+     "Shred the cabbage and add it to the broth with the potatoes.",
      "Cook for another 15–20 minutes and season to taste.",
-     "Rest for 10 minutes. Serve borscht and shchi with sour cream."
+     "Rest for 10 minutes and serve with sour cream."
     ]
    },
    "id": "r0142"
@@ -16499,7 +16521,7 @@
     "en": "Pan-fried squid with pasta"
    },
    "category": "main",
-   "minutes": 20,
+   "minutes": 15,
    "servings": 2,
    "nutrition": {
     "kcal": 407,
@@ -16566,13 +16588,13 @@
    "steps": {
     "ru": [
      "Нарежьте кальмары кусочками, посолите и поперчите.",
-     "Разогрейте растительного масла в сковороде и обжарьте кальмары 7–10 минут до румяной корочки.",
+     "Разогрейте растительного масла в сковороде и обжарьте кальмары 2–3 минут до непрозрачности.",
      "Отварите макароны в подсоленной воде до аль денте и откиньте на дуршлаг.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Cut the squid into pieces, season with salt and pepper.",
-     "Heat the vegetable oil in a pan and fry the squid for 7–10 minutes until golden.",
+     "Heat the vegetable oil in a pan and fry the squid for 2–3 minutes until opaque.",
      "Boil the pasta in salted water until al dente and drain.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -16585,7 +16607,7 @@
     "en": "Pan-fried squid with rice"
    },
    "category": "main",
-   "minutes": 20,
+   "minutes": 15,
    "servings": 2,
    "nutrition": {
     "kcal": 387,
@@ -16651,13 +16673,13 @@
    "steps": {
     "ru": [
      "Нарежьте кальмары кусочками, посолите и поперчите.",
-     "Разогрейте растительного масла в сковороде и обжарьте кальмары 7–10 минут до румяной корочки.",
+     "Разогрейте растительного масла в сковороде и обжарьте кальмары 2–3 минут до непрозрачности.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Cut the squid into pieces, season with salt and pepper.",
-     "Heat the vegetable oil in a pan and fry the squid for 7–10 minutes until golden.",
+     "Heat the vegetable oil in a pan and fry the squid for 2–3 minutes until opaque.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -16670,7 +16692,7 @@
     "en": "Pan-fried squid with fresh salad"
    },
    "category": "main",
-   "minutes": 20,
+   "minutes": 15,
    "servings": 2,
    "nutrition": {
     "kcal": 278,
@@ -16750,13 +16772,13 @@
    "steps": {
     "ru": [
      "Нарежьте кальмары кусочками, посолите и поперчите.",
-     "Разогрейте растительного масла в сковороде и обжарьте кальмары 7–10 минут до румяной корочки.",
+     "Разогрейте растительного масла в сковороде и обжарьте кальмары 2–3 минут до непрозрачности.",
      "Свежие овощи нарежьте для подачи.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Cut the squid into pieces, season with salt and pepper.",
-     "Heat the vegetable oil in a pan and fry the squid for 7–10 minutes until golden.",
+     "Heat the vegetable oil in a pan and fry the squid for 2–3 minutes until opaque.",
      "Slice the fresh vegetables for serving.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -16769,7 +16791,7 @@
     "en": "Pan-fried squid with mixed vegetables"
    },
    "category": "main",
-   "minutes": 20,
+   "minutes": 15,
    "servings": 2,
    "nutrition": {
     "kcal": 379,
@@ -16856,13 +16878,13 @@
    "steps": {
     "ru": [
      "Нарежьте кальмары кусочками, посолите и поперчите.",
-     "Разогрейте растительного масла в сковороде и обжарьте кальмары 7–10 минут до румяной корочки.",
+     "Разогрейте растительного масла в сковороде и обжарьте кальмары 2–3 минут до непрозрачности.",
      "Овощи нарежьте кубиками и потушите с ложкой масла и парой ложек воды 15 минут, посолите.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Cut the squid into pieces, season with salt and pepper.",
-     "Heat the vegetable oil in a pan and fry the squid for 7–10 minutes until golden.",
+     "Heat the vegetable oil in a pan and fry the squid for 2–3 minutes until opaque.",
      "Dice the vegetables and simmer with a spoonful of oil and a splash of water for 15 minutes; season with salt.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -16875,7 +16897,7 @@
     "en": "Pan-fried shrimp with couscous"
    },
    "category": "main",
-   "minutes": 20,
+   "minutes": 15,
    "servings": 2,
    "nutrition": {
     "kcal": 365,
@@ -16942,13 +16964,13 @@
    "steps": {
     "ru": [
      "Нарежьте креветки кусочками, посолите и поперчите.",
-     "Разогрейте растительного масла в сковороде и обжарьте креветки 7–10 минут до румяной корочки.",
+     "Разогрейте растительного масла в сковороде и обжарьте креветки 3–4 минут до розовости.",
      "Отварите кускус до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Cut the shrimp into pieces, season with salt and pepper.",
-     "Heat the vegetable oil in a pan and fry the shrimp for 7–10 minutes until golden.",
+     "Heat the vegetable oil in a pan and fry the shrimp for 3–4 minutes until pink.",
      "Cook the couscous in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -16961,7 +16983,7 @@
     "en": "Pan-fried shrimp with pasta"
    },
    "category": "main",
-   "minutes": 20,
+   "minutes": 15,
    "servings": 2,
    "nutrition": {
     "kcal": 407,
@@ -17028,13 +17050,13 @@
    "steps": {
     "ru": [
      "Нарежьте креветки кусочками, посолите и поперчите.",
-     "Разогрейте растительного масла в сковороде и обжарьте креветки 7–10 минут до румяной корочки.",
+     "Разогрейте растительного масла в сковороде и обжарьте креветки 3–4 минут до розовости.",
      "Отварите макароны в подсоленной воде до аль денте и откиньте на дуршлаг.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Cut the shrimp into pieces, season with salt and pepper.",
-     "Heat the vegetable oil in a pan and fry the shrimp for 7–10 minutes until golden.",
+     "Heat the vegetable oil in a pan and fry the shrimp for 3–4 minutes until pink.",
      "Boil the pasta in salted water until al dente and drain.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -17047,7 +17069,7 @@
     "en": "Pan-fried shrimp with rice"
    },
    "category": "main",
-   "minutes": 20,
+   "minutes": 15,
    "servings": 2,
    "nutrition": {
     "kcal": 387,
@@ -17113,13 +17135,13 @@
    "steps": {
     "ru": [
      "Нарежьте креветки кусочками, посолите и поперчите.",
-     "Разогрейте растительного масла в сковороде и обжарьте креветки 7–10 минут до румяной корочки.",
+     "Разогрейте растительного масла в сковороде и обжарьте креветки 3–4 минут до розовости.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Cut the shrimp into pieces, season with salt and pepper.",
-     "Heat the vegetable oil in a pan and fry the shrimp for 7–10 minutes until golden.",
+     "Heat the vegetable oil in a pan and fry the shrimp for 3–4 minutes until pink.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -17132,7 +17154,7 @@
     "en": "Pan-fried shrimp with fresh salad"
    },
    "category": "main",
-   "minutes": 20,
+   "minutes": 15,
    "servings": 2,
    "nutrition": {
     "kcal": 278,
@@ -17212,13 +17234,13 @@
    "steps": {
     "ru": [
      "Нарежьте креветки кусочками, посолите и поперчите.",
-     "Разогрейте растительного масла в сковороде и обжарьте креветки 7–10 минут до румяной корочки.",
+     "Разогрейте растительного масла в сковороде и обжарьте креветки 3–4 минут до розовости.",
      "Свежие овощи нарежьте для подачи.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Cut the shrimp into pieces, season with salt and pepper.",
-     "Heat the vegetable oil in a pan and fry the shrimp for 7–10 minutes until golden.",
+     "Heat the vegetable oil in a pan and fry the shrimp for 3–4 minutes until pink.",
      "Slice the fresh vegetables for serving.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -17231,7 +17253,7 @@
     "en": "Pan-fried shrimp with mixed vegetables"
    },
    "category": "main",
-   "minutes": 20,
+   "minutes": 15,
    "servings": 2,
    "nutrition": {
     "kcal": 378,
@@ -17318,13 +17340,13 @@
    "steps": {
     "ru": [
      "Нарежьте креветки кусочками, посолите и поперчите.",
-     "Разогрейте растительного масла в сковороде и обжарьте креветки 7–10 минут до румяной корочки.",
+     "Разогрейте растительного масла в сковороде и обжарьте креветки 3–4 минут до розовости.",
      "Овощи нарежьте кубиками и потушите с ложкой масла и парой ложек воды 15 минут, посолите.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Cut the shrimp into pieces, season with salt and pepper.",
-     "Heat the vegetable oil in a pan and fry the shrimp for 7–10 minutes until golden.",
+     "Heat the vegetable oil in a pan and fry the shrimp for 3–4 minutes until pink.",
      "Dice the vegetables and simmer with a spoonful of oil and a splash of water for 15 minutes; season with salt.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -20977,7 +20999,7 @@
     "en": "Baked cod with roasted potatoes"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 30,
    "servings": 2,
    "nutrition": {
     "kcal": 408,
@@ -21044,14 +21066,14 @@
     "ru": [
      "Разогрейте духовку до 180 °C.",
      "Треску нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Выложите в смазанную маслом форму и запекайте 20–25 минут до готовности.",
      "Картофель нарежьте дольками, смешайте с маслом и специями и запеките 30–35 минут до румяности.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
      "Cut the cod into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Place in a greased baking dish and bake for 20–25 minutes.",
      "Cut the potatoes into wedges, toss with oil and spices and roast for 30–35 minutes until golden.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -21064,7 +21086,7 @@
     "en": "Baked cod with mashed potatoes"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 30,
    "servings": 2,
    "nutrition": {
     "kcal": 438,
@@ -21146,14 +21168,14 @@
     "ru": [
      "Разогрейте духовку до 180 °C.",
      "Треску нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Выложите в смазанную маслом форму и запекайте 20–25 минут до готовности.",
      "Отварите картофель до мягкости и разомните с горячим молоком и кусочком сливочного масла.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
      "Cut the cod into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Place in a greased baking dish and bake for 20–25 minutes.",
      "Boil the potatoes until soft and mash with hot milk and a knob of butter.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -21166,7 +21188,7 @@
     "en": "Baked cod with rice"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 30,
    "servings": 2,
    "nutrition": {
     "kcal": 389,
@@ -21233,14 +21255,14 @@
     "ru": [
      "Разогрейте духовку до 180 °C.",
      "Треску нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Выложите в смазанную маслом форму и запекайте 20–25 минут до готовности.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
      "Cut the cod into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Place in a greased baking dish and bake for 20–25 minutes.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -21253,7 +21275,7 @@
     "en": "Baked cod with fresh salad"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 30,
    "servings": 2,
    "nutrition": {
     "kcal": 280,
@@ -21327,14 +21349,14 @@
     "ru": [
      "Разогрейте духовку до 180 °C.",
      "Треску нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Выложите в смазанную маслом форму и запекайте 20–25 минут до готовности.",
      "Свежие овощи нарежьте для подачи.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
      "Cut the cod into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Place in a greased baking dish and bake for 20–25 minutes.",
      "Slice the fresh vegetables for serving.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -21347,7 +21369,7 @@
     "en": "Baked cod with mixed vegetables"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 30,
    "servings": 2,
    "nutrition": {
     "kcal": 381,
@@ -21442,14 +21464,14 @@
     "ru": [
      "Разогрейте духовку до 180 °C.",
      "Треску нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Выложите в смазанную маслом форму и запекайте 20–25 минут до готовности.",
      "Овощи нарежьте кубиками и потушите с ложкой масла и парой ложек воды 15 минут, посолите.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
      "Cut the cod into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Place in a greased baking dish and bake for 20–25 minutes.",
      "Dice the vegetables and simmer with a spoonful of oil and a splash of water for 15 minutes; season with salt.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -21462,7 +21484,7 @@
     "en": "Baked shrimp with couscous"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 20,
    "servings": 2,
    "nutrition": {
     "kcal": 365,
@@ -21529,15 +21551,15 @@
    "steps": {
     "ru": [
      "Разогрейте духовку до 180 °C.",
-     "Креветки нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Креветки очистите, промойте и обсушите, приправьте солью, перцем и любимыми специями.",
+     "Выложите в смазанную маслом форму и запекайте 12–15 минут до готовности.",
      "Отварите кускус до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
-     "Cut the shrimp into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Peel the shrimp, rinse and pat dry; season with salt, pepper and your favourite spices.",
+     "Place in a greased baking dish and bake for 12–15 minutes.",
      "Cook the couscous in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -21550,7 +21572,7 @@
     "en": "Baked shrimp with pasta"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 20,
    "servings": 2,
    "nutrition": {
     "kcal": 407,
@@ -21617,15 +21639,15 @@
    "steps": {
     "ru": [
      "Разогрейте духовку до 180 °C.",
-     "Креветки нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Креветки очистите, промойте и обсушите, приправьте солью, перцем и любимыми специями.",
+     "Выложите в смазанную маслом форму и запекайте 12–15 минут до готовности.",
      "Отварите макароны в подсоленной воде до аль денте и откиньте на дуршлаг.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
-     "Cut the shrimp into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Peel the shrimp, rinse and pat dry; season with salt, pepper and your favourite spices.",
+     "Place in a greased baking dish and bake for 12–15 minutes.",
      "Boil the pasta in salted water until al dente and drain.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -21638,7 +21660,7 @@
     "en": "Baked shrimp with rice"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 20,
    "servings": 2,
    "nutrition": {
     "kcal": 387,
@@ -21704,15 +21726,15 @@
    "steps": {
     "ru": [
      "Разогрейте духовку до 180 °C.",
-     "Креветки нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Креветки очистите, промойте и обсушите, приправьте солью, перцем и любимыми специями.",
+     "Выложите в смазанную маслом форму и запекайте 12–15 минут до готовности.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
-     "Cut the shrimp into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Peel the shrimp, rinse and pat dry; season with salt, pepper and your favourite spices.",
+     "Place in a greased baking dish and bake for 12–15 minutes.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -21725,7 +21747,7 @@
     "en": "Baked shrimp with fresh salad"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 20,
    "servings": 2,
    "nutrition": {
     "kcal": 278,
@@ -21798,15 +21820,15 @@
    "steps": {
     "ru": [
      "Разогрейте духовку до 180 °C.",
-     "Креветки нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Креветки очистите, промойте и обсушите, приправьте солью, перцем и любимыми специями.",
+     "Выложите в смазанную маслом форму и запекайте 12–15 минут до готовности.",
      "Свежие овощи нарежьте для подачи.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
-     "Cut the shrimp into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Peel the shrimp, rinse and pat dry; season with salt, pepper and your favourite spices.",
+     "Place in a greased baking dish and bake for 12–15 minutes.",
      "Slice the fresh vegetables for serving.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -21819,7 +21841,7 @@
     "en": "Baked shrimp with mixed vegetables"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 20,
    "servings": 2,
    "nutrition": {
     "kcal": 378,
@@ -21913,15 +21935,15 @@
    "steps": {
     "ru": [
      "Разогрейте духовку до 180 °C.",
-     "Креветки нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Креветки очистите, промойте и обсушите, приправьте солью, перцем и любимыми специями.",
+     "Выложите в смазанную маслом форму и запекайте 12–15 минут до готовности.",
      "Овощи нарежьте кубиками и потушите с ложкой масла и парой ложек воды 15 минут, посолите.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
-     "Cut the shrimp into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Peel the shrimp, rinse and pat dry; season with salt, pepper and your favourite spices.",
+     "Place in a greased baking dish and bake for 12–15 minutes.",
      "Dice the vegetables and simmer with a spoonful of oil and a splash of water for 15 minutes; season with salt.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -22405,7 +22427,7 @@
     "en": "Baked salmon with roasted potatoes"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 30,
    "servings": 2,
    "nutrition": {
     "kcal": 588,
@@ -22472,14 +22494,14 @@
     "ru": [
      "Разогрейте духовку до 180 °C.",
      "Филе лосося нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Выложите в смазанную маслом форму и запекайте 20–25 минут до готовности.",
      "Картофель нарежьте дольками, смешайте с маслом и специями и запеките 30–35 минут до румяности.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
      "Cut the salmon into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Place in a greased baking dish and bake for 20–25 minutes.",
      "Cut the potatoes into wedges, toss with oil and spices and roast for 30–35 minutes until golden.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -22492,7 +22514,7 @@
     "en": "Baked salmon with mashed potatoes"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 30,
    "servings": 2,
    "nutrition": {
     "kcal": 618,
@@ -22574,14 +22596,14 @@
     "ru": [
      "Разогрейте духовку до 180 °C.",
      "Филе лосося нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Выложите в смазанную маслом форму и запекайте 20–25 минут до готовности.",
      "Отварите картофель до мягкости и разомните с горячим молоком и кусочком сливочного масла.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
      "Cut the salmon into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Place in a greased baking dish and bake for 20–25 minutes.",
      "Boil the potatoes until soft and mash with hot milk and a knob of butter.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -22594,7 +22616,7 @@
     "en": "Baked salmon with pasta"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 30,
    "servings": 2,
    "nutrition": {
     "kcal": 591,
@@ -22662,14 +22684,14 @@
     "ru": [
      "Разогрейте духовку до 180 °C.",
      "Филе лосося нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Выложите в смазанную маслом форму и запекайте 20–25 минут до готовности.",
      "Отварите макароны в подсоленной воде до аль денте и откиньте на дуршлаг.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
      "Cut the salmon into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Place in a greased baking dish and bake for 20–25 minutes.",
      "Boil the pasta in salted water until al dente and drain.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -22682,7 +22704,7 @@
     "en": "Baked salmon with fresh salad"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 30,
    "servings": 2,
    "nutrition": {
     "kcal": 461,
@@ -22756,14 +22778,14 @@
     "ru": [
      "Разогрейте духовку до 180 °C.",
      "Филе лосося нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Выложите в смазанную маслом форму и запекайте 20–25 минут до готовности.",
      "Свежие овощи нарежьте для подачи.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
      "Cut the salmon into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Place in a greased baking dish and bake for 20–25 minutes.",
      "Slice the fresh vegetables for serving.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -22776,7 +22798,7 @@
     "en": "Baked salmon with mixed vegetables"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 30,
    "servings": 2,
    "nutrition": {
     "kcal": 562,
@@ -22871,14 +22893,14 @@
     "ru": [
      "Разогрейте духовку до 180 °C.",
      "Филе лосося нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Выложите в смазанную маслом форму и запекайте 20–25 минут до готовности.",
      "Овощи нарежьте кубиками и потушите с ложкой масла и парой ложек воды 15 минут, посолите.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
      "Cut the salmon into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Place in a greased baking dish and bake for 20–25 minutes.",
      "Dice the vegetables and simmer with a spoonful of oil and a splash of water for 15 minutes; season with salt.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -22891,7 +22913,7 @@
     "en": "Baked pollock with buckwheat"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 30,
    "servings": 2,
    "nutrition": {
     "kcal": 380,
@@ -22958,14 +22980,14 @@
     "ru": [
      "Разогрейте духовку до 180 °C.",
      "Минтай нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Выложите в смазанную маслом форму и запекайте 20–25 минут до готовности.",
      "Отварите гречку до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
      "Cut the pollock into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Place in a greased baking dish and bake for 20–25 minutes.",
      "Cook the buckwheat in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -22978,7 +23000,7 @@
     "en": "Baked pollock with mashed potatoes"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 30,
    "servings": 2,
    "nutrition": {
     "kcal": 436,
@@ -23060,14 +23082,14 @@
     "ru": [
      "Разогрейте духовку до 180 °C.",
      "Минтай нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Выложите в смазанную маслом форму и запекайте 20–25 минут до готовности.",
      "Отварите картофель до мягкости и разомните с горячим молоком и кусочком сливочного масла.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
      "Cut the pollock into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Place in a greased baking dish and bake for 20–25 minutes.",
      "Boil the potatoes until soft and mash with hot milk and a knob of butter.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -23080,7 +23102,7 @@
     "en": "Baked pollock with rice"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 30,
    "servings": 2,
    "nutrition": {
     "kcal": 387,
@@ -23147,14 +23169,14 @@
     "ru": [
      "Разогрейте духовку до 180 °C.",
      "Минтай нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Выложите в смазанную маслом форму и запекайте 20–25 минут до готовности.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
      "Cut the pollock into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Place in a greased baking dish and bake for 20–25 minutes.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -23167,7 +23189,7 @@
     "en": "Baked pollock with fresh salad"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 30,
    "servings": 2,
    "nutrition": {
     "kcal": 279,
@@ -23241,14 +23263,14 @@
     "ru": [
      "Разогрейте духовку до 180 °C.",
      "Минтай нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Выложите в смазанную маслом форму и запекайте 20–25 минут до готовности.",
      "Свежие овощи нарежьте для подачи.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
      "Cut the pollock into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Place in a greased baking dish and bake for 20–25 minutes.",
      "Slice the fresh vegetables for serving.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -23261,7 +23283,7 @@
     "en": "Baked pollock with mixed vegetables"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 30,
    "servings": 2,
    "nutrition": {
     "kcal": 379,
@@ -23356,14 +23378,14 @@
     "ru": [
      "Разогрейте духовку до 180 °C.",
      "Минтай нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Выложите в смазанную маслом форму и запекайте 20–25 минут до готовности.",
      "Овощи нарежьте кубиками и потушите с ложкой масла и парой ложек воды 15 минут, посолите.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
      "Cut the pollock into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Place in a greased baking dish and bake for 20–25 minutes.",
      "Dice the vegetables and simmer with a spoonful of oil and a splash of water for 15 minutes; season with salt.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -23442,15 +23464,15 @@
    "steps": {
     "ru": [
      "Разогрейте духовку до 180 °C.",
-     "Нут нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Отварной (или консервированный и промытый) нут обсушите, приправьте солью, перцем и любимыми специями.",
+     "Выложите в смазанную маслом форму и запекайте 25–30 минут до готовности.",
      "Отварите булгур до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
-     "Cut the chickpeas into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Pat the cooked (or canned, rinsed) chickpeas dry; season with salt, pepper and your favourite spices.",
+     "Place in a greased baking dish and bake for 25–30 minutes.",
      "Cook the bulgur in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -23529,15 +23551,15 @@
    "steps": {
     "ru": [
      "Разогрейте духовку до 180 °C.",
-     "Нут нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Отварной (или консервированный и промытый) нут обсушите, приправьте солью, перцем и любимыми специями.",
+     "Выложите в смазанную маслом форму и запекайте 25–30 минут до готовности.",
      "Отварите кускус до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
-     "Cut the chickpeas into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Pat the cooked (or canned, rinsed) chickpeas dry; season with salt, pepper and your favourite spices.",
+     "Place in a greased baking dish and bake for 25–30 minutes.",
      "Cook the couscous in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -23614,15 +23636,15 @@
    "steps": {
     "ru": [
      "Разогрейте духовку до 180 °C.",
-     "Нут нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Отварной (или консервированный и промытый) нут обсушите, приправьте солью, перцем и любимыми специями.",
+     "Выложите в смазанную маслом форму и запекайте 25–30 минут до готовности.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
-     "Cut the chickpeas into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Pat the cooked (or canned, rinsed) chickpeas dry; season with salt, pepper and your favourite spices.",
+     "Place in a greased baking dish and bake for 25–30 minutes.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -23706,15 +23728,15 @@
    "steps": {
     "ru": [
      "Разогрейте духовку до 180 °C.",
-     "Нут нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Отварной (или консервированный и промытый) нут обсушите, приправьте солью, перцем и любимыми специями.",
+     "Выложите в смазанную маслом форму и запекайте 25–30 минут до готовности.",
      "Свежие овощи нарежьте для подачи.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
-     "Cut the chickpeas into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Pat the cooked (or canned, rinsed) chickpeas dry; season with salt, pepper and your favourite spices.",
+     "Place in a greased baking dish and bake for 25–30 minutes.",
      "Slice the fresh vegetables for serving.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -23819,15 +23841,15 @@
    "steps": {
     "ru": [
      "Разогрейте духовку до 180 °C.",
-     "Нут нарежьте порционно, приправьте солью, перцем и любимыми специями.",
-     "Выложите в смазанную маслом форму и запекайте 30–40 минут до готовности.",
+     "Отварной (или консервированный и промытый) нут обсушите, приправьте солью, перцем и любимыми специями.",
+     "Выложите в смазанную маслом форму и запекайте 25–30 минут до готовности.",
      "Овощи нарежьте кубиками и потушите с ложкой масла и парой ложек воды 15 минут, посолите.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Preheat the oven to 180 °C.",
-     "Cut the chickpeas into portions, season with salt, pepper and your favourite spices.",
-     "Place in a greased baking dish and bake for 30–40 minutes.",
+     "Pat the cooked (or canned, rinsed) chickpeas dry; season with salt, pepper and your favourite spices.",
+     "Place in a greased baking dish and bake for 25–30 minutes.",
      "Dice the vegetables and simmer with a spoonful of oil and a splash of water for 15 minutes; season with salt.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -24305,7 +24327,7 @@
     "en": "Turkey in creamy garlic sauce with pasta"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 45,
    "servings": 2,
    "nutrition": {
     "kcal": 695,
@@ -24407,7 +24429,7 @@
     "en": "Turkey in sour cream sauce with pasta"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 45,
    "servings": 2,
    "nutrition": {
     "kcal": 632,
@@ -24509,7 +24531,7 @@
     "en": "Turkey in teriyaki sauce with rice"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 45,
    "servings": 2,
    "nutrition": {
     "kcal": 550,
@@ -24611,7 +24633,7 @@
     "en": "Turkey in tomato sauce with rice"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 45,
    "servings": 2,
    "nutrition": {
     "kcal": 543,
@@ -28396,7 +28418,7 @@
     "en": "Shrimp in creamy garlic sauce with pasta"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 25,
    "servings": 2,
    "nutrition": {
     "kcal": 541,
@@ -28479,14 +28501,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте креветки, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 5–6 минут на слабом огне.",
      "Отварите макароны в подсоленной воде до аль денте и откиньте на дуршлаг.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the shrimp and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 5–6 minutes over low heat.",
      "Boil the pasta in salted water until al dente and drain.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -28499,7 +28521,7 @@
     "en": "Shrimp in sour cream sauce with pasta"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 25,
    "servings": 2,
    "nutrition": {
     "kcal": 477,
@@ -28582,14 +28604,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте креветки, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 5–6 минут на слабом огне.",
      "Отварите макароны в подсоленной воде до аль денте и откиньте на дуршлаг.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the shrimp and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 5–6 minutes over low heat.",
      "Boil the pasta in salted water until al dente and drain.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -28602,7 +28624,7 @@
     "en": "Shrimp in teriyaki sauce with rice"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 25,
    "servings": 2,
    "nutrition": {
     "kcal": 395,
@@ -28685,14 +28707,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте креветки, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 5–6 минут на слабом огне.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the shrimp and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 5–6 minutes over low heat.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -28705,7 +28727,7 @@
     "en": "Shrimp in tomato sauce with rice"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 25,
    "servings": 2,
    "nutrition": {
     "kcal": 389,
@@ -28786,14 +28808,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте креветки, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 5–6 минут на слабом огне.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the shrimp and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 5–6 minutes over low heat.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -30344,7 +30366,7 @@
     "en": "Chicken breast in creamy garlic sauce with rice"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 45,
    "servings": 2,
    "nutrition": {
     "kcal": 639,
@@ -30445,7 +30467,7 @@
     "en": "Chicken breast in sour cream sauce with rice"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 45,
    "servings": 2,
    "nutrition": {
     "kcal": 575,
@@ -30546,7 +30568,7 @@
     "en": "Chicken breast in teriyaki sauce with pasta"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 45,
    "servings": 2,
    "nutrition": {
     "kcal": 534,
@@ -30648,7 +30670,7 @@
     "en": "Chicken breast in tomato sauce with pasta"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 45,
    "servings": 2,
    "nutrition": {
     "kcal": 528,
@@ -31851,7 +31873,7 @@
     "en": "Salmon in creamy garlic sauce with rice"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 703,
@@ -31933,14 +31955,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте филе лосося, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the salmon and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -31953,7 +31975,7 @@
     "en": "Salmon in sour cream sauce with rice"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 639,
@@ -32035,14 +32057,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте филе лосося, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the salmon and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -32055,7 +32077,7 @@
     "en": "Salmon in teriyaki sauce with pasta"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 599,
@@ -32138,14 +32160,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте филе лосося, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите макароны в подсоленной воде до аль денте и откиньте на дуршлаг.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the salmon and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Boil the pasta in salted water until al dente and drain.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -32158,7 +32180,7 @@
     "en": "Salmon in tomato sauce with pasta"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 593,
@@ -32240,14 +32262,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте филе лосося, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите макароны в подсоленной воде до аль денте и откиньте на дуршлаг.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the salmon and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Boil the pasta in salted water until al dente and drain.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -32887,13 +32909,15 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
-     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
+     "Яйца взбейте с рубленой зеленью и тёртым сыром.",
+     "Вылейте на сковороду с горячим маслом и жарьте, помешивая, 2–3 минуты, как мягкий омлет.",
+     "Смешайте с горячей пастой."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
-     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
+     "Whisk the eggs with the chopped herbs and grated cheese.",
+     "Pour into the pan with the hot butter and scramble for 2–3 minutes, stirring.",
+     "Toss with the hot pasta."
     ]
    },
    "id": "r0346"
@@ -32904,7 +32928,7 @@
     "en": "Pollock in creamy garlic sauce with rice"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 521,
@@ -32986,14 +33010,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте минтай, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the pollock and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -33006,7 +33030,7 @@
     "en": "Pollock in sour cream sauce with rice"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 457,
@@ -33088,14 +33112,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте минтай, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the pollock and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -33108,7 +33132,7 @@
     "en": "Pollock in teriyaki sauce with pasta"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 417,
@@ -33191,14 +33215,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте минтай, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите макароны в подсоленной воде до аль денте и откиньте на дуршлаг.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the pollock and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Boil the pasta in salted water until al dente and drain.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -33211,7 +33235,7 @@
     "en": "Pollock in tomato sauce with pasta"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 410,
@@ -33293,14 +33317,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте минтай, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите макароны в подсоленной воде до аль денте и откиньте на дуршлаг.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the pollock and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Boil the pasta in salted water until al dente and drain.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -33956,13 +33980,15 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
-     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
+     "Овощи нарежьте кубиками и обжарьте 8–10 минут, начиная с лука и чеснока.",
+     "Добавьте помидоры и тушите 5–7 минут до мягкости.",
+     "Соедините с пастой."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
-     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
+     "Dice the vegetables and fry for 8–10 minutes, starting with the onion and garlic.",
+     "Add the tomatoes and simmer for 5–7 minutes until soft.",
+     "Fold in the pasta."
     ]
    },
    "id": "r0357"
@@ -34067,13 +34093,15 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
-     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
+     "Для соуса обжарьте фарш с луком и морковью 8–10 минут, добавьте томатную пасту и нарезанные помидоры.",
+     "Тушите соус 10–15 минут на слабом огне, посолите.",
+     "Смешайте пасту с соусом; при густоте подлейте воду от варки."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
-     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
+     "For the sauce, fry the ground beef with the onion and carrot for 8–10 minutes; stir in the tomato paste and chopped tomatoes.",
+     "Simmer the sauce for 10–15 minutes over low heat; season with salt.",
+     "Toss the pasta with the sauce, loosening with the reserved water if needed."
     ]
    },
    "id": "r0358"
@@ -34165,13 +34193,15 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
-     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
+     "Грибы с луком обжарьте в сливочном масле 7–8 минут до золотистости.",
+     "Влейте сливки и томите 3–4 минуты до лёгкого загустения.",
+     "Соедините с пастой и подогрейте 1–2 минуты."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
-     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
+     "Fry the mushrooms with the onion in butter for 7–8 minutes until golden.",
+     "Pour in the cream and simmer for 3–4 minutes until slightly thickened.",
+     "Fold in the pasta and warm through for 1–2 minutes."
     ]
    },
    "id": "r0359"
@@ -34276,14 +34306,16 @@
    ],
    "steps": {
     "ru": [
+     "Отварите макароны в подсоленной воде до аль денте и откиньте.",
      "Курицу нарежьте полосками и обжарьте 6–7 минут.",
      "Добавьте лук и чеснок, влейте сливки и томите соус на сковороде 3 минуты на слабом огне.",
-     "Соедините с макаронами, посыпьте сыром."
+     "Соедините с макаронами, посыпьте сыром и подогрейте 1–2 минуты."
     ],
     "en": [
+     "Boil the pasta in salted water until al dente and drain.",
      "Slice the chicken into strips and fry for 6–7 minutes.",
      "Add the onion and garlic, pour in the cream and simmer the sauce in the pan for 3 minutes over low heat.",
-     "Fold in the pasta and sprinkle with cheese."
+     "Fold in the pasta, sprinkle with cheese and warm through for 1–2 minutes."
     ]
    },
    "id": "r0360"
@@ -34376,13 +34408,15 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
-     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
+     "Яйца взбейте с тёртым сыром и перцем до однородности.",
+     "Чеснок подогрейте в масле 1 минуту и снимите сковороду с огня.",
+     "Горячую пасту перемешайте с чесночным маслом и быстро вмешайте яично-сырную смесь — соус загустеет от остаточного тепла; при густоте подлейте воду от варки."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
-     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
+     "Whisk the eggs with the grated cheese and pepper until smooth.",
+     "Warm the garlic in the butter for 1 minute and take the pan off the heat.",
+     "Toss the hot pasta with the garlic butter and quickly stir in the egg mixture — the residual heat thickens the sauce; loosen with the reserved water if needed."
     ]
    },
    "id": "r0361"
@@ -34482,13 +34516,13 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
-     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
+     "Для песто пробейте блендером орехи, чеснок, зелень и масло до гладкости, вмешайте тёртый сыр.",
+     "Смешайте пасту с песто; при густоте подлейте воду от варки."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
-     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
+     "Blend the nuts, garlic, herbs and oil into a smooth pesto; stir in the grated cheese.",
+     "Toss the pasta with the pesto, loosening with the reserved water if needed."
     ]
    },
    "id": "r0362"
@@ -34581,13 +34615,15 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
-     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
+     "Чеснок подогрейте в сливочном масле 1 минуту.",
+     "Добавьте креветки и жарьте 3–4 минуты до розовости, сбрызните лимонным соком.",
+     "Смешайте с пастой и подогрейте 1 минуту."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
-     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
+     "Warm the garlic in the butter for 1 minute.",
+     "Add the shrimp and fry for 3–4 minutes until pink; squeeze over the lemon.",
+     "Toss with the pasta and warm for 1 minute."
     ]
    },
    "id": "r0363"
@@ -34679,13 +34715,15 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
-     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
+     "Курицу нарежьте полосками и обжарьте с чесноком 6–7 минут.",
+     "Влейте сливки, добавьте тёртый сыр и томите 3 минуты до загустения.",
+     "Соедините с пастой."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
-     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
+     "Slice the chicken into strips and fry with the garlic for 6–7 minutes.",
+     "Pour in the cream, add the grated cheese and simmer for 3 minutes until thickened.",
+     "Fold in the pasta."
     ]
    },
    "id": "r0364"
@@ -34776,13 +34814,15 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
-     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
+     "Курицу нарежьте полосками и обжарьте 6–7 минут.",
+     "Добавьте лук, затем нарезанные помидоры и тушите 7–8 минут.",
+     "Соедините с пастой и подогрейте 1–2 минуты."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
-     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
+     "Slice the chicken into strips and fry for 6–7 minutes.",
+     "Add the onion, then the chopped tomatoes and simmer for 7–8 minutes.",
+     "Fold in the pasta and warm through for 1–2 minutes."
     ]
    },
    "id": "r0365"
@@ -34875,13 +34915,15 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
-     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
+     "Лук обжарьте в масле 3 минуты, добавьте кусочки лосося и готовьте 4–5 минут.",
+     "Влейте сливки и томите 3 минуты, аккуратно помешивая, — рыба должна остаться кусочками.",
+     "Соедините с пастой."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
-     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
+     "Fry the onion in the butter for 3 minutes; add the salmon pieces and cook for 4–5 minutes.",
+     "Pour in the cream and simmer for 3 minutes, stirring gently — the fish should stay in flakes.",
+     "Fold in the pasta."
     ]
    },
    "id": "r0366"
@@ -34973,13 +35015,15 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
-     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
+     "Чеснок обжарьте в масле 1 минуту, добавьте нарезанные помидоры и тушите 8–10 минут.",
+     "Вмешайте тунец без жидкости и подогрейте 2 минуты.",
+     "Соедините с пастой."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
-     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
+     "Fry the garlic in oil for 1 minute; add the chopped tomatoes and simmer for 8–10 minutes.",
+     "Stir in the drained tuna and warm through for 2 minutes.",
+     "Fold in the pasta."
     ]
    },
    "id": "r0367"
@@ -35077,13 +35121,15 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
-     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
+     "Чечевицу промойте и отварите 20–25 минут до мягкости (или возьмите консервированную).",
+     "Лук с морковью обжарьте, добавьте томатную пасту и чечевицу, подлейте полстакана воды и потушите 5 минут.",
+     "Соедините с пастой."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
-     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
+     "Rinse the lentils and boil for 20–25 minutes until tender (or use canned).",
+     "Fry the onion and carrot, stir in the tomato paste and lentils, add half a cup of water and simmer for 5 minutes.",
+     "Fold in the pasta."
     ]
    },
    "id": "r0368"
@@ -35176,13 +35222,15 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
-     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
+     "Тофу нарежьте кубиками и обжарьте до румяности 5–6 минут.",
+     "Добавьте чеснок, сливки и шпинат, подогрейте 2–3 минуты, пока шпинат не обмякнет.",
+     "Соедините с пастой."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
-     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
+     "Dice the tofu and fry until golden, 5–6 minutes.",
+     "Add the garlic, cream and spinach and warm for 2–3 minutes until the spinach wilts.",
+     "Fold in the pasta."
     ]
    },
    "id": "r0369"
@@ -37412,13 +37460,15 @@
    "steps": {
     "ru": [
      "Отварите макароны в подсоленной воде до аль денте, откиньте, сохранив полстакана воды от варки.",
-     "Приготовьте соус: обжарьте основу на сковороде, добавьте жидкие ингредиенты и потушите 3–5 минут на слабом огне, помешивая.",
-     "Выложите пасту в сковороду к соусу, при необходимости подлейте воду от варки и перемешайте на среднем огне 1–2 минуты; подавайте сразу."
+     "Чеснок подогрейте в сливочном масле 1 минуту, влейте сливки.",
+     "Всыпьте тёртый сыр и помешивайте до полного расплавления.",
+     "Соедините с пастой и подогрейте 1 минуту."
     ],
     "en": [
      "Boil the pasta in salted water until al dente; drain, reserving half a cup of the cooking water.",
-     "Make the sauce: fry the base in a pan, add the liquid ingredients and simmer for 3–5 minutes over low heat, stirring.",
-     "Toss the pasta with the sauce in the pan, loosen with the reserved water if needed, cook for 1–2 minutes over medium heat and serve."
+     "Warm the garlic in the butter for 1 minute; pour in the cream.",
+     "Add the grated cheese and stir until fully melted.",
+     "Fold in the pasta and warm for 1 minute."
     ]
    },
    "id": "r0390"
@@ -37534,7 +37584,7 @@
     "en": "Cod in creamy garlic sauce with pasta"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 543,
@@ -37617,14 +37667,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте треску, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите макароны в подсоленной воде до аль денте и откиньте на дуршлаг.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the cod and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Boil the pasta in salted water until al dente and drain.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -37637,7 +37687,7 @@
     "en": "Cod in sour cream sauce with pasta"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 479,
@@ -37720,14 +37770,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте треску, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите макароны в подсоленной воде до аль денте и откиньте на дуршлаг.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the cod and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Boil the pasta in salted water until al dente and drain.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -37740,7 +37790,7 @@
     "en": "Cod in teriyaki sauce with rice"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 397,
@@ -37823,14 +37873,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте треску, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the cod and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -37843,7 +37893,7 @@
     "en": "Cod in tomato sauce with rice"
    },
    "category": "main",
-   "minutes": 40,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 391,
@@ -37924,14 +37974,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте треску, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the cod and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -40757,7 +40807,7 @@
     "en": "Braised cod with roasted potatoes"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 408,
@@ -40831,14 +40881,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте треску, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Картофель нарежьте дольками, смешайте с маслом и специями и запеките 30–35 минут до румяности.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the cod and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Cut the potatoes into wedges, toss with oil and spices and roast for 30–35 minutes until golden.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -40851,7 +40901,7 @@
     "en": "Braised cod with mashed potatoes"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 438,
@@ -40933,14 +40983,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте треску, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите картофель до мягкости и разомните с горячим молоком и кусочком сливочного масла.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the cod and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Boil the potatoes until soft and mash with hot milk and a knob of butter.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -40953,7 +41003,7 @@
     "en": "Braised cod with rice"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 389,
@@ -41020,14 +41070,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте треску, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the cod and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -41040,7 +41090,7 @@
     "en": "Braised cod with fresh salad"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 280,
@@ -41121,14 +41171,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте треску, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Свежие овощи нарежьте для подачи.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the cod and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Slice the fresh vegetables for serving.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -41141,7 +41191,7 @@
     "en": "Braised cod with mixed vegetables"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 381,
@@ -41229,14 +41279,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте треску, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Овощи нарежьте кубиками и потушите с ложкой масла и парой ложек воды 15 минут, посолите.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the cod and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Dice the vegetables and simmer with a spoonful of oil and a splash of water for 15 minutes; season with salt.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -42095,7 +42145,7 @@
     "en": "Braised shrimp with couscous"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 25,
    "servings": 2,
    "nutrition": {
     "kcal": 365,
@@ -42163,14 +42213,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте креветки, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 5–6 минут на слабом огне.",
      "Отварите кускус до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the shrimp and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 5–6 minutes over low heat.",
      "Cook the couscous in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -42183,7 +42233,7 @@
     "en": "Braised shrimp with pasta"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 25,
    "servings": 2,
    "nutrition": {
     "kcal": 407,
@@ -42251,14 +42301,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте креветки, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 5–6 минут на слабом огне.",
      "Отварите макароны в подсоленной воде до аль денте и откиньте на дуршлаг.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the shrimp and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 5–6 minutes over low heat.",
      "Boil the pasta in salted water until al dente and drain.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -42271,7 +42321,7 @@
     "en": "Braised shrimp with rice"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 25,
    "servings": 2,
    "nutrition": {
     "kcal": 387,
@@ -42338,14 +42388,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте креветки, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 5–6 минут на слабом огне.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the shrimp and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 5–6 minutes over low heat.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -42358,7 +42408,7 @@
     "en": "Braised shrimp with fresh salad"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 25,
    "servings": 2,
    "nutrition": {
     "kcal": 278,
@@ -42439,14 +42489,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте креветки, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 5–6 минут на слабом огне.",
      "Свежие овощи нарежьте для подачи.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the shrimp and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 5–6 minutes over low heat.",
      "Slice the fresh vegetables for serving.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -42459,7 +42509,7 @@
     "en": "Braised shrimp with mixed vegetables"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 25,
    "servings": 2,
    "nutrition": {
     "kcal": 378,
@@ -42547,14 +42597,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте креветки, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 5–6 минут на слабом огне.",
      "Овощи нарежьте кубиками и потушите с ложкой масла и парой ложек воды 15 минут, посолите.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the shrimp and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 5–6 minutes over low heat.",
      "Dice the vegetables and simmer with a spoonful of oil and a splash of water for 15 minutes; season with salt.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -43140,7 +43190,7 @@
     "en": "Braised salmon with roasted potatoes"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 589,
@@ -43214,14 +43264,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте филе лосося, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Картофель нарежьте дольками, смешайте с маслом и специями и запеките 30–35 минут до румяности.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the salmon and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Cut the potatoes into wedges, toss with oil and spices and roast for 30–35 minutes until golden.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -43234,7 +43284,7 @@
     "en": "Braised salmon with pasta"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 591,
@@ -43302,14 +43352,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте филе лосося, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите макароны в подсоленной воде до аль денте и откиньте на дуршлаг.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the salmon and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Boil the pasta in salted water until al dente and drain.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -43322,7 +43372,7 @@
     "en": "Braised salmon with rice"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 570,
@@ -43389,14 +43439,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте филе лосося, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the salmon and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -43409,7 +43459,7 @@
     "en": "Braised salmon with fresh salad"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 461,
@@ -43490,14 +43540,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте филе лосося, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Свежие овощи нарежьте для подачи.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the salmon and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Slice the fresh vegetables for serving.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -43510,7 +43560,7 @@
     "en": "Braised salmon with mixed vegetables"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 562,
@@ -43598,14 +43648,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте филе лосося, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Овощи нарежьте кубиками и потушите с ложкой масла и парой ложек воды 15 минут, посолите.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the salmon and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Dice the vegetables and simmer with a spoonful of oil and a splash of water for 15 minutes; season with salt.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -43618,7 +43668,7 @@
     "en": "Braised pollock with buckwheat"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 380,
@@ -43685,14 +43735,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте минтай, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите гречку до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the pollock and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Cook the buckwheat in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -43705,7 +43755,7 @@
     "en": "Braised pollock with mashed potatoes"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 436,
@@ -43787,14 +43837,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте минтай, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите картофель до мягкости и разомните с горячим молоком и кусочком сливочного масла.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the pollock and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Boil the potatoes until soft and mash with hot milk and a knob of butter.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -43807,7 +43857,7 @@
     "en": "Braised pollock with rice"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 387,
@@ -43874,14 +43924,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте минтай, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the pollock and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -43894,7 +43944,7 @@
     "en": "Braised pollock with fresh salad"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 279,
@@ -43975,14 +44025,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте минтай, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Свежие овощи нарежьте для подачи.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the pollock and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Slice the fresh vegetables for serving.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -43995,7 +44045,7 @@
     "en": "Braised pollock with mixed vegetables"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 379,
@@ -44083,14 +44133,14 @@
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
      "Добавьте минтай, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 15–20 минут на слабом огне.",
      "Овощи нарежьте кубиками и потушите с ложкой масла и парой ложек воды 15 минут, посолите.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
      "Add the pollock and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 15–20 minutes over low heat.",
      "Dice the vegetables and simmer with a spoonful of oil and a splash of water for 15 minutes; season with salt.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -44103,7 +44153,7 @@
     "en": "Braised chickpeas with bulgur"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 630,
@@ -44169,15 +44219,15 @@
    "steps": {
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
-     "Добавьте нут, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Добавьте отварной (или консервированный) нут, обжаривайте 3 минуты, помешивая.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 10–15 минут на слабом огне.",
      "Отварите булгур до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
-     "Add the chickpeas and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Add the cooked (or canned) chickpeas and cook for 3 minutes, stirring.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 10–15 minutes over low heat.",
      "Cook the bulgur in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -44190,7 +44240,7 @@
     "en": "Braised chickpeas with couscous"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 673,
@@ -44256,15 +44306,15 @@
    "steps": {
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
-     "Добавьте нут, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Добавьте отварной (или консервированный) нут, обжаривайте 3 минуты, помешивая.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 10–15 минут на слабом огне.",
      "Отварите кускус до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
-     "Add the chickpeas and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Add the cooked (or canned) chickpeas and cook for 3 minutes, stirring.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 10–15 minutes over low heat.",
      "Cook the couscous in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -44277,7 +44327,7 @@
     "en": "Braised chickpeas with rice"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 695,
@@ -44341,15 +44391,15 @@
    "steps": {
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
-     "Добавьте нут, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Добавьте отварной (или консервированный) нут, обжаривайте 3 минуты, помешивая.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 10–15 минут на слабом огне.",
      "Отварите рис до готовности в подсоленной воде.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
-     "Add the chickpeas and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Add the cooked (or canned) chickpeas and cook for 3 minutes, stirring.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 10–15 minutes over low heat.",
      "Cook the rice in salted water until tender.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -44362,7 +44412,7 @@
     "en": "Braised chickpeas with fresh salad"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 586,
@@ -44440,15 +44490,15 @@
    "steps": {
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
-     "Добавьте нут, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Добавьте отварной (или консервированный) нут, обжаривайте 3 минуты, помешивая.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 10–15 минут на слабом огне.",
      "Свежие овощи нарежьте для подачи.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
-     "Add the chickpeas and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Add the cooked (or canned) chickpeas and cook for 3 minutes, stirring.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 10–15 minutes over low heat.",
      "Slice the fresh vegetables for serving.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -44461,7 +44511,7 @@
     "en": "Braised chickpeas with mixed vegetables"
    },
    "category": "main",
-   "minutes": 45,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 687,
@@ -44546,15 +44596,15 @@
    "steps": {
     "ru": [
      "Лук и морковь нарежьте и обжарьте до мягкости.",
-     "Добавьте нут, обжаривайте 5 минут, помешивая.",
-     "Влейте полстакана воды или соус, накройте крышкой и тушите 25–35 минут на слабом огне.",
+     "Добавьте отварной (или консервированный) нут, обжаривайте 3 минуты, помешивая.",
+     "Влейте полстакана воды или соус, накройте крышкой и тушите 10–15 минут на слабом огне.",
      "Овощи нарежьте кубиками и потушите с ложкой масла и парой ложек воды 15 минут, посолите.",
      "Подавайте горячим, посыпав свежей зеленью."
     ],
     "en": [
      "Fry the chopped onion and carrot until soft.",
-     "Add the chickpeas and cook for 5 minutes, stirring.",
-     "Pour in half a cup of water or the sauce, cover and simmer for 25–35 minutes over low heat.",
+     "Add the cooked (or canned) chickpeas and cook for 3 minutes, stirring.",
+     "Pour in half a cup of water or the sauce, cover and simmer for 10–15 minutes over low heat.",
      "Dice the vegetables and simmer with a spoonful of oil and a splash of water for 15 minutes; season with salt.",
      "Serve hot, sprinkled with fresh herbs."
     ]
@@ -45112,12 +45162,12 @@
    "steps": {
     "ru": [
      "Кабачки разрежьте вдоль и ложкой выньте мякоть.",
-     "Смешайте фарш с рисом и луком, наполните лодочки, посыпьте сыром.",
+     "Смешайте фарш с полуготовым рисом и луком, наполните лодочки, посыпьте сыром.",
      "Запекайте 30–35 минут при 180 °C."
     ],
     "en": [
      "Halve the zucchini and scoop out the flesh.",
-     "Mix the ground chicken with rice and onion, fill the boats and sprinkle with cheese.",
+     "Mix the ground chicken with half-cooked rice and onion, fill the boats and sprinkle with cheese.",
      "Bake at 180 °C for 30–35 minutes."
     ]
    },
@@ -45421,14 +45471,12 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Помидоры и огурцы нарежьте крупными кубиками, сыр — такими же кубиками, оливки оставьте целыми.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Dice the tomatoes, cucumber and cheese; leave the olives whole.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0474"
@@ -45439,7 +45487,7 @@
     "en": "Greek salad with shrimp"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 20,
    "servings": 2,
    "nutrition": {
     "kcal": 167,
@@ -45511,14 +45559,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Креветки опустите в кипящую подсоленную воду на 3–4 минуты, остудите и очистите.",
+     "Помидоры и огурцы нарежьте крупными кубиками.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Drop the shrimp into boiling salted water for 3–4 minutes; cool and peel.",
+     "Dice the tomatoes and the cucumber.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0475"
@@ -45599,14 +45647,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Курицу отварите в подсоленной воде 12–15 минут до готовности, остудите и нарежьте кубиками.",
+     "Помидоры и огурцы нарежьте крупными кубиками.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Poach the chicken in salted water for 12–15 minutes until cooked; cool and dice.",
+     "Dice the tomatoes and the cucumber.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0476"
@@ -45617,7 +45665,7 @@
     "en": "Greek salad with chickpeas"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 60,
    "servings": 2,
    "nutrition": {
     "kcal": 299,
@@ -45687,14 +45735,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Нут замочите заранее и отварите 50–60 минут до мягкости (или возьмите консервированный и промойте).",
+     "Помидоры и огурцы нарежьте крупными кубиками.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Soak the chickpeas in advance and boil until soft, 50–60 minutes, or use canned, rinsed.",
+     "Dice the tomatoes and the cucumber.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0477"
@@ -45777,14 +45825,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Помидоры и огурцы нарежьте крупными кубиками.",
+     "Сыр нарежьте кубиками.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Dice the tomatoes and the cucumber.",
+     "Dice the cheese.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0478"
@@ -45795,7 +45843,7 @@
     "en": "Greek salad with tuna"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 15,
    "servings": 2,
    "nutrition": {
     "kcal": 163,
@@ -45867,14 +45915,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Тунец достаньте из банки, слейте жидкость и разберите на кусочки.",
+     "Помидоры и огурцы нарежьте крупными кубиками.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Drain the canned tuna and flake it into pieces.",
+     "Dice the tomatoes and the cucumber.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0479"
@@ -45885,7 +45933,7 @@
     "en": "Greek salad with beans"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 55,
    "servings": 2,
    "nutrition": {
     "kcal": 266,
@@ -45955,14 +46003,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Фасоль отварите до готовности 40–50 минут (или возьмите консервированную и промойте).",
+     "Помидоры и огурцы нарежьте крупными кубиками.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Cook the beans until tender, 40–50 minutes, or use canned beans, rinsed.",
+     "Dice the tomatoes and the cucumber.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0480"
@@ -45973,7 +46021,7 @@
     "en": "Greek salad with egg"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 20,
    "servings": 2,
    "nutrition": {
     "kcal": 274,
@@ -46052,14 +46100,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Яйца отварите вкрутую 9–10 минут, остудите в холодной воде, очистите и нарежьте.",
+     "Помидоры и огурцы нарежьте крупными кубиками.",
+     "Смешайте всё в салатнике с майонезом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Hard-boil the eggs for 9–10 minutes, cool in cold water, peel and chop.",
+     "Dice the tomatoes and the cucumber.",
+     "Toss everything in a bowl with the mayonnaise; season with salt and pepper."
     ]
    },
    "id": "r0481"
@@ -46133,14 +46181,12 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Листья салата порвите руками, огурец нарежьте полукружиями.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Tear the lettuce leaves by hand; slice the cucumber.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0482"
@@ -46151,7 +46197,7 @@
     "en": "Green salad with shrimp"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 20,
    "servings": 2,
    "nutrition": {
     "kcal": 154,
@@ -46223,14 +46269,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Креветки опустите в кипящую подсоленную воду на 3–4 минуты, остудите и очистите.",
+     "Листья салата порвите руками, огурец нарежьте полукружиями.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Drop the shrimp into boiling salted water for 3–4 minutes; cool and peel.",
+     "Tear the lettuce leaves by hand; slice the cucumber.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0483"
@@ -46311,14 +46357,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Курицу отварите в подсоленной воде 12–15 минут до готовности, остудите и нарежьте кубиками.",
+     "Листья салата порвите руками, огурец нарежьте полукружиями.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Poach the chicken in salted water for 12–15 minutes until cooked; cool and dice.",
+     "Tear the lettuce leaves by hand; slice the cucumber.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0484"
@@ -46329,7 +46375,7 @@
     "en": "Green salad with chickpeas"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 60,
    "servings": 2,
    "nutrition": {
     "kcal": 287,
@@ -46399,14 +46445,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Нут замочите заранее и отварите 50–60 минут до мягкости (или возьмите консервированный и промойте).",
+     "Листья салата порвите руками, огурец нарежьте полукружиями.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Soak the chickpeas in advance and boil until soft, 50–60 minutes, or use canned, rinsed.",
+     "Tear the lettuce leaves by hand; slice the cucumber.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0485"
@@ -46489,14 +46535,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Листья салата порвите руками, огурец нарежьте полукружиями.",
+     "Сыр нарежьте кубиками.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Tear the lettuce leaves by hand; slice the cucumber.",
+     "Dice the cheese.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0486"
@@ -46507,7 +46553,7 @@
     "en": "Green salad with tuna"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 15,
    "servings": 2,
    "nutrition": {
     "kcal": 151,
@@ -46579,14 +46625,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Тунец достаньте из банки, слейте жидкость и разберите на кусочки.",
+     "Листья салата порвите руками, огурец нарежьте полукружиями.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Drain the canned tuna and flake it into pieces.",
+     "Tear the lettuce leaves by hand; slice the cucumber.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0487"
@@ -46597,7 +46643,7 @@
     "en": "Green salad with egg"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 20,
    "servings": 2,
    "nutrition": {
     "kcal": 183,
@@ -46669,14 +46715,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Яйца отварите вкрутую 9–10 минут, остудите в холодной воде, очистите и нарежьте.",
+     "Листья салата порвите руками, огурец нарежьте полукружиями.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Hard-boil the eggs for 9–10 minutes, cool in cold water, peel and chop.",
+     "Tear the lettuce leaves by hand; slice the cucumber.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0488"
@@ -46687,7 +46733,7 @@
     "en": "Potato salad"
    },
    "category": "salad",
-   "minutes": 15,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 261,
@@ -46759,14 +46805,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Картофель отварите в подсоленной воде 20–25 минут до мягкости, остудите и нарежьте кубиками.",
+     "Солёные огурцы нарежьте кубиками.",
+     "Смешайте всё в салатнике с майонезом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Boil the potatoes in salted water for 20–25 minutes until soft; cool and dice.",
+     "Dice the pickles.",
+     "Toss everything in a bowl with the mayonnaise; season with salt and pepper."
     ]
    },
    "id": "r0489"
@@ -46777,7 +46823,7 @@
     "en": "Potato salad with beans"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 410,
@@ -46856,14 +46902,16 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Картофель отварите в подсоленной воде 20–25 минут до мягкости, остудите и нарежьте кубиками.",
+     "Фасоль отварите до готовности 40–50 минут (или возьмите консервированную и промойте).",
+     "Солёные огурцы нарежьте кубиками.",
+     "Смешайте всё в салатнике с майонезом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Boil the potatoes in salted water for 20–25 minutes until soft; cool and dice.",
+     "Cook the beans until tender, 40–50 minutes, or use canned beans, rinsed.",
+     "Dice the pickles.",
+     "Toss everything in a bowl with the mayonnaise; season with salt and pepper."
     ]
    },
    "id": "r0490"
@@ -46874,7 +46922,7 @@
     "en": "Potato salad with egg"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 35,
    "servings": 2,
    "nutrition": {
     "kcal": 340,
@@ -46953,14 +47001,16 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Картофель отварите в подсоленной воде 20–25 минут до мягкости, остудите и нарежьте кубиками.",
+     "Яйца отварите вкрутую 9–10 минут, остудите в холодной воде, очистите и нарежьте.",
+     "Солёные огурцы нарежьте кубиками.",
+     "Смешайте всё в салатнике с майонезом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Boil the potatoes in salted water for 20–25 minutes until soft; cool and dice.",
+     "Hard-boil the eggs for 9–10 minutes, cool in cold water, peel and chop.",
+     "Dice the pickles.",
+     "Toss everything in a bowl with the mayonnaise; season with salt and pepper."
     ]
    },
    "id": "r0491"
@@ -47027,14 +47077,12 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Морковь натрите на крупной тёрке.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Grate the carrot coarsely.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0492"
@@ -47045,7 +47093,7 @@
     "en": "Carrot salad with chickpeas"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 60,
    "servings": 2,
    "nutrition": {
     "kcal": 305,
@@ -47108,14 +47156,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Нут замочите заранее и отварите 50–60 минут до мягкости (или возьмите консервированный и промойте).",
+     "Морковь натрите на крупной тёрке.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Soak the chickpeas in advance and boil until soft, 50–60 minutes, or use canned, rinsed.",
+     "Grate the carrot coarsely.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0493"
@@ -47191,14 +47239,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Морковь натрите на крупной тёрке.",
+     "Сыр нарежьте кубиками.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Grate the carrot coarsely.",
+     "Dice the cheese.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0494"
@@ -47272,14 +47320,12 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Морковь натрите на крупной тёрке, яблоко нарежьте соломкой.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Grate the carrot coarsely; slice the apple into strips.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0495"
@@ -47353,14 +47399,12 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Капусту тонко нашинкуйте, морковь натрите на крупной тёрке.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Shred the cabbage thinly; grate the carrot coarsely.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0496"
@@ -47441,14 +47485,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Курицу отварите в подсоленной воде 12–15 минут до готовности, остудите и нарежьте кубиками.",
+     "Капусту тонко нашинкуйте, морковь натрите на крупной тёрке.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Poach the chicken in salted water for 12–15 minutes until cooked; cool and dice.",
+     "Shred the cabbage thinly; grate the carrot coarsely.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0497"
@@ -47459,7 +47503,7 @@
     "en": "Fresh cabbage salad with chickpeas"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 60,
    "servings": 2,
    "nutrition": {
     "kcal": 311,
@@ -47529,14 +47573,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Нут замочите заранее и отварите 50–60 минут до мягкости (или возьмите консервированный и промойте).",
+     "Капусту тонко нашинкуйте, морковь натрите на крупной тёрке.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Soak the chickpeas in advance and boil until soft, 50–60 minutes, or use canned, rinsed.",
+     "Shred the cabbage thinly; grate the carrot coarsely.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0498"
@@ -47619,14 +47663,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Капусту тонко нашинкуйте, морковь натрите на крупной тёрке.",
+     "Сыр нарежьте кубиками.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Shred the cabbage thinly; grate the carrot coarsely.",
+     "Dice the cheese.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0499"
@@ -47637,7 +47681,7 @@
     "en": "Fresh cabbage salad with tuna"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 15,
    "servings": 2,
    "nutrition": {
     "kcal": 176,
@@ -47709,14 +47753,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Тунец достаньте из банки, слейте жидкость и разберите на кусочки.",
+     "Капусту тонко нашинкуйте, морковь натрите на крупной тёрке.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Drain the canned tuna and flake it into pieces.",
+     "Shred the cabbage thinly; grate the carrot coarsely.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0500"
@@ -47727,7 +47771,7 @@
     "en": "Fresh cabbage salad with beans"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 55,
    "servings": 2,
    "nutrition": {
     "kcal": 278,
@@ -47797,14 +47841,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Фасоль отварите до готовности 40–50 минут (или возьмите консервированную и промойте).",
+     "Капусту тонко нашинкуйте, морковь натрите на крупной тёрке.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Cook the beans until tender, 40–50 minutes, or use canned beans, rinsed.",
+     "Shred the cabbage thinly; grate the carrot coarsely.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0501"
@@ -47815,7 +47859,7 @@
     "en": "Fresh cabbage salad with egg"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 20,
    "servings": 2,
    "nutrition": {
     "kcal": 208,
@@ -47887,14 +47931,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Яйца отварите вкрутую 9–10 минут, остудите в холодной воде, очистите и нарежьте.",
+     "Капусту тонко нашинкуйте, морковь натрите на крупной тёрке.",
+     "Смешайте всё в салатнике, заправьте оливковым маслом, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Hard-boil the eggs for 9–10 minutes, cool in cold water, peel and chop.",
+     "Shred the cabbage thinly; grate the carrot coarsely.",
+     "Toss everything in a bowl, dress with olive oil and season with salt and pepper."
     ]
    },
    "id": "r0502"
@@ -47905,7 +47949,7 @@
     "en": "Beetroot salad"
    },
    "category": "salad",
-   "minutes": 15,
+   "minutes": 60,
    "servings": 2,
    "nutrition": {
     "kcal": 167,
@@ -47970,14 +48014,12 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Свёклу отварите 40–50 минут до мягкости (быстрее — в микроволновке), остудите и нарежьте кубиками.",
+     "Смешайте всё в салатнике со сметаной, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Boil the beetroot for 40–50 minutes until soft (faster in the microwave); cool and dice.",
+     "Toss everything in a bowl with the sour cream; season with salt and pepper."
     ]
    },
    "id": "r0503"
@@ -47988,7 +48030,7 @@
     "en": "Beetroot salad with walnuts"
    },
    "category": "salad",
-   "minutes": 15,
+   "minutes": 60,
    "servings": 2,
    "nutrition": {
     "kcal": 265,
@@ -48061,14 +48103,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Свёклу отварите 40–50 минут до мягкости (быстрее — в микроволновке), остудите и нарежьте кубиками.",
+     "Грецкие орехи подсушите на сухой сковороде 2–3 минуты и крупно порубите.",
+     "Смешайте всё в салатнике со сметаной, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Boil the beetroot for 40–50 minutes until soft (faster in the microwave); cool and dice.",
+     "Toast the walnuts in a dry pan for 2–3 minutes and chop coarsely.",
+     "Toss everything in a bowl with the sour cream; season with salt and pepper."
     ]
    },
    "id": "r0504"
@@ -48079,7 +48121,7 @@
     "en": "Beetroot salad with cheese"
    },
    "category": "salad",
-   "minutes": 15,
+   "minutes": 60,
    "servings": 2,
    "nutrition": {
     "kcal": 272,
@@ -48151,14 +48193,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Свёклу отварите 40–50 минут до мягкости (быстрее — в микроволновке), остудите и нарежьте кубиками.",
+     "Сыр нарежьте кубиками.",
+     "Смешайте всё в салатнике со сметаной, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Boil the beetroot for 40–50 minutes until soft (faster in the microwave); cool and dice.",
+     "Dice the cheese.",
+     "Toss everything in a bowl with the sour cream; season with salt and pepper."
     ]
    },
    "id": "r0505"
@@ -48169,7 +48211,7 @@
     "en": "Beetroot salad with beans"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 60,
    "servings": 2,
    "nutrition": {
     "kcal": 316,
@@ -48241,14 +48283,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Свёклу отварите 40–50 минут до мягкости (быстрее — в микроволновке), остудите и нарежьте кубиками.",
+     "Фасоль отварите до готовности 40–50 минут (или возьмите консервированную и промойте).",
+     "Смешайте всё в салатнике со сметаной, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Boil the beetroot for 40–50 minutes until soft (faster in the microwave); cool and dice.",
+     "Cook the beans until tender, 40–50 minutes, or use canned beans, rinsed.",
+     "Toss everything in a bowl with the sour cream; season with salt and pepper."
     ]
    },
    "id": "r0506"
@@ -48259,7 +48301,7 @@
     "en": "Beetroot salad with egg"
    },
    "category": "salad",
-   "minutes": 25,
+   "minutes": 60,
    "servings": 2,
    "nutrition": {
     "kcal": 246,
@@ -48332,14 +48374,14 @@
    ],
    "steps": {
     "ru": [
-     "Овощи нарежьте, крупные ингредиенты — кубиками.",
-     "Отварите добавку, если требуется (яйцо, курица, овощи).",
-     "Смешайте всё в салатнике, заправьте маслом или сметаной, посолите и поперчите."
+     "Свёклу отварите 40–50 минут до мягкости (быстрее — в микроволновке), остудите и нарежьте кубиками.",
+     "Яйца отварите вкрутую 9–10 минут, остудите в холодной воде, очистите и нарежьте.",
+     "Смешайте всё в салатнике со сметаной, посолите и поперчите."
     ],
     "en": [
-     "Chop the vegetables; dice the larger ingredients.",
-     "Cook the add-in if needed (egg, chicken, vegetables).",
-     "Toss everything in a bowl, dress with oil or sour cream, season with salt and pepper."
+     "Boil the beetroot for 40–50 minutes until soft (faster in the microwave); cool and dice.",
+     "Hard-boil the eggs for 9–10 minutes, cool in cold water, peel and chop.",
+     "Toss everything in a bowl with the sour cream; season with salt and pepper."
     ]
    },
    "id": "r0507"
@@ -49242,12 +49284,12 @@
    ],
    "steps": {
     "ru": [
-     "Подготовьте ингредиенты: промойте, нарежьте или смешайте.",
-     "Подавайте сразу или упакуйте с собой."
+     "Шоколад растопите на водяной бане или в микроволновке — по 20 секунд, помешивая.",
+     "Банан нарежьте кружочками и полейте шоколадом."
     ],
     "en": [
-     "Prep the ingredients: rinse, slice or mix.",
-     "Serve right away or pack for later."
+     "Melt the chocolate over a water bath or in the microwave in 20-second bursts, stirring.",
+     "Slice the banana and drizzle with the chocolate."
     ]
    },
    "id": "r0518"
@@ -49316,12 +49358,12 @@
    ],
    "steps": {
     "ru": [
-     "Подготовьте ингредиенты: промойте, нарежьте или смешайте.",
-     "Подавайте сразу или упакуйте с собой."
+     "Овсяные хлопья залейте молоком и оставьте на 5 минут.",
+     "Добавьте банан и мёд, пробейте блендером до однородности."
     ],
     "en": [
-     "Prep the ingredients: rinse, slice or mix.",
-     "Serve right away or pack for later."
+     "Cover the oats with the milk and let sit for 5 minutes.",
+     "Add the banana and honey and blend until smooth."
     ]
    },
    "id": "r0519"
@@ -49376,12 +49418,12 @@
    ],
    "steps": {
     "ru": [
-     "Подготовьте ингредиенты: промойте, нарежьте или смешайте.",
-     "Подавайте сразу или упакуйте с собой."
+     "Грушу нарежьте ломтиками, сыр — тонкими пластинками.",
+     "Подавайте вместе."
     ],
     "en": [
-     "Prep the ingredients: rinse, slice or mix.",
-     "Serve right away or pack for later."
+     "Slice the pear; cut the cheese into thin slices.",
+     "Serve together."
     ]
    },
    "id": "r0520"
@@ -49444,12 +49486,12 @@
    ],
    "steps": {
     "ru": [
-     "Подготовьте ингредиенты: промойте, нарежьте или смешайте.",
-     "Подавайте сразу или упакуйте с собой."
+     "Банан нарежьте кружочками, орехи крупно порубите.",
+     "Смешайте с йогуртом."
     ],
     "en": [
-     "Prep the ingredients: rinse, slice or mix.",
-     "Serve right away or pack for later."
+     "Slice the banana; chop the nuts coarsely.",
+     "Fold into the yogurt."
     ]
    },
    "id": "r0521"
@@ -49504,12 +49546,12 @@
    ],
    "steps": {
     "ru": [
-     "Подготовьте ингредиенты: промойте, нарежьте или смешайте.",
-     "Подавайте сразу или упакуйте с собой."
+     "Ягоды промойте и слегка разомните ложкой.",
+     "Добавьте в кефир и перемешайте."
     ],
     "en": [
-     "Prep the ingredients: rinse, slice or mix.",
-     "Serve right away or pack for later."
+     "Rinse the berries and crush them lightly with a spoon.",
+     "Stir into the kefir."
     ]
    },
    "id": "r0522"
@@ -49578,12 +49620,12 @@
    ],
    "steps": {
     "ru": [
-     "Подготовьте ингредиенты: промойте, нарежьте или смешайте.",
-     "Подавайте сразу или упакуйте с собой."
+     "Морковь нарежьте брусочками.",
+     "Йогурт смешайте с тёртым чесноком, рубленой зеленью и щепоткой соли — подавайте как соус."
     ],
     "en": [
-     "Prep the ingredients: rinse, slice or mix.",
-     "Serve right away or pack for later."
+     "Cut the carrot into sticks.",
+     "Stir the grated garlic, chopped herbs and a pinch of salt into the yogurt and serve as a dip."
     ]
    },
    "id": "r0523"
@@ -49645,12 +49687,12 @@
    ],
    "steps": {
     "ru": [
-     "Подготовьте ингредиенты: промойте, нарежьте или смешайте.",
-     "Подавайте сразу или упакуйте с собой."
+     "Орехи по желанию подсушите на сухой сковороде 2–3 минуты и остудите.",
+     "Смешайте с изюмом и расфасуйте порциями."
     ],
     "en": [
-     "Prep the ingredients: rinse, slice or mix.",
-     "Serve right away or pack for later."
+     "Optionally toast the nuts in a dry pan for 2–3 minutes and cool.",
+     "Mix with the raisins and divide into portions."
     ]
    },
    "id": "r0524"
@@ -49712,12 +49754,12 @@
    ],
    "steps": {
     "ru": [
-     "Подготовьте ингредиенты: промойте, нарежьте или смешайте.",
-     "Подавайте сразу или упакуйте с собой."
+     "Ягоды промойте, крупные разрежьте пополам.",
+     "Смешайте творог с ягодами, полейте мёдом."
     ],
     "en": [
-     "Prep the ingredients: rinse, slice or mix.",
-     "Serve right away or pack for later."
+     "Rinse the berries; halve the large ones.",
+     "Fold the berries into the cottage cheese and drizzle with honey."
     ]
    },
    "id": "r0525"
@@ -49786,12 +49828,12 @@
    ],
    "steps": {
     "ru": [
-     "Подготовьте ингредиенты: промойте, нарежьте или смешайте.",
-     "Подавайте сразу или упакуйте с собой."
+     "Хлеб подрумяньте в тостере или на сухой сковороде.",
+     "Авокадо разомните вилкой с лимонным соком и солью, намажьте на тост."
     ],
     "en": [
-     "Prep the ingredients: rinse, slice or mix.",
-     "Serve right away or pack for later."
+     "Toast the bread in a toaster or a dry pan.",
+     "Mash the avocado with the lemon juice and salt; spread on the toast."
     ]
    },
    "id": "r0526"
@@ -49865,12 +49907,14 @@
    ],
    "steps": {
     "ru": [
-     "Подготовьте ингредиенты: промойте, нарежьте или смешайте.",
-     "Подавайте сразу или упакуйте с собой."
+     "Нут замочите заранее и отварите 50–60 минут до мягкости (или возьмите консервированный и промойте).",
+     "Пробейте блендером нут с чесноком, лимонным соком и маслом, подливая 2–3 ст. л. холодной воды до кремовой текстуры.",
+     "Морковь нарежьте брусочками и подавайте с хумусом."
     ],
     "en": [
-     "Prep the ingredients: rinse, slice or mix.",
-     "Serve right away or pack for later."
+     "Soak the chickpeas in advance and boil until soft, 50–60 minutes, or use canned, rinsed.",
+     "Blend the chickpeas with the garlic, lemon juice and oil, adding 2–3 tbsp of cold water until creamy.",
+     "Cut the carrot into sticks and serve with the hummus."
     ]
    },
    "id": "r0527"
@@ -49925,12 +49969,12 @@
    ],
    "steps": {
     "ru": [
-     "Подготовьте ингредиенты: промойте, нарежьте или смешайте.",
-     "Подавайте сразу или упакуйте с собой."
+     "Яблоко нарежьте дольками.",
+     "Подавайте дольки с арахисовой пастой для макания."
     ],
     "en": [
-     "Prep the ingredients: rinse, slice or mix.",
-     "Serve right away or pack for later."
+     "Cut the apple into wedges.",
+     "Serve the wedges with peanut butter for dipping."
     ]
    },
    "id": "r0528"
@@ -49992,12 +50036,12 @@
    ],
    "steps": {
     "ru": [
-     "Подготовьте ингредиенты: промойте, нарежьте или смешайте.",
-     "Подавайте сразу или упакуйте с собой."
+     "Ягоды, банан и молоко пробейте блендером до однородности.",
+     "Разлейте по стаканам и подавайте сразу."
     ],
     "en": [
-     "Prep the ingredients: rinse, slice or mix.",
-     "Serve right away or pack for later."
+     "Blend the berries, banana and milk until smooth.",
+     "Pour into glasses and serve right away."
     ]
    },
    "id": "r0529"
@@ -50052,12 +50096,12 @@
    ],
    "steps": {
     "ru": [
-     "Подготовьте ингредиенты: промойте, нарежьте или смешайте.",
-     "Подавайте сразу или упакуйте с собой."
+     "Ягоды промойте и обсушите.",
+     "Сливки взбейте до мягких пиков и подавайте с ягодами."
     ],
     "en": [
-     "Prep the ingredients: rinse, slice or mix.",
-     "Serve right away or pack for later."
+     "Rinse the berries and pat dry.",
+     "Whip the cream to soft peaks and serve with the berries."
     ]
    },
    "id": "r0530"
@@ -50119,12 +50163,12 @@
    ],
    "steps": {
     "ru": [
-     "Подготовьте ингредиенты: промойте, нарежьте или смешайте.",
-     "Подавайте сразу или упакуйте с собой."
+     "Яйца отварите вкрутую 9–10 минут, остудите в холодной воде и очистите.",
+     "Огурец и морковь нарежьте длинными брусочками, подавайте с яйцами."
     ],
     "en": [
-     "Prep the ingredients: rinse, slice or mix.",
-     "Serve right away or pack for later."
+     "Hard-boil the eggs for 9–10 minutes; cool in cold water and peel.",
+     "Cut the cucumber and carrot into long sticks and serve with the eggs."
     ]
    },
    "id": "r0531"

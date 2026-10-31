@@ -3,7 +3,7 @@
 специальные блюда и паста."""
 
 from helpers import (draft, main_title, main_steps, GARNISH, METHODS,
-                     SAUCES, garnish_ings)
+                     SAUCES, garnish_ings, method_minutes)
 
 # ------------------------------------------------------- белки для основ
 PROTEINS = {
@@ -103,9 +103,9 @@ def generic_mains(garn_per=GARN_PER):
                     ings.append(("vegetable_oil" if mk != "bake"
                                  else "olive_oil", 15))
                 ings += [("salt", 2), ("pepper", 1)]
-                sru, sen = main_steps(mk, prot, garn)
-                out.append(draft("main", ru, en, m["minutes"], 2, ings,
-                                 sru, sen))
+                sru, sen = main_steps(mk, prot, garn, prot_key=pk)
+                out.append(draft("main", ru, en, method_minutes(pk, mk), 2,
+                                 ings, sru, sen))
     return out
 
 
@@ -124,8 +124,9 @@ def sauced_mains():
             for ik, ig in sauce["ings"]:
                 ings.append((ik, ig))
             ings += [("salt", 2), ("pepper", 1), ("vegetable_oil", 10)]
-            sru, sen = main_steps("stew", prot, garn, sauce=sauce)
-            out.append(draft("main", ru, en, 40, 2, ings, sru, sen))
+            sru, sen = main_steps("stew", prot, garn, sauce=sauce, prot_key=pk)
+            out.append(draft("main", ru, en, method_minutes(pk, "stew"), 2,
+                             ings, sru, sen))
     return out
 
 
@@ -301,11 +302,12 @@ def specials():
          [("zucchini", 400), ("minced_chicken", 250), ("rice", 60),
           ("onion", 50), ("cheese", 40), ("tomato_paste", 30)],
          ["Кабачки разрежьте вдоль и ложкой выньте мякоть.",
-          "Смешайте фарш с рисом и луком, наполните лодочки, посыпьте сыром.",
+          "Смешайте фарш с полуготовым рисом и луком, наполните лодочки, "
+          "посыпьте сыром.",
           "Запекайте 30–35 минут при 180 °C."],
          ["Halve the zucchini and scoop out the flesh.",
-          "Mix the ground chicken with rice and onion, fill the boats and "
-          "sprinkle with cheese.",
+          "Mix the ground chicken with half-cooked rice and onion, fill the "
+          "boats and sprinkle with cheese.",
           "Bake at 180 °C for 30–35 minutes."]),
         ("Куриная печень в сметане", "Chicken liver in sour cream", 30,
          [("chicken_liver", 350), ("onion", 100), ("sour_cream", 100),
@@ -375,14 +377,17 @@ def specials():
          [("pasta", 180), ("chicken_breast", 250), ("cream", 120),
           ("onion", 60), ("garlic", 6), ("cheese", 40),
           ("olive_oil", 15)],
-         ["Курицу нарежьте полосками и обжарьте 6–7 минут.",
+         ["Отварите макароны в подсоленной воде до аль денте и откиньте.",
+          "Курицу нарежьте полосками и обжарьте 6–7 минут.",
           "Добавьте лук и чеснок, влейте сливки и томите соус на "
           "сковороде 3 минуты на слабом огне.",
-          "Соедините с макаронами, посыпьте сыром."],
-         ["Slice the chicken into strips and fry for 6–7 minutes.",
+          "Соедините с макаронами, посыпьте сыром и подогрейте 1–2 минуты."],
+         ["Boil the pasta in salted water until al dente and drain.",
+          "Slice the chicken into strips and fry for 6–7 minutes.",
           "Add the onion and garlic, pour in the cream and simmer the "
           "sauce in the pan for 3 minutes over low heat.",
-          "Fold in the pasta and sprinkle with cheese."]),
+          "Fold in the pasta, sprinkle with cheese and warm through for "
+          "1–2 minutes."]),
         ("Рыба в томатном соусе с овощами", "Fish in tomato sauce with "
          "vegetables", 40,
          [("pollock", 400), ("carrot", 100), ("onion", 80),
@@ -456,66 +461,176 @@ def pasta_dishes():
     items = [
         ("Паста болоньезе", "Bolognese pasta",
          [("minced_beef", 300), ("tomato_paste", 60), ("tomato", 150),
-          ("onion", 80), ("carrot", 60), ("olive_oil", 20)], False),
+          ("onion", 80), ("carrot", 60), ("olive_oil", 20)], False,
+         ["Для соуса обжарьте фарш с луком и морковью 8–10 минут, "
+          "добавьте томатную пасту и нарезанные помидоры.",
+          "Тушите соус 10–15 минут на слабом огне, посолите.",
+          "Смешайте пасту с соусом; при густоте подлейте воду от варки."],
+         ["For the sauce, fry the ground beef with the onion and carrot "
+          "for 8–10 minutes; stir in the tomato paste and chopped "
+          "tomatoes.",
+          "Simmer the sauce for 10–15 minutes over low heat; season with "
+          "salt.",
+          "Toss the pasta with the sauce, loosening with the reserved "
+          "water if needed."]),
         ("Паста в сливочном соусе с грибами", "Creamy mushroom pasta",
          [("mushroom", 250), ("cream", 150), ("onion", 60),
-          ("butter", 20)], False),
+          ("butter", 20)], False,
+         ["Грибы с луком обжарьте в сливочном масле 7–8 минут до "
+          "золотистости.",
+          "Влейте сливки и томите 3–4 минуты до лёгкого загустения.",
+          "Соедините с пастой и подогрейте 1–2 минуты."],
+         ["Fry the mushrooms with the onion in butter for 7–8 minutes "
+          "until golden.",
+          "Pour in the cream and simmer for 3–4 minutes until slightly "
+          "thickened.",
+          "Fold in the pasta and warm through for 1–2 minutes."]),
         ("Сырная паста", "Cheese pasta",
          [("cheese", 80), ("cream", 120), ("butter", 20),
-          ("garlic", 4)], False),
+          ("garlic", 4)], False,
+         ["Чеснок подогрейте в сливочном масле 1 минуту, влейте сливки.",
+          "Всыпьте тёртый сыр и помешивайте до полного расплавления.",
+          "Соедините с пастой и подогрейте 1 минуту."],
+         ["Warm the garlic in the butter for 1 minute; pour in the cream.",
+          "Add the grated cheese and stir until fully melted.",
+          "Fold in the pasta and warm for 1 minute."]),
         ("Паста с тунцом и томатами", "Tuna and tomato pasta",
          [("tuna_can", 150), ("tomato", 200), ("garlic", 6),
-          ("olive_oil", 20)], False),
+          ("olive_oil", 20)], False,
+         ["Чеснок обжарьте в масле 1 минуту, добавьте нарезанные "
+          "помидоры и тушите 8–10 минут.",
+          "Вмешайте тунец без жидкости и подогрейте 2 минуты.",
+          "Соедините с пастой."],
+         ["Fry the garlic in oil for 1 minute; add the chopped tomatoes "
+          "and simmer for 8–10 minutes.",
+          "Stir in the drained tuna and warm through for 2 minutes.",
+          "Fold in the pasta."]),
         ("Паста с креветками в чесночном масле", "Garlic shrimp pasta",
          [("shrimp", 250), ("butter", 30), ("garlic", 12), ("lemon", 30)],
-         False),
+         False,
+         ["Чеснок подогрейте в сливочном масле 1 минуту.",
+          "Добавьте креветки и жарьте 3–4 минуты до розовости, "
+          "сбрызните лимонным соком.",
+          "Смешайте с пастой и подогрейте 1 минуту."],
+         ["Warm the garlic in the butter for 1 minute.",
+          "Add the shrimp and fry for 3–4 minutes until pink; squeeze "
+          "over the lemon.",
+          "Toss with the pasta and warm for 1 minute."]),
         ("Овощная паста", "Vegetable pasta",
          [("zucchini", 150), ("bell_pepper", 100), ("tomato", 200),
-          ("onion", 60), ("olive_oil", 25), ("garlic", 6)], True),
+          ("onion", 60), ("olive_oil", 25), ("garlic", 6)], True,
+         ["Овощи нарежьте кубиками и обжарьте 8–10 минут, начиная с лука "
+          "и чеснока.",
+          "Добавьте помидоры и тушите 5–7 минут до мягкости.",
+          "Соедините с пастой."],
+         ["Dice the vegetables and fry for 8–10 minutes, starting with "
+          "the onion and garlic.",
+          "Add the tomatoes and simmer for 5–7 minutes until soft.",
+          "Fold in the pasta."]),
         ("Паста с чечевицей по-итальянски", "Lentil ragù pasta",
          [("lentils", 200), ("tomato_paste", 60), ("carrot", 60),
-          ("onion", 60), ("olive_oil", 20)], True),
+          ("onion", 60), ("olive_oil", 20)], True,
+         ["Чечевицу промойте и отварите 20–25 минут до мягкости (или "
+          "возьмите консервированную).",
+          "Лук с морковью обжарьте, добавьте томатную пасту и чечевицу, "
+          "подлейте полстакана воды и потушите 5 минут.",
+          "Соедините с пастой."],
+         ["Rinse the lentils and boil for 20–25 minutes until tender (or "
+          "use canned).",
+          "Fry the onion and carrot, stir in the tomato paste and "
+          "lentils, add half a cup of water and simmer for 5 minutes.",
+          "Fold in the pasta."]),
         ("Паста со шпинатом и тофу", "Pasta with spinach and tofu",
          [("tofu", 200), ("spinach", 150), ("cream", 100),
-          ("garlic", 6)], False),
+          ("garlic", 6)], False,
+         ["Тофу нарежьте кубиками и обжарьте до румяности 5–6 минут.",
+          "Добавьте чеснок, сливки и шпинат, подогрейте 2–3 минуты, пока "
+          "шпинат не обмякнет.",
+          "Соедините с пастой."],
+         ["Dice the tofu and fry until golden, 5–6 minutes.",
+          "Add the garlic, cream and spinach and warm for 2–3 minutes "
+          "until the spinach wilts.",
+          "Fold in the pasta."]),
         ("Паста карбонара-стайл", "Carbonara-style pasta",
          [("egg", 120), ("cheese", 60), ("garlic", 4), ("butter", 15)],
-         False),
+         False,
+         ["Яйца взбейте с тёртым сыром и перцем до однородности.",
+          "Чеснок подогрейте в масле 1 минуту и снимите сковороду "
+          "с огня.",
+          "Горячую пасту перемешайте с чесночным маслом и быстро "
+          "вмешайте яично-сырную смесь — соус загустеет от остаточного "
+          "тепла; при густоте подлейте воду от варки."],
+         ["Whisk the eggs with the grated cheese and pepper until "
+          "smooth.",
+          "Warm the garlic in the butter for 1 minute and take the pan "
+          "off the heat.",
+          "Toss the hot pasta with the garlic butter and quickly stir in "
+          "the egg mixture — the residual heat thickens the sauce; "
+          "loosen with the reserved water if needed."]),
         ("Паста песто-стайл", "Pesto-style pasta",
          [("walnut", 40), ("olive_oil", 40), ("greens", 30),
-          ("cheese", 40), ("garlic", 4)], False),
+          ("cheese", 40), ("garlic", 4)], False,
+         ["Для песто пробейте блендером орехи, чеснок, зелень и масло до "
+          "гладкости, вмешайте тёртый сыр.",
+          "Смешайте пасту с песто; при густоте подлейте воду от варки."],
+         ["Blend the nuts, garlic, herbs and oil into a smooth pesto; "
+          "stir in the grated cheese.",
+          "Toss the pasta with the pesto, loosening with the reserved "
+          "water if needed."]),
         ("Паста с лососем и сливками", "Salmon cream pasta",
          [("salmon", 250), ("cream", 150), ("onion", 50),
-          ("butter", 20)], False),
+          ("butter", 20)], False,
+         ["Лук обжарьте в масле 3 минуты, добавьте кусочки лосося и "
+          "готовьте 4–5 минут.",
+          "Влейте сливки и томите 3 минуты, аккуратно помешивая, — рыба "
+          "должна остаться кусочками.",
+          "Соедините с пастой."],
+         ["Fry the onion in the butter for 3 minutes; add the salmon "
+          "pieces and cook for 4–5 minutes.",
+          "Pour in the cream and simmer for 3 minutes, stirring gently — "
+          "the fish should stay in flakes.",
+          "Fold in the pasta."]),
         ("Паста с курицей и томатами", "Chicken and tomato pasta",
          [("chicken_breast", 250), ("tomato", 200), ("onion", 60),
-          ("olive_oil", 20)], False),
+          ("olive_oil", 20)], False,
+         ["Курицу нарежьте полосками и обжарьте 6–7 минут.",
+          "Добавьте лук, затем нарезанные помидоры и тушите 7–8 минут.",
+          "Соедините с пастой и подогрейте 1–2 минуты."],
+         ["Slice the chicken into strips and fry for 6–7 minutes.",
+          "Add the onion, then the chopped tomatoes and simmer for "
+          "7–8 minutes.",
+          "Fold in the pasta and warm through for 1–2 minutes."]),
         ("Паста с курицей в сливках", "Chicken pasta in cream sauce",
          [("chicken_breast", 250), ("cream", 150), ("cheese", 40),
-          ("garlic", 6)], False),
+          ("garlic", 6)], False,
+         ["Курицу нарежьте полосками и обжарьте с чесноком 6–7 минут.",
+          "Влейте сливки, добавьте тёртый сыр и томите 3 минуты до "
+          "загустения.",
+          "Соедините с пастой."],
+         ["Slice the chicken into strips and fry with the garlic for "
+          "6–7 minutes.",
+          "Pour in the cream, add the grated cheese and simmer for 3 "
+          "minutes until thickened.",
+          "Fold in the pasta."]),
         ("Макароны с яйцом и зеленью", "Pasta with egg and herbs",
          [("egg", 120), ("greens", 20), ("butter", 20),
-          ("cheese", 30)], False),
+          ("cheese", 30)], False,
+         ["Яйца взбейте с рубленой зеленью и тёртым сыром.",
+          "Вылейте на сковороду с горячим маслом и жарьте, помешивая, "
+          "2–3 минуты, как мягкий омлет.",
+          "Смешайте с горячей пастой."],
+         ["Whisk the eggs with the chopped herbs and grated cheese.",
+          "Pour into the pan with the hot butter and scramble for 2–3 "
+          "minutes, stirring.",
+          "Toss with the hot pasta."]),
     ]
-    for ru, en, extra, vegan_ok in items:
+    for ru, en, extra, vegan_ok, sauce_ru, sauce_en in items:
         ings = ([("pasta", 200)] + extra +
                 [("salt", 2), ("pepper", 1)])
         sru = ["Отварите макароны в подсоленной воде до аль денте, откиньте, "
-               "сохранив полстакана воды от варки.",
-               "Приготовьте соус: обжарьте основу на сковороде, добавьте "
-               "жидкие ингредиенты и потушите 3–5 минут на слабом огне, "
-               "помешивая.",
-               "Выложите пасту в сковороду к соусу, при необходимости "
-               "подлейте воду от варки и перемешайте на среднем огне "
-               "1–2 минуты; подавайте сразу."]
+               "сохранив полстакана воды от варки."] + sauce_ru
         sen = ["Boil the pasta in salted water until al dente; drain, "
-               "reserving half a cup of the cooking water.",
-               "Make the sauce: fry the base in a pan, add the liquid "
-               "ingredients and simmer for 3–5 minutes over low heat, "
-               "stirring.",
-               "Toss the pasta with the sauce in the pan, loosen with the "
-               "reserved water if needed, cook for 1–2 minutes over "
-               "medium heat and serve."]
+               "reserving half a cup of the cooking water."] + sauce_en
         out.append(draft("main", ru, en, 30, 2, ings, sru, sen))
     return out
 

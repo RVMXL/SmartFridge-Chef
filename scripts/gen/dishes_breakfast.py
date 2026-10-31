@@ -297,28 +297,60 @@ def pancakes_toasts():
     for ru, en, ings, minutes, servings, sru, sen in items:
         out.append(draft("breakfast", ru, en, minutes, servings, ings,
                          sru, sen))
+    # (fix v0.6.11: у каждого тоста — своя начинка; раньше «намажьте
+    # начинкой» не требовала даже отварить яйцо в тосте с авокадо)
     toasts = [
         ("Тост с сыром и помидором", "Toast with cheese and tomato",
-         [("bread", 70), ("cheese", 30), ("tomato", 40), ("butter", 5)]),
+         [("bread", 70), ("cheese", 30), ("tomato", 40), ("butter", 5)],
+         10,
+         ["Хлеб подсушите в тостере или на сухой сковороде.",
+          "Намажьте маслом, выложите кружочки помидора и сыр, подавайте "
+          "сразу."],
+         ["Toast the bread in a toaster or a dry pan.",
+          "Spread with butter, top with the tomato slices and cheese and "
+          "serve right away."]),
         ("Тост с творогом и зеленью", "Toast with cottage cheese and herbs",
          [("bread", 70), ("cottage_cheese", 60), ("greens", 10),
-          ("salt", 1)]),
+          ("salt", 1)],
+         10,
+         ["Хлеб подсушите в тостере или на сухой сковороде.",
+          "Творог смешайте с рубленой зеленью и солью, намажьте на тост."],
+         ["Toast the bread in a toaster or a dry pan.",
+          "Stir the chopped herbs and salt into the cottage cheese and "
+          "spread on the toast."]),
         ("Тост с арахисовой пастой и бананом", "Toast with peanut butter "
          "and banana", [("bread", 70), ("peanut_butter", 20),
-                        ("banana", 60)]),
+                        ("banana", 60)],
+         10,
+         ["Хлеб подсушите в тостере или на сухой сковороде.",
+          "Намажьте арахисовой пастой, выложите кружочки банана."],
+         ["Toast the bread in a toaster or a dry pan.",
+          "Spread with the peanut butter and top with banana slices."]),
         ("Тост с авокадо и яйцом", "Toast with avocado and egg",
          [("bread", 70), ("avocado", 50), ("egg", 60), ("lemon", 5),
-          ("salt", 1)]),
+          ("salt", 1)],
+         12,
+         ["Яйца отварите вкрутую 9–10 минут, остудите в холодной воде "
+          "и нарежьте.",
+          "Хлеб подсушите в тостере или на сухой сковороде; авокадо "
+          "разомните вилкой с лимонным соком и солью, намажьте на тост.",
+          "Выложите сверху яйцо и подавайте."],
+         ["Hard-boil the eggs for 9–10 minutes; cool in cold water and "
+          "slice.",
+          "Toast the bread in a toaster or a dry pan; mash the avocado "
+          "with the lemon juice and salt and spread on the toast.",
+          "Top with the egg and serve."]),
         ("Тост с тунцом", "Toast with tuna",
-         [("bread", 70), ("tuna_can", 50), ("mayo", 10), ("salt", 1)]),
+         [("bread", 70), ("tuna_can", 50), ("mayo", 10), ("salt", 1)],
+         10,
+         ["Хлеб подсушите в тостере или на сухой сковороде.",
+          "Тунец без жидкости смешайте с майонезом и намажьте на тост."],
+         ["Toast the bread in a toaster or a dry pan.",
+          "Mix the drained tuna with the mayonnaise and spread on the "
+          "toast."]),
     ]
-    for ru, en, ings in toasts:
-        out.append(draft(
-            "breakfast", ru, en, 10, 1, ings,
-            ["Хлеб подсушите в тостере или на сухой сковороде.",
-             "Намажьте начинкой и подавайте сразу."],
-            ["Toast the bread in a toaster or dry pan.",
-             "Spread with the topping and serve right away."]))
+    for ru, en, ings, minutes, sru, sen in toasts:
+        out.append(draft("breakfast", ru, en, minutes, 1, ings, sru, sen))
     bowls = [
         ("Мюсли с йогуртом и бананом", "Muesli with yogurt and banana",
          [("oat_flakes", 40), ("yogurt", 150), ("banana", 60),

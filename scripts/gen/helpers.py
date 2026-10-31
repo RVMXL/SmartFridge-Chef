@@ -214,6 +214,48 @@ METHODS = {
                   minutes=25, oil=True),
 }
 
+# fix v0.6.11: реалистичные времена готовки по белкам. Раньше все
+# белки готовились по общему шаблону: креветки «запекайте 30–40 минут»,
+# рыба «тушите 25–35 минут» — перевод продукта в резину.
+# (key, method) -> (время в тексте шага, minutes рецепта)
+STEP_TIMES = {
+    ("shrimp", "fry"): ("3–4", 15),
+    ("shrimp", "bake"): ("12–15", 20),
+    ("shrimp", "stew"): ("5–6", 25),
+    ("squid", "fry"): ("2–3", 15),
+    ("salmon", "bake"): ("20–25", 30),
+    ("cod", "bake"): ("20–25", 30),
+    ("pollock", "bake"): ("20–25", 30),
+    ("salmon", "stew"): ("15–20", 35),
+    ("cod", "stew"): ("15–20", 35),
+    ("pollock", "stew"): ("15–20", 35),
+    ("chickpeas", "bake"): ("25–30", 40),
+    ("chickpeas", "stew"): ("10–15", 35),
+}
+
+# Подготовка белка в методе bake: «нарежьте порционно» неприемлема
+# для нута и креветок (fix v0.6.11)
+BAKE_PREP = {
+    "shrimp": (
+        "Креветки очистите, промойте и обсушите, приправьте солью, "
+        "перцем и любимыми специями.",
+        "Peel the shrimp, rinse and pat dry; season with salt, pepper and "
+        "your favourite spices."),
+    "chickpeas": (
+        "Отварной (или консервированный и промытый) нут обсушите, "
+        "приправьте солью, перцем и любимыми специями.",
+        "Pat the cooked (or canned, rinsed) chickpeas dry; season with "
+        "salt, pepper and your favourite spices."),
+}
+
+# Дополнительное уточнение при тушении (нут нельзя тушить сухим)
+STEW_ADD = {
+    "chickpeas": ("Добавьте отварной (или консервированный) нут, "
+                  "обжаривайте 3 минуты, помешивая.",
+                  "Add the cooked (or canned) chickpeas and cook for 3 "
+                  "minutes, stirring."),
+}
+
 
 def main_title(prot, method_key, garn, sauce=None):
     """Название основного блюда на RU/EN."""
@@ -259,49 +301,88 @@ def garnish_steps(garn):
             "Slice the fresh vegetables for serving.")
 
 
-def main_steps(method_key, prot, garn, sauce=None):
+def method_minutes(prot_key, method_key):
+    """Минуты рецепта по белку и способу (переопределения STEP_TIMES)."""
+    hit = STEP_TIMES.get((prot_key, method_key))
+    if hit:
+        return hit[1]
+    return METHODS[method_key]["minutes"]
+
+
+def main_steps(method_key, prot, garn, sauce=None, prot_key=None):
     """Шаги приготовления основного блюда (ru[], en[])."""
     acc = prot["acc"]
+    pk = prot_key or ""
     gs_ru, gs_en = garnish_steps(garn)
     oil_ru = "растительного масла" if method_key in ("fry", "stew") \
         else "оливкового масла"
     oil_en = "vegetable oil" if method_key in ("fry", "stew") \
         else "olive oil"
+    time_ru = STEP_TIMES[(pk, method_key)][0] \
+        if (pk, method_key) in STEP_TIMES else None
 
     if method_key == "fry":
-        ru = [f"Нарежьте {acc} кусочками, посолите и поперчите.",
-              f"Разогрейте {oil_ru} в сковороде и обжарьте {acc} 7–10 минут "
-              "до румяной корочки."]
-        en = [f"Cut the {prot['en']} into pieces, season with salt and pepper.",
-              f"Heat the {oil_en} in a pan and fry the {prot['en']} for "
-              "7–10 minutes until golden."]
+        if time_ru:
+            done = "до розовости" if pk == "shrimp" else \
+                ("до непрозрачности" if pk == "squid" else "до румяной корочки")
+            done_en = {"shrimp": "until pink",
+                       "squid": "until opaque"}.get(pk, "until golden")
+            ru = [f"Нарежьте {acc} кусочками, посолите и поперчите.",
+                  f"Разогрейте {oil_ru} в сковороде и обжарьте {acc} "
+                  f"{time_ru} минут {done}."]
+            en = [f"Cut the {prot['en']} into pieces, season with salt and "
+                  "pepper.",
+                  f"Heat the {oil_en} in a pan and fry the {prot['en']} for "
+                  f"{time_ru} minutes {done_en}."]
+        else:
+            ru = [f"Нарежьте {acc} кусочками, посолите и поперчите.",
+                  f"Разогрейте {oil_ru} в сковороде и обжарьте {acc} 7–10 "
+                  "минут до румяной корочки."]
+            en = [f"Cut the {prot['en']} into pieces, season with salt and "
+                  "pepper.",
+                  f"Heat the {oil_en} in a pan and fry the {prot['en']} for "
+                  "7–10 minutes until golden."]
         if sauce:
             ru.append(f"Добавьте ингредиенты соуса и потушите 3–4 минуты "
                       "на слабом огне, помешивая.")
             en.append("Add the sauce ingredients and simmer for 3–4 minutes "
                       "over low heat.")
     elif method_key == "bake":
+        bake_t = time_ru or "30–40"
+        prep = BAKE_PREP.get(pk)
+        if prep:
+            prep_ru, prep_en = prep
+        else:
+            prep_ru = f"{acc.capitalize()} нарежьте порционно, приправьте "\
+                      "солью, перцем и любимыми специями."
+            prep_en = f"Cut the {prot['en']} into portions, season with " \
+                      "salt, pepper and your favourite spices."
         ru = ["Разогрейте духовку до 180 °C.",
-              f"{acc.capitalize()} нарежьте порционно, приправьте солью, "
-              "перцем и любимыми специями.",
-              "Выложите в смазанную маслом форму и запекайте 30–40 минут "
-              "до готовности."]
+              prep_ru,
+              "Выложите в смазанную маслом форму и запекайте "
+              f"{bake_t} минут до готовности."]
         en = ["Preheat the oven to 180 °C.",
-              f"Cut the {prot['en']} into portions, season with salt, "
-              "pepper and your favourite spices.",
-              "Place in a greased baking dish and bake for 30–40 minutes."]
+              prep_en,
+              f"Place in a greased baking dish and bake for {bake_t} "
+              "minutes."]
         if sauce:
             ru.insert(2, f"Залейте {acc} соусом, распределив его равномерно.")
             en.insert(2, f"Pour the sauce evenly over the {prot['en']}.")
     elif method_key == "stew":
+        stew_t = time_ru or "25–35"
+        if pk in STEW_ADD:
+            add_ru, add_en = STEW_ADD[pk]
+        else:
+            add_ru = f"Добавьте {acc}, обжаривайте 5 минут, помешивая."
+            add_en = f"Add the {prot['en']} and cook for 5 minutes, stirring."
         ru = ["Лук и морковь нарежьте и обжарьте до мягкости.",
-              f"Добавьте {acc}, обжаривайте 5 минут, помешивая.",
+              add_ru,
               "Влейте полстакана воды или соус, накройте крышкой и тушите "
-              "25–35 минут на слабом огне."]
+              f"{stew_t} минут на слабом огне."]
         en = ["Fry the chopped onion and carrot until soft.",
-              f"Add the {prot['en']} and cook for 5 minutes, stirring.",
+              add_en,
               "Pour in half a cup of water or the sauce, cover and simmer "
-              "for 25–35 minutes over low heat."]
+              f"for {stew_t} minutes over low heat."]
     elif method_key == "steam":
         ru = [f"Приправьте {acc} солью и специями.",
               "Готовьте на пару 20–25 минут до полной готовности."]
