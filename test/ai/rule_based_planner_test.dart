@@ -233,6 +233,95 @@ void main() {
     });
   });
 
+  group('настраиваемый состав из профиля (v0.6.10)', () {
+    test('обед без салата: суп и второе остаются, салата нет', () async {
+      final prof = profile(calories: 2750).copyWith(mealComposition: {
+        MealSlot.lunch: {MealCourseType.first},
+        MealSlot.dinner: {MealCourseType.salad},
+      });
+      final plan = await planner.generate(request(prof: prof));
+      for (final day in plan.days) {
+        final lunchCategories = day.meals
+            .where((m) => m.slot == MealSlot.lunch)
+            .map((m) => m.recipe.category)
+            .toList();
+        expect(lunchCategories, contains('soup'),
+            reason: 'день ${day.dayIndex + 1}: первое включено');
+        expect(
+          lunchCategories.any((c) => c == 'main' || c == 'side'),
+          isTrue,
+          reason: 'день ${day.dayIndex + 1}: состав держится на «втором»',
+        );
+        expect(lunchCategories, isNot(contains('salad')),
+            reason: 'день ${day.dayIndex + 1}: салат отключён в профиле');
+      }
+    });
+
+    test('ужин со всеми курсами: суп, салат и десерт по порогам', () async {
+      final prof = profile(calories: 2750).copyWith(mealComposition: {
+        MealSlot.lunch: {MealCourseType.first, MealCourseType.salad},
+        MealSlot.dinner: MealCourseType.values.toSet(),
+      });
+      final plan = await planner.generate(request(prof: prof));
+      for (final day in plan.days) {
+        final dinner = day.meals
+            .where((m) => m.slot == MealSlot.dinner)
+            .map((m) => m.recipe.category)
+            .toList();
+        expect(dinner, contains('soup'),
+            reason: 'день ${day.dayIndex + 1}: первое включено в ужин');
+        expect(dinner, contains('salad'),
+            reason: 'день ${day.dayIndex + 1}');
+        // Десерт добавляется только к большим целям ужина (825 ккал
+        // при 2750 ккал/день — ниже порога 950), поэтому его может
+        // не быть: но другие курсы обязаны остаться.
+        expect(dinner.any((c) => c == 'main' || c == 'side'), isTrue,
+            reason: 'день ${day.dayIndex + 1}: «второе» замыкает');
+      }
+    });
+
+    test('состав отключён (пустые наборы): приём из одного блюда', () async {
+      final prof = profile(calories: 2750).copyWith(mealComposition: {
+        MealSlot.lunch: {},
+        MealSlot.dinner: {},
+      });
+      final plan = await planner.generate(request(prof: prof));
+      for (final day in plan.days) {
+        expect(day.meals.where((m) => m.slot == MealSlot.lunch).length, 1,
+            reason: 'день ${day.dayIndex + 1}: обед — одно блюдо');
+        expect(day.meals.where((m) => m.slot == MealSlot.dinner).length, 1,
+            reason: 'день ${day.dayIndex + 1}: ужин — одно блюдо');
+      }
+    });
+
+    test('слота нет в настройке — шаблон по умолчанию (v0.6.9)', () async {
+      // Настроен только ужин (салат), обед в карте отсутствует —
+      // обед живёт по умолчанию: первое + второе + салат.
+      final prof = profile(calories: 2750).copyWith(mealComposition: {
+        MealSlot.dinner: {MealCourseType.salad},
+      });
+      final plan = await planner.generate(request(prof: prof));
+      for (final day in plan.days) {
+        final lunch =
+            day.meals.where((m) => m.slot == MealSlot.lunch).toList();
+        expect(lunch.length, greaterThanOrEqualTo(3),
+            reason: 'день ${day.dayIndex + 1}: обед по умолчанию');
+        expect(lunch.map((m) => m.recipe.category), contains('soup'));
+        expect(lunch.map((m) => m.recipe.category), contains('salad'));
+      }
+    });
+
+    test('профиль без настройки — прежние составы v0.6.9', () async {
+      final plan = await planner.generate(request());
+      for (final day in plan.days) {
+        final lunch =
+            day.meals.where((m) => m.slot == MealSlot.lunch).toList();
+        expect(lunch.length, greaterThanOrEqualTo(3),
+            reason: 'день ${day.dayIndex + 1}: состав по умолчанию');
+      }
+    });
+  });
+
   group('безопасность', () {
     test('аллергия на молоко и яйца исключает их полностью', () async {
       final plan = await planner.generate(

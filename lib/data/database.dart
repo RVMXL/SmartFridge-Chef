@@ -37,6 +37,10 @@
 /// v11 — (v0.6.8): `planned_meals.servings` — запланированное число
 /// порций блюда в приёме (планер добирает калораж слота порциями;
 /// DEFAULT 1 — старые планы читаются как одна порция, как раньше).
+/// v12 — (v0.6.10): `user_profile.meal_composition` — настраиваемый
+/// состав приёмов пищи (JSON {"v":1,"slots":{"lunch":[…],"dinner":[…]}}).
+/// Nullable: null = «не настраивалось» — действует шаблон v0.6.9,
+/// поведение существующих установок не меняется.
 library;
 
 import 'package:path/path.dart' as p;
@@ -46,7 +50,7 @@ class AppDatabase {
   AppDatabase._();
 
   static const String dbName = 'smart_fridge.db';
-  static const int dbVersion = 11;
+  static const int dbVersion = 12;
 
   /// Открывает базу.
   ///
@@ -92,6 +96,7 @@ class AppDatabase {
     batch.execute('ALTER TABLE products ADD COLUMN currency TEXT;');
     createV10Columns(batch);
     createV11Columns(batch);
+    createV12Columns(batch);
     await batch.commit(noResult: true);
   }
 
@@ -161,6 +166,14 @@ class AppDatabase {
       // валидными (одна порция = прежняя семантика).
       final batch = db.batch();
       createV11Columns(batch);
+      await batch.commit(noResult: true);
+    }
+    if (oldVersion < 12) {
+      // v11 -> v12: настраиваемый состав приёмов пищи (v0.6.10).
+      // Nullable: старые профили читаются как «не настраивалось» —
+      // действует шаблон v0.6.9, поведение не меняется.
+      final batch = db.batch();
+      createV12Columns(batch);
       await batch.commit(noResult: true);
     }
     assert(oldVersion >= 1 && newVersion == dbVersion,
@@ -389,6 +402,16 @@ class AppDatabase {
     batch.execute(
       'ALTER TABLE planned_meals ADD COLUMN servings '
       'INTEGER NOT NULL DEFAULT 1',
+    );
+  }
+
+  /// v12 (v0.6.10): настраиваемый состав приёмов пищи в профиле.
+  /// Nullable-колонка: у строк до миграции значение NULL — семантика
+  /// «не настраивалось» (UserProfile.mealComposition == null), шаблон
+  /// v0.6.9, поведение существующих установок не меняется.
+  static void createV12Columns(Batch batch) {
+    batch.execute(
+      'ALTER TABLE user_profile ADD COLUMN meal_composition TEXT',
     );
   }
 

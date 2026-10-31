@@ -6,8 +6,10 @@ library;
 
 import 'dart:convert';
 
+import '../../ai/calorie_target.dart';
 import '../../ai/equipment.dart';
 import 'medical_diet.dart';
+import 'recipe.dart';
 
 /// Диета пользователя: ограничение на целые группы продуктов.
 enum Diet {
@@ -200,6 +202,15 @@ class UserProfile {
     /// фильтрует по технике), после онбординга/правки в «Настройках»
     /// список всегда явный, даже пустой.
     this.equipment,
+
+    /// Состав приёмов пищи (v0.6.10): какие боковые курсы («первое»,
+    /// салат, десерт) собираются в обед и ужин вместо одного блюда.
+    /// null — «не настраивалось»: действует шаблон v0.6.9
+    /// ([composedCourses]); слота нет в карте — шаблон по умолчанию;
+    /// пустой набор у слота — приём из одного блюда (состав отключён).
+    /// «Второе» в настройку не входит: оно всегда замыкает приём
+    /// (см. lib/ai/calorie_target.dart, [compositionTemplate]).
+    this.mealComposition,
     this.regionName,
     this.latitude,
     this.longitude,
@@ -254,6 +265,13 @@ class UserProfile {
   /// чипов в той версии ещё не было).
   final List<KitchenEquipment>? equipment;
 
+  /// Состав приёмов пищи (v0.6.10): боковые курсы обеда и ужина.
+  /// Подробно — документация конструктора. Хранение: JSON-объект
+  /// {"v":1,"slots":{"lunch":["first","salad"],"dinner":[]}};
+  /// маркер версии внутри значения — как у [equipment] — оставляет
+  /// место для будущих форматов (например, состава завтрака).
+  final Map<MealSlot, Set<MealCourseType>>? mealComposition;
+
   /// Геолокация (город/регион) — для учёта сезонности продуктов на рынках.
   final String? regionName;
   final double? latitude;
@@ -289,6 +307,7 @@ class UserProfile {
     List<String>? medicalDiets,
     int? mealsPerDay,
     List<KitchenEquipment>? equipment,
+    Map<MealSlot, Set<MealCourseType>>? mealComposition,
     String? regionName,
     double? latitude,
     double? longitude,
@@ -308,6 +327,7 @@ class UserProfile {
       medicalDiets: medicalDiets ?? this.medicalDiets,
       mealsPerDay: mealsPerDay ?? this.mealsPerDay,
       equipment: equipment ?? this.equipment,
+      mealComposition: mealComposition ?? this.mealComposition,
       regionName: regionName ?? this.regionName,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
@@ -345,6 +365,17 @@ class UserProfile {
                 'v': 2,
                 'owned': equipment!.map((e) => e.key).toList(),
               }),
+        // null пишется явно: колонка nullable, отсутствие значения —
+        // «не настраивалось», действует шаблон v0.6.9.
+        'meal_composition': mealComposition == null
+            ? null
+            : jsonEncode({
+                'v': 1,
+                'slots': {
+                  for (final e in mealComposition!.entries)
+                    e.key.key: e.value.map((t) => t.key).toList(),
+                },
+              }),
         'region_name': regionName,
         'latitude': latitude,
         'longitude': longitude,
@@ -361,6 +392,45 @@ class UserProfile {
     final rawMedicalDiets =
         jsonDecode(map['medical_diets'] as String? ?? '[]') as List<dynamic>;
     final rawEquipment = map['equipment'] as String?;
+    // v0.6.10: состав приёмов пищи. Битое значение (не JSON, чужая
+    // структура, незнакомые ключи) не должно валить чтение профиля на
+    // старте: настройка читается КАК ЕСТЬ (неизвестное отбрасывается),
+    // полностью битое — как null («не настраивалось»). Состав хранят
+    // только слоты обеда и ужина — другие ключи не читаются.
+    Map<MealSlot, Set<MealCourseType>>? mealComposition;
+    final rawComposition = map['meal_composition'] as String?;
+    if (rawComposition != null && rawComposition.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(rawComposition);
+        if (decoded is Map<String, dynamic> &&
+            decoded['slots'] is Map<String, dynamic>) {
+          final slots = <MealSlot, Set<MealCourseType>>{};
+          (decoded['slots'] as Map<String, dynamic>).forEach((k, v) {
+            // MealSlot.fromKey подставляет lunch по умолчанию — для
+            // чужих ключей это ложная настройка обеда, поэтому матчим
+            // только настраиваемые слоты, остальное отбрасываем.
+            final slot = switch (k) {
+              'lunch' => MealSlot.lunch,
+              'dinner' => MealSlot.dinner,
+              _ => null,
+            };
+            if (slot == null || v is! List<dynamic>) return;
+            slots[slot] = {
+              for (final item in v)
+                if (item is String)
+                  if (MealCourseType.fromKey(item) != null)
+                    MealCourseType.fromKey(item)!,
+            };
+          });
+          // {} (ни одного валидного слота) неотличимо от «не
+          // настраивалось» — храним null; пустые НАБОРЫ у слотов —
+          // сознательное «одно блюдо на приём», они сохраняются.
+          mealComposition = slots.isEmpty ? null : slots;
+        }
+      } on FormatException {
+        mealComposition = null;
+      }
+    }
     final List<KitchenEquipment>? equipment;
     if (rawEquipment == null || rawEquipment.isEmpty) {
       // Профили до v0.6.4 (или импорт старого бэкапа): техника
@@ -430,6 +500,7 @@ class UserProfile {
       medicalDiets: MedicalDiet.keysFromStorage(rawMedicalDiets),
       mealsPerDay: (map['meals_per_day'] as int?) ?? 3,
       equipment: equipment,
+      mealComposition: mealComposition,
       regionName: map['region_name'] as String?,
       latitude: (map['latitude'] as num?)?.toDouble(),
       longitude: (map['longitude'] as num?)?.toDouble(),
@@ -447,5 +518,6 @@ class UserProfile {
       'не любит: ${dislikes.map((d) => d.key).join(",")}, '
       'столы: ${medicalDiets.join(",")}, '
       'приёмов: $mealsPerDay, '
+      'состав: ${mealComposition == null ? "по умолчанию" : mealComposition!.entries.map((e) => "${e.key.key}:[${e.value.map((t) => t.key).join("+")}]",).join(" ")}, '
       'техника: ${equipment == null ? "вся (по умолчанию)" : equipment!.map((e) => e.key).join(",")})';
 }

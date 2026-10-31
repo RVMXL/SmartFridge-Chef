@@ -8,10 +8,12 @@ library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../ai/calorie_target.dart';
 import '../../ai/dislikes.dart';
 import '../../ai/equipment.dart';
 import '../../ai/ingredient_matcher.dart';
 import '../../data/models/medical_diet.dart';
+import '../../data/models/recipe.dart';
 import '../../data/models/user_profile.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../state/profile_controller.dart';
@@ -50,6 +52,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   /// явным, поведение меняется только если пользователь снял галочки.
   late Set<KitchenEquipment> _equipment;
 
+  /// Состав приёмов пищи (v0.6.10): боковые курсы обеда и ужина.
+  /// Профиль без настройки показывается с наборами по умолчанию;
+  /// слот с ПУСТЫМ набором — сознательное «одно блюдо на приём»,
+  /// он сохраняется пустым (а не превращается в дефолт).
+  late Map<MealSlot, Set<MealCourseType>> _composition;
+
   @override
   void initState() {
     super.initState();
@@ -64,6 +72,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _dislikes = [...p.dislikes];
     _mealsPerDay = p.mealsPerDay;
     _equipment = p.equipment?.toSet() ?? {...KitchenEquipment.values};
+    // Настраиваемые слоты — обед и ужин: у завтрака и перекуса пул
+    // базы одно-категорийный, состав там не собирается (v0.6.9).
+    _composition = {
+      for (final slot in const [MealSlot.lunch, MealSlot.dinner])
+        slot: p.mealComposition?[slot]?.toSet() ??
+            defaultCourseSides[slot]!.toSet(),
+    };
   }
 
   @override
@@ -95,6 +110,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       medicalDiets: _medicalDiets.toList(),
       mealsPerDay: _mealsPerDay,
       equipment: _equipment.toList(),
+      mealComposition: _composition,
       latitude: null,
       longitude: null,
     ));
@@ -311,6 +327,56 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             selected: {_mealsPerDay.clamp(2, 6)},
             onSelectionChanged: (s) =>
                 setState(() => _mealsPerDay = s.first),
+          ),
+
+          // Состав приёмов пищи (v0.6.10): какие боковые курсы собираются
+          // в обед и ужин. «Второе» всегда замыкает приём — чип заблокирован.
+          SectionHeader(l.profileComposition),
+          Text(
+            l.profileCompositionHint,
+            style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 8),
+          for (final slot in const [MealSlot.lunch, MealSlot.dinner]) ...[
+            Text(slotLabel(l, slot), style: theme.textTheme.titleSmall),
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 8,
+              runSpacing: 0,
+              children: [
+                for (final t in MealCourseType.values)
+                  FilterChip(
+                    label: Text(courseLabel(l, t)),
+                    selected: _composition[slot]!.contains(t),
+                    onSelected: (on) => setState(() {
+                      final updated = _composition[slot]!.toSet();
+                      on ? updated.add(t) : updated.remove(t);
+                      _composition[slot] = updated;
+                    }),
+                  ),
+                FilterChip(
+                  avatar: const Icon(Icons.lock_outline, size: 14),
+                  label: Text(l.courseMain),
+                  selected: true,
+                  onSelected: null,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: () => setState(() {
+                _composition = {
+                  for (final e in defaultCourseSides.entries)
+                    e.key: e.value.toSet(),
+                };
+              }),
+              icon: const Icon(Icons.restart_alt, size: 18),
+              label: Text(l.profileCompositionReset),
+            ),
           ),
 
           const SizedBox(height: 24),

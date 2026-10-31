@@ -4,7 +4,13 @@
 /// целевую калорийность каждого слота. Доли подобраны по стандартной
 /// диетологии: завтрак ~25–30%, обед ~35–40%, ужин ~25–30%,
 /// перекусы делят остаток. Сумма долей всегда 1.0 — закреплено тестом.
+///
+/// v0.6.10: состав обеда и ужина настраивается в профиле
+/// ([MealCourseType], [compositionTemplate]) — шаблон по умолчанию
+/// ([composedCourses]) действует, пока настройка не задана.
 library;
+
+import 'dart:math';
 
 import '../data/models/recipe.dart';
 
@@ -97,11 +103,125 @@ int plannedServingsFor({
 /// остаётся одиночным блюдом с добором порциями (v0.6.8).
 const int kComposeMinSlotKcal = 550;
 
+/// Порог целевого калоража слота, при котором в состав добавляется
+/// десерт (v0.6.9, вынесено в константу в v0.6.10): к малым приёмам
+/// десерт не добавляется — раздувал бы приём.
+const int kDessertMinSlotKcal = 950;
+
 /// Минимальная цель бокового курса, ради которой стоит готовить отдельное
 /// блюдо (v0.6.9): курс с целью ниже этого порога пропускается, его долю
 /// забирает «второе». Пример: салат на 60 ккал — это «ещё одно блюдо,
 /// которое почти ничего не закрывает», а не составная часть приёма.
 const int kMinCourseTargetKcal = 100;
+
+/// Настраиваемый боковой курс составного приёма пищи (v0.6.10).
+///
+/// Курс — то, что пользователь включает/выключает в профиле: «первое»,
+/// салат, десерт. «Второе» ([MealCourse.closing]) в настройку не
+/// входит: оно всегда замыкает приём, забирает остаток цели и добирает
+/// порциями — без него состав не держит калораж слота.
+enum MealCourseType {
+  first('first'),
+  salad('salad'),
+  dessert('dessert');
+
+  const MealCourseType(this.key);
+
+  /// Ключ хранения в профиле (JSON meal_composition).
+  final String key;
+
+  /// Категории рецептов, из которых набирается курс.
+  List<String> get categories => switch (this) {
+        MealCourseType.first => const ['soup'],
+        MealCourseType.salad => const ['salad'],
+        MealCourseType.dessert => const ['dessert'],
+      };
+
+  /// Неизвестный/повреждённый ключ → null (ключ отбрасывается),
+  /// как у аллергенов: битое значение профиля не должно подменять
+  /// настройку курсом по умолчанию.
+  static MealCourseType? fromKey(String key) {
+    for (final t in values) {
+      if (t.key == key) return t;
+    }
+    return null;
+  }
+}
+
+/// Доли боковых курсов по слотам (v0.6.10): те же значения, что
+/// задавали шаблон v0.6.9. Доля «второго» вычисляется как остаток
+/// единицы, поэтому сумма долей готового шаблона всегда 1.0.
+const Map<MealSlot, Map<MealCourseType, ({double share, int minSlotKcal})>>
+    courseParams = {
+  MealSlot.lunch: {
+    MealCourseType.first: (share: 0.27, minSlotKcal: 0),
+    MealCourseType.salad: (share: 0.19, minSlotKcal: 0),
+    MealCourseType.dessert: (share: 0.14, minSlotKcal: kDessertMinSlotKcal),
+  },
+  MealSlot.dinner: {
+    MealCourseType.first: (share: 0.27, minSlotKcal: 0),
+    MealCourseType.salad: (share: 0.30, minSlotKcal: 0),
+    MealCourseType.dessert: (share: 0.14, minSlotKcal: kDessertMinSlotKcal),
+  },
+};
+
+/// Наборы боковых курсов по умолчанию (v0.6.10): обед — «первое,
+/// салат и десерт к большим приёмам», ужин — салат. Именно эти наборы
+/// пользователь видит в профиле до первой правки.
+const Map<MealSlot, Set<MealCourseType>> defaultCourseSides = {
+  MealSlot.lunch: {
+    MealCourseType.first,
+    MealCourseType.salad,
+    MealCourseType.dessert,
+  },
+  MealSlot.dinner: {MealCourseType.salad},
+};
+
+/// Шаблон состава слота с учётом настройки профиля (v0.6.10).
+///
+/// [custom] — карта «слот → включённые боковые курсы» из профиля
+/// ([UserProfile.mealComposition]). Семантика:
+///  • настройка null или слота в ней нет — шаблон по умолчанию
+///    ([defaultCourseSides] — совпадает с [composedCourses]);
+///  • пустой набор у слота — приём из одного блюда: шаблон состоит
+///    только из обязательного «второго» и состав не соберётся;
+///  • завтрак и перекус не настраиваются ([courseParams] без слота) —
+///    возвращается null, слот живёт по одиночной схеме v0.6.8.
+///
+/// Порядок боковых курсов в шаблоне — порядок ПОДБОРА
+/// (первое → салат → десерт, как в v0.6.9): остаток цели для «второго»
+/// считается по факту уже выбранных блюд.
+List<MealCourse>? compositionTemplate(
+  MealSlot slot,
+  Map<MealSlot, Set<MealCourseType>>? custom,
+) {
+  final params = courseParams[slot];
+  if (params == null) return null; // завтрак и перекус — без состава
+  final sides = custom == null || !custom.containsKey(slot)
+      ? defaultCourseSides[slot]!
+      : custom[slot] ?? const <MealCourseType>{};
+  var sideShare = 0.0;
+  final template = <MealCourse>[];
+  for (final type in MealCourseType.values) {
+    final p = params[type];
+    if (p == null || !sides.contains(type)) continue;
+    sideShare += p.share;
+    template.add(MealCourse(
+      categories: type.categories,
+      share: p.share,
+      optional: true,
+      minSlotKcal: p.minSlotKcal,
+    ));
+  }
+  // «Второе» замыкает приём: остаток доли (пол — 0.2 — страховка от
+  // вырождения, когда боковых курсов выбрано слишком много).
+  template.add(MealCourse(
+    categories: const ['main', 'side'],
+    share: max(1 - sideShare, 0.2),
+    optional: false,
+  ));
+  return template;
+}
 
 /// Один курс составного приёма пищи (v0.6.9): «первое», «второе»,
 /// салат, десерт.
@@ -133,11 +253,17 @@ class MealCourse {
   /// Курс участвует только при цели слота ≥ этого порога (0 — всегда).
   /// Десерт добавляется только к большим приёмам: при цели обеда 800
   /// ккал (2000 ккал/день) он раздувал бы приём, при 1100 (2750) —
-  /// уместен.
+  /// уместен ([kDessertMinSlotKcal]).
   final int minSlotKcal;
+
+  /// Замыкающий курс («второе»): единственный обязательный — забирает
+  /// весь остаток цели после факта боковых блюд и добирает порциями.
+  bool get closing => !optional;
 }
 
-/// Шаблоны составных приёмов по слотам (v0.6.9).
+/// Шаблоны составных приёмов по слотам (v0.6.9) — ЭТАЛОН настроек по
+/// умолчанию (v0.6.10): профильный состав строит [compositionTemplate],
+/// тест закрепляет совпадение двух построений.
 ///
 /// Обед — классическое «первое, второе, салат», при большом калораже
 /// плюс десерт. Ужин — «второе + салат» (суп на ужин не поощрялся и
@@ -152,7 +278,7 @@ const Map<MealSlot, List<MealCourse>> composedCourses = {
   MealSlot.lunch: [
     MealCourse(categories: ['soup'], share: 0.27),
     MealCourse(categories: ['salad'], share: 0.19),
-    MealCourse(categories: ['dessert'], share: 0.14, minSlotKcal: 950),
+    MealCourse(categories: ['dessert'], share: 0.14, minSlotKcal: kDessertMinSlotKcal),
     MealCourse(
         categories: ['main', 'side'], share: 0.40, optional: false),
   ],

@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../core/freshness.dart';
+import '../../ai/calorie_target.dart';
 import '../../ai/equipment.dart';
 import '../../data/models/product.dart';
 import '../../data/models/recipe.dart';
@@ -104,7 +105,15 @@ String slotLabel(AppLocalizations l, MealSlot s) => switch (s) {
       MealSlot.dinner => l.slotDinner,
     };
 
-/// Иконка приёма пищи.
+/// Локализованное название курса составного приёма (v0.6.10):
+/// «первое», салат, десерт. «Второе» в [MealCourseType] не входит —
+/// оно всегда замыкает приём, подписывается напрямую через l.courseMain.
+String courseLabel(AppLocalizations l, MealCourseType t) => switch (t) {
+      MealCourseType.first => l.courseFirst,
+      MealCourseType.salad => l.courseSalad,
+      MealCourseType.dessert => l.courseDessert,
+    };
+
 IconData slotIcon(MealSlot s) => switch (s) {
       MealSlot.breakfast => Icons.wb_sunny_outlined,
       MealSlot.snack => Icons.cookie_outlined,

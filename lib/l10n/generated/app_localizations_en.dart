@@ -986,6 +986,28 @@ class AppLocalizationsEn extends AppLocalizations {
       'Dishes needing equipment you lack are planned with a substitution note (e.g., a small casserole in a covered pan); large oven dishes (4+ servings) are excluded.';
 
   @override
+  String get profileComposition => 'Meal composition';
+
+  @override
+  String get profileCompositionHint =>
+      'Which dishes make up lunch and dinner instead of a single one. The main course always closes the meal and tops up calories with extra servings; dessert is added to meals with a target of 950 kcal or more. Uncheck every course to keep a meal to a single dish.';
+
+  @override
+  String get profileCompositionReset => 'Reset to default';
+
+  @override
+  String get courseFirst => 'First course';
+
+  @override
+  String get courseMain => 'Main course';
+
+  @override
+  String get courseSalad => 'Salad';
+
+  @override
+  String get courseDessert => 'Dessert';
+
+  @override
   String get settingsEquipmentAll => 'All equipment available';
 
   @override

@@ -1826,6 +1826,48 @@ abstract class AppLocalizations {
   /// **'Dishes needing equipment you lack are planned with a substitution note (e.g., a small casserole in a covered pan); large oven dishes (4+ servings) are excluded.'**
   String get profileEquipmentHint;
 
+  /// No description provided for @profileComposition.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal composition'**
+  String get profileComposition;
+
+  /// No description provided for @profileCompositionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Which dishes make up lunch and dinner instead of a single one. The main course always closes the meal and tops up calories with extra servings; dessert is added to meals with a target of 950 kcal or more. Uncheck every course to keep a meal to a single dish.'**
+  String get profileCompositionHint;
+
+  /// No description provided for @profileCompositionReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to default'**
+  String get profileCompositionReset;
+
+  /// No description provided for @courseFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'First course'**
+  String get courseFirst;
+
+  /// No description provided for @courseMain.
+  ///
+  /// In en, this message translates to:
+  /// **'Main course'**
+  String get courseMain;
+
+  /// No description provided for @courseSalad.
+  ///
+  /// In en, this message translates to:
+  /// **'Salad'**
+  String get courseSalad;
+
+  /// No description provided for @courseDessert.
+  ///
+  /// In en, this message translates to:
+  /// **'Dessert'**
+  String get courseDessert;
+
   /// No description provided for @settingsEquipmentAll.
   ///
   /// In en, this message translates to:

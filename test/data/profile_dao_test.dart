@@ -6,9 +6,11 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'package:smart_fridge_chef/ai/calorie_target.dart';
 import 'package:smart_fridge_chef/ai/equipment.dart';
 import 'package:smart_fridge_chef/data/dao/profile_dao.dart';
 import 'package:smart_fridge_chef/data/database.dart';
+import 'package:smart_fridge_chef/data/models/recipe.dart';
 import 'package:smart_fridge_chef/data/models/user_profile.dart';
 
 void main() {
@@ -214,6 +216,67 @@ void main() {
       expect(loaded.equipment,
           containsAll([KitchenEquipment.grill, KitchenEquipment.steamer]));
       expect(loaded.equipment, hasLength(3));
+    });
+  });
+
+  group('состав приёмов пищи (v0.6.10)', () {
+    test('roundtrip: настройка состава сохраняется и читается', () async {
+      final now = DateTime(2026, 10, 24, 9, 0);
+      await dao.save(UserProfile(
+        mealsPerDay: 3,
+        onboarded: true,
+        mealComposition: {
+          MealSlot.lunch: {MealCourseType.first, MealCourseType.salad},
+          MealSlot.dinner: {},
+        },
+        createdAt: now,
+        updatedAt: now,
+      ));
+      final loaded = (await dao.getProfile())!;
+      expect(loaded.mealComposition, isNotNull);
+      expect(loaded.mealComposition![MealSlot.lunch],
+          {MealCourseType.first, MealCourseType.salad});
+      // Пустой набор — сознательное «одно блюдо на приём», не теряется.
+      expect(loaded.mealComposition![MealSlot.dinner], isEmpty);
+    });
+
+    test('профиль без настройки состава — mealComposition null', () async {
+      await dao.save(profile());
+      final loaded = (await dao.getProfile())!;
+      expect(loaded.mealComposition, isNull,
+          reason: 'null — «не настраивалось», действует шаблон v0.6.9');
+    });
+
+    test('битый JSON состава читается как null, профиль живёт', () async {
+      await dao.save(profile());
+      await db.update('user_profile', {'meal_composition': 'не-json'},
+          where: 'id = 1');
+      final loaded = (await dao.getProfile())!;
+      expect(loaded.mealComposition, isNull);
+      expect(loaded.dailyCalories, 2100);
+    });
+
+    test('чужие слоты и курсы отбрасываются, свои читаются', () async {
+      await dao.save(profile());
+      await db.update(
+        'user_profile',
+        {
+          'meal_composition': '{"v":1,"slots":{'
+              '"lunch":["first","caviar_tower"],'
+              '"dinner":["dessert"],'
+              '"breakfast":["salad"]}}',
+        },
+        where: 'id = 1',
+      );
+      final loaded = (await dao.getProfile())!;
+      expect(loaded.mealComposition![MealSlot.lunch],
+          {MealCourseType.first},
+          reason: 'мусорный курс caviar_tower отброшен');
+      expect(loaded.mealComposition![MealSlot.dinner],
+          {MealCourseType.dessert});
+      // Завтрак не настраивается — ключ даже не читается.
+      expect(loaded.mealComposition!.containsKey(MealSlot.breakfast),
+          isFalse);
     });
   });
 }

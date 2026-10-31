@@ -991,6 +991,28 @@ class AppLocalizationsRu extends AppLocalizations {
       'Блюда, которым нужна отсутствующая техника, попадают в план с подсказкой замены (например, небольшую запеканку можно приготовить на плите под крышкой); большие духовочные блюда (4+ порций) исключаются.';
 
   @override
+  String get profileComposition => 'Состав приёмов пищи';
+
+  @override
+  String get profileCompositionHint =>
+      'Из каких блюд собирать обед и ужин вместо одного. «Второе» всегда замыкает приём и добирает калораж порциями; десерт добавляется к приёмам с целью от 950 ккал. Уберите все курсы — приём станет одним блюдом.';
+
+  @override
+  String get profileCompositionReset => 'Вернуть по умолчанию';
+
+  @override
+  String get courseFirst => 'Первое';
+
+  @override
+  String get courseMain => 'Второе';
+
+  @override
+  String get courseSalad => 'Салат';
+
+  @override
+  String get courseDessert => 'Десерт';
+
+  @override
   String get settingsEquipmentAll => 'Вся техника есть';
 
   @override

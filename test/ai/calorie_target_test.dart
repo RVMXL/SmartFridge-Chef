@@ -171,4 +171,113 @@ void main() {
           courseServingRank('salad'), lessThan(courseServingRank('dessert')));
     });
   });
+
+  group('настраиваемый состав (v0.6.10)', () {
+    test('builder без настройки воспроизводит эталонные шаблоны v0.6.9',
+        () {
+      for (final slot in [MealSlot.lunch, MealSlot.dinner]) {
+        final built = compositionTemplate(slot, null)!;
+        final reference = composedCourses[slot]!;
+        expect(built.length, reference.length, reason: slot.key);
+        for (var i = 0; i < built.length; i++) {
+          expect(built[i].categories, reference[i].categories,
+              reason: '${slot.key}: курс $i');
+          expect(built[i].share, closeTo(reference[i].share, 1e-9),
+              reason: '${slot.key}: доля курса $i');
+          expect(built[i].optional, reference[i].optional,
+              reason: '${slot.key}: обязательность курса $i');
+          expect(built[i].minSlotKcal, reference[i].minSlotKcal,
+              reason: '${slot.key}: порог курса $i');
+        }
+      }
+    });
+
+    test('завтрак и перекус не настраиваются — слот без состава', () {
+      expect(compositionTemplate(MealSlot.breakfast, null), isNull);
+      expect(
+        compositionTemplate(MealSlot.snack, {
+          MealSlot.snack: {MealCourseType.dessert},
+        }),
+        isNull,
+        reason: 'чужие слоты в настройке не читаются',
+      );
+    });
+
+    test('обед только с первым: «второе» забирает остаток доли', () {
+      final t = compositionTemplate(MealSlot.lunch, {
+        MealSlot.lunch: {MealCourseType.first},
+      })!;
+      expect(t.length, 2);
+      expect(t.first.categories, ['soup']);
+      expect(t.first.share, closeTo(0.27, 1e-9));
+      expect(t.first.optional, isTrue);
+      expect(t.last.categories, containsAll(['main', 'side']));
+      expect(t.last.share, closeTo(0.73, 1e-9));
+      expect(t.last.optional, isFalse, reason: '«второе» не отключается');
+    });
+
+    test('пустой набор курсов — приём из одного блюда', () {
+      final t = compositionTemplate(MealSlot.dinner, {
+        MealSlot.dinner: {},
+      })!;
+      expect(t.length, 1);
+      expect(t.single.optional, isFalse);
+      expect(t.single.share, closeTo(1.0, 1e-9));
+    });
+
+    test('слота нет в настройке — шаблон по умолчанию', () {
+      final t = compositionTemplate(MealSlot.lunch, {
+        MealSlot.dinner: {},
+      })!;
+      // Обед не тронут — полное «первое + салат + десерт + второе».
+      expect(t.length, 4);
+      // Сумма долей всегда 1.0.
+      expect(t.fold<double>(0, (s, c) => s + c.share), closeTo(1.0, 1e-9));
+    });
+
+    test('ужин со всеми курсами: доли в сумме дают 1', () {
+      final t = compositionTemplate(MealSlot.dinner, {
+        MealSlot.dinner: MealCourseType.values.toSet(),
+      })!;
+      expect(t.fold<double>(0, (s, c) => s + c.share), closeTo(1.0, 1e-9));
+      expect(t.any((c) => c.categories.contains('soup')), isTrue);
+      expect(t.any((c) => c.categories.contains('dessert')), isTrue);
+      expect(t.last.optional, isFalse, reason: '«второе» — последним');
+    });
+
+    test('десерт настраивается, но к малым приёмам не добавляется', () {
+      final t = compositionTemplate(MealSlot.lunch, {
+        MealSlot.lunch: {MealCourseType.dessert},
+      })!;
+      final dessert =
+          t.firstWhere((c) => c.categories.contains('dessert'));
+      expect(dessert.minSlotKcal, kDessertMinSlotKcal,
+          reason: 'порог сохраняется при любом наборе курсов');
+      expect(dessert.share, closeTo(0.14, 1e-9));
+    });
+
+    test('дефолтные наборы курсов заданы только для обеда и ужина', () {
+      expect(defaultCourseSides.keys.toSet(),
+          {MealSlot.lunch, MealSlot.dinner});
+      expect(
+        defaultCourseSides[MealSlot.lunch],
+        containsAll([
+          MealCourseType.first,
+          MealCourseType.salad,
+          MealCourseType.dessert,
+        ]),
+      );
+      expect(defaultCourseSides[MealSlot.dinner], {MealCourseType.salad});
+    });
+
+    test('ключи курсов: разбор и отбрасывание неизвестных', () {
+      expect(MealCourseType.fromKey('first'), MealCourseType.first);
+      expect(MealCourseType.fromKey('salad'), MealCourseType.salad);
+      expect(MealCourseType.fromKey('dessert'), MealCourseType.dessert);
+      // Категория рецепта — не курс: «первое» хранится как first.
+      expect(MealCourseType.fromKey('soup'), isNull);
+      expect(MealCourseType.fromKey('мимо'), isNull);
+      expect(MealCourseType.fromKey(''), isNull);
+    });
+  });
 }

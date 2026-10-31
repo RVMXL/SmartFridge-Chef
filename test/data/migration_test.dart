@@ -9,10 +9,12 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'package:smart_fridge_chef/ai/calorie_target.dart';
 import 'package:smart_fridge_chef/ai/equipment.dart';
 import 'package:smart_fridge_chef/data/database.dart';
 import 'package:smart_fridge_chef/data/dao/profile_dao.dart';
 import 'package:smart_fridge_chef/data/models/product.dart';
+import 'package:smart_fridge_chef/data/models/recipe.dart';
 import 'package:smart_fridge_chef/data/models/user_profile.dart';
 
 void main() {
@@ -587,5 +589,63 @@ void main() {
     expect(rows.single['kcal'], 900.0);
     await db.close();
     });
+
+  test('v11 -> v12: meal_composition добавлена, профиль жив (v0.6.10)',
+      () async {
+    // 1. База версии 11 (v0.6.8–0.6.9): все таблицы и колонки до
+    //    настраиваемого состава приёмов пищи.
+    final v11 = await databaseFactory.openDatabase(dbPath,
+        options: OpenDatabaseOptions(
+          version: 11,
+          onCreate: (db, version) async {
+            final batch = db.batch();
+            AppDatabase.createV1Tables(batch);
+            AppDatabase.createV2Tables(batch);
+            AppDatabase.createV3Tables(batch);
+            AppDatabase.createV4Columns(batch);
+            AppDatabase.createV5Columns(batch);
+            AppDatabase.createV6Columns(batch);
+            AppDatabase.createV7Columns(batch);
+            AppDatabase.createV8Tables(batch);
+            batch.execute(
+                'ALTER TABLE products ADD COLUMN currency TEXT;');
+            AppDatabase.createV10Columns(batch);
+            AppDatabase.createV11Columns(batch);
+            await batch.commit(noResult: true);
+          },
+        ));
+    final now = DateTime(2026, 10, 24).toIso8601String();
+    await v11.insert('user_profile', {
+      'daily_calories': 2500,
+      'allergies': '[]',
+      'meals_per_day': 3,
+      'onboarded': 1,
+      'created_at': now,
+      'updated_at': now,
+    });
+    await v11.close();
+
+    // 2. Открытие текущей версией накатывает v12.
+    final db = await AppDatabase.open(absolutePath: dbPath);
+    expect(await db.getVersion(), AppDatabase.dbVersion);
+
+    // 3. Старый профиль: настройка состава — null («не настраивалось»),
+    //    действует шаблон v0.6.9, поведение не меняется.
+    final dao = ProfileDao(db);
+    final legacy = (await dao.getProfile())!;
+    expect(legacy.dailyCalories, 2500);
+    expect(legacy.mealComposition, isNull);
+
+    // 4. Новая настройка сохраняется и читается (roundtrip на живой базе).
+    await dao.save(legacy.copyWith(mealComposition: {
+      MealSlot.lunch: {MealCourseType.first},
+      MealSlot.dinner: {},
+    }));
+    final reloaded = (await dao.getProfile())!;
+    expect(reloaded.mealComposition![MealSlot.lunch],
+        {MealCourseType.first});
+    expect(reloaded.mealComposition![MealSlot.dinner], isEmpty);
+    await db.close();
+  });
   });
 }
