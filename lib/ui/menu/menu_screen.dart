@@ -380,52 +380,100 @@ class _DayCard extends StatelessWidget {
                 ),
               ),
             ),
-          for (final meal in day.meals)
-            () {
-              // Пометка замены техники (v0.6.4): только заместимые
-              // расхождения — блокирующее не попадает в план.
-              final equipmentNote = _equipmentGaps(context, meal.recipe)
-                  .where((g) => g.substitutable)
-                  .map((g) => '${equipmentLabel(l, g.equipment)} → '
-                      '${equipmentSubstShort(l, g.equipment)}')
-                  .toList();
-              return ListTile(
-                leading: Icon(slotIcon(meal.slot),
+          // v0.6.9: блюда составного приёма (первое, второе, салат…)
+          // идут подряд с одним slot_order — группируем их под общим
+          // заголовком слота; одиночные приёмы выглядят как раньше.
+          for (final group in _mealGroups(day.meals))
+            if (group.length == 1)
+              _mealTile(context, l, group.single, showSlot: true)
+            else ...[
+              ListTile(
+                dense: true,
+                leading: Icon(slotIcon(group.first.slot),
                     color: theme.colorScheme.primary),
-                title: Text(meal.recipe.title(localeTag)),
+                title: Text(slotLabel(l, group.first.slot),
+                    style: theme.textTheme.titleSmall),
                 subtitle: Text(
-                  '${slotLabel(l, meal.slot)} · ${meal.kcal} ${l.unitKcal}'
-                  // Порции (v0.6.8): план добирает калораж слота порциями —
-                  // честно показываем «×2 порции», калорийность уже с ними.
-                  '${meal.servings > 1 ? ' · ${l.menuPlannedServings(meal.servings)}' : ''}'
-                  '${meal.usesExpiring.isEmpty ? '' : ' · ★ ${meal.usesExpiring.length}'}'
-                  '${equipmentNote.isEmpty ? '' : ' · ${l.menuEquipmentNote(equipmentNote.join(', '))}'}',
+                  '${group.fold<int>(0, (s, m) => s + m.kcal)} '
+                  '${l.unitKcal}',
                   style: theme.textTheme.bodySmall,
                 ),
-                // Нелюбимое в малом количестве (v0.5.4): честная пометка
-                // «содержит: лук» под приёмом пищи.
-                trailing: meal.minorDislikes.isEmpty
-                    ? const Icon(Icons.chevron_right)
-                    : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              l.menuContainsDislike(
-                                  meal.minorDislikes.take(2).join(', ')),
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.tertiary),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const Icon(Icons.chevron_right),
-                        ],
-                      ),
-                onTap: () => _showRecipe(context, meal),
-              );
-            }(),
+              ),
+              for (final meal in group)
+                _mealTile(context, l, meal, showSlot: false),
+            ],
         ],
       ),
+    );
+  }
+
+  /// Подряд идущие блюда одного слота (v0.6.9): составной приём читается
+  /// одним блоком, порядок записей (подача) сохраняется.
+  List<List<PlannedMeal>> _mealGroups(List<PlannedMeal> meals) {
+    final groups = <List<PlannedMeal>>[];
+    for (final meal in meals) {
+      if (groups.isNotEmpty && groups.last.last.slot == meal.slot) {
+        groups.last.add(meal);
+      } else {
+        groups.add([meal]);
+      }
+    }
+    return groups;
+  }
+
+  /// Строка блюда плана (v0.6.9): в составе приёма подпись слота несёт
+  /// заголовок блока, поэтому у блюда она опускается ([showSlot]).
+  Widget _mealTile(
+    BuildContext context,
+    AppLocalizations l,
+    PlannedMeal meal, {
+    required bool showSlot,
+  }) {
+    final theme = Theme.of(context);
+    final localeTag = Localizations.localeOf(context).languageCode;
+    // Пометка замены техники (v0.6.4): только заместимые расхождения —
+    // блокирующее не попадает в план.
+    final equipmentNote = _equipmentGaps(context, meal.recipe)
+        .where((g) => g.substitutable)
+        .map((g) =>
+            '${equipmentLabel(l, g.equipment)} → '
+            '${equipmentSubstShort(l, g.equipment)}')
+        .toList();
+    return ListTile(
+      leading: showSlot
+          ? Icon(slotIcon(meal.slot), color: theme.colorScheme.primary)
+          : const SizedBox(width: 24),
+      title: Text(meal.recipe.title(localeTag)),
+      subtitle: Text(
+        '${showSlot ? '${slotLabel(l, meal.slot)} · ' : ''}'
+        '${meal.kcal} ${l.unitKcal}'
+        // Порции (v0.6.8): план добирает калораж порциями — честно
+        // показываем «×2 порции», калорийность уже с ними.
+        '${meal.servings > 1 ? ' · ${l.menuPlannedServings(meal.servings)}' : ''}'
+        '${meal.usesExpiring.isEmpty ? '' : ' · ★ ${meal.usesExpiring.length}'}'
+        '${equipmentNote.isEmpty ? '' : ' · ${l.menuEquipmentNote(equipmentNote.join(', '))}'}',
+        style: theme.textTheme.bodySmall,
+      ),
+      // Нелюбимое в малом количестве (v0.5.4): честная пометка
+      // «содержит: лук» под приёмом пищи.
+      trailing: meal.minorDislikes.isEmpty
+          ? const Icon(Icons.chevron_right)
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    l.menuContainsDislike(
+                        meal.minorDislikes.take(2).join(', ')),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.tertiary),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const Icon(Icons.chevron_right),
+              ],
+            ),
+      onTap: () => _showRecipe(context, meal),
     );
   }
 

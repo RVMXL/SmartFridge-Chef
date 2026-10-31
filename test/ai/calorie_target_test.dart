@@ -92,4 +92,83 @@ void main() {
           slotCategories[MealSlot.snack], containsAll(['snack', 'dessert']));
     });
   });
+
+  group('составные приёмы (v0.6.9)', () {
+    test('шаблоны состава есть только у обеда и ужина', () {
+      expect(composedCourses.keys.toSet(),
+          {MealSlot.lunch, MealSlot.dinner});
+      // Завтрак и перекус собираются из одного блюда с добором порций.
+      expect(composedCourses.containsKey(MealSlot.breakfast), isFalse);
+      expect(composedCourses.containsKey(MealSlot.snack), isFalse);
+    });
+
+    test('в каждом шаблоне ровно один обязательный курс — «второе»', () {
+      for (final entry in composedCourses.entries) {
+        final closing =
+            entry.value.where((c) => !c.optional).toList();
+        expect(closing.length, 1,
+            reason: 'слот ${entry.key.key}: состав не может быть без «второго»');
+        expect(closing.single.categories, containsAll(['main', 'side']));
+      }
+    });
+
+    test('доли курсов укладываются в цель слота', () {
+      // Валидные категории базы (Recipe.category).
+      const recipeCategories = {
+        'breakfast', 'soup', 'main', 'salad', 'side', 'snack', 'dessert',
+      };
+      for (final entry in composedCourses.entries) {
+        final sum =
+            entry.value.fold<double>(0, (s, c) => s + c.share);
+        expect(sum, lessThanOrEqualTo(1.0001),
+            reason: 'слот ${entry.key.key}: $sum');
+        for (final c in entry.value) {
+          expect(c.share, greaterThan(0));
+          expect(c.share, lessThan(1));
+          for (final cat in c.categories) {
+            expect(recipeCategories, contains(cat),
+                reason: '${entry.key.key}: курс $cat');
+          }
+        }
+        // Категории обязательного «второго» — из допустимых слоту
+        // (для боковых курсов возможны категории состава вроде десерта,
+        // которых в одиночном слоте нет).
+        final closing = entry.value.firstWhere((c) => !c.optional);
+        for (final cat in closing.categories) {
+          expect(slotCategories[entry.key]!, contains(cat),
+              reason: '${entry.key.key}: «второе» $cat');
+        }
+      }
+    });
+
+    test('десерт — необязательный курс больших обедов', () {
+      final lunch = composedCourses[MealSlot.lunch]!;
+      final dessert =
+          lunch.firstWhere((c) => c.categories.contains('dessert'));
+      expect(dessert.optional, isTrue);
+      expect(dessert.minSlotKcal, greaterThan(0),
+          reason: 'к малым приёмам десерт не добавляется');
+      expect(
+        composedCourses[MealSlot.dinner]!
+            .any((c) => c.categories.contains('dessert')),
+        isFalse,
+        reason: 'ужин — второе и салат, без десерта',
+      );
+    });
+
+    test('пороги состава согласованы', () {
+      expect(kComposeMinSlotKcal, greaterThan(kMinCourseTargetKcal),
+          reason: 'при цели ниже порога состава курсы не собираются');
+      expect(kMinCourseTargetKcal, greaterThanOrEqualTo(100));
+    });
+
+    test('порядок подачи: первое → второе → салат → десерт', () {
+      expect(courseServingRank('soup'), lessThan(courseServingRank('main')));
+      expect(courseServingRank('main'), courseServingRank('side'),
+          reason: 'гарнир — равноправное «второе»');
+      expect(courseServingRank('main'), lessThan(courseServingRank('salad')));
+      expect(
+          courseServingRank('salad'), lessThan(courseServingRank('dessert')));
+    });
+  });
 }

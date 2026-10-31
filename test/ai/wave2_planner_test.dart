@@ -163,12 +163,17 @@ void main() {
       );
       final plan = await planner.generate(request(products: [rice]));
 
-      // Полный недельный спрос на рис по подобранным рецептам.
+      // Полный недельный спрос на рис по подобранным рецептам —
+      // с учётом запланированных порций (v0.6.8): у составных приёмов
+      // (v0.6.9) блюдо может быть запланировано не в «родные» порции
+      // рецепта, сырые граммы завышали бы спрос.
       var demand = 0.0;
       for (final day in plan.days) {
         for (final meal in day.meals) {
           for (final ing in meal.recipe.ingredients) {
-            if (ing.key == 'rice' && !ing.pantry) demand += ing.grams;
+            if (ing.key == 'rice' && !ing.pantry) {
+              demand += ing.grams * meal.servings / meal.recipe.servings;
+            }
           }
         }
       }

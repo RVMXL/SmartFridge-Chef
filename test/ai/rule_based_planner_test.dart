@@ -76,12 +76,16 @@ void main() {
       );
 
   group('структура плана', () {
-    test('7 дней x 3 приёма, даты последовательные', () async {
+    test('7 дней: составные обеды/ужины, даты последовательные (v0.6.9)',
+        () async {
       final plan = await planner.generate(request());
 
       expect(plan.daysCount, 7);
       for (final day in plan.days) {
-        expect(day.meals.length, 3);
+        // Обед — минимум первое и второе, ужин — второе и салат;
+        // завтрак — одиночный. Итого ≥ 5 блюд в дне.
+        expect(day.meals.length, greaterThanOrEqualTo(5),
+            reason: 'день ${day.dayIndex + 1}');
         expect(day.meals.map((m) => m.slot.key).toSet(),
             {'breakfast', 'lunch', 'dinner'});
       }
@@ -112,6 +116,120 @@ void main() {
       final slots = plan.days.first.meals.map((m) => m.slot.key).toSet();
       expect(slots, contains('snack'));
       expect(slots, contains('breakfast'));
+    });
+  });
+
+  group('составные приёмы (v0.6.9) — несколько блюд вместо порций', () {
+    test('обед: первое, второе, салат — в порядке подачи', () async {
+      final plan = await planner.generate(request());
+      for (final day in plan.days) {
+        final lunch =
+            day.meals.where((m) => m.slot == MealSlot.lunch).toList();
+        expect(lunch.length, greaterThanOrEqualTo(3),
+            reason: 'день ${day.dayIndex + 1}: первое + второе + салат');
+        expect(lunch.first.recipe.category, 'soup',
+            reason: 'подача начинается с первого');
+        // «Второе» — main или гарнир side (AI-2): оба закрывают слот.
+        expect(
+          lunch.any((m) =>
+              m.recipe.category == 'main' || m.recipe.category == 'side'),
+          isTrue,
+          reason: 'день ${day.dayIndex + 1}: состав держится на «втором»',
+        );
+        expect(lunch.map((m) => m.recipe.category), contains('salad'),
+            reason: 'день ${day.dayIndex + 1}');
+        // Порядок подачи не убывает (первое → второе → салат).
+        final ranks = lunch
+            .map((m) => courseServingRank(m.recipe.category))
+            .toList();
+        expect(ranks, List<int>.from(ranks)..sort(),
+            reason: 'день ${day.dayIndex + 1}: $ranks');
+      }
+    });
+
+    test('ужин — второе и салат; завтрак и перекус — одиночные', () async {
+      final plan = await planner.generate(request(mealsPerDay: 4));
+      for (final day in plan.days) {
+        expect(
+          day.meals.where((m) => m.slot == MealSlot.breakfast).length,
+          1,
+          reason: 'завтрак не собирается в состав',
+        );
+        expect(
+          day.meals.where((m) => m.slot == MealSlot.snack).length,
+          1,
+          reason: 'перекус не собирается в состав',
+        );
+        final dinner =
+            day.meals.where((m) => m.slot == MealSlot.dinner).toList();
+        expect(dinner.length, greaterThanOrEqualTo(2),
+            reason: 'день ${day.dayIndex + 1}');
+        expect(
+          dinner.any((m) =>
+              m.recipe.category == 'main' || m.recipe.category == 'side'),
+          isTrue,
+          reason: 'ужин держится на «втором»',
+        );
+      }
+    });
+
+    test('боковые курсы — строго одна порция', () async {
+      final plan =
+          await planner.generate(request(prof: profile(calories: 2750)));
+      for (final day in plan.days) {
+        for (final m in day.meals) {
+          const sideCategories = {'soup', 'salad', 'dessert'};
+          if (sideCategories.contains(m.recipe.category)) {
+            expect(m.servings, 1,
+                reason: '${m.recipe.titleRu} '
+                    '(${m.recipe.category}): никаких «×2 салата»');
+          }
+        }
+      }
+    });
+
+    test('калораж составного приёма держится у цели слота', () async {
+      const target2000 = 2000, target2750 = 2750;
+      final lunches = <int>[];
+      final dinners = <int>[];
+      for (final prof in [profile(calories: target2000), profile(calories: target2750)]) {
+        final plan = await planner.generate(request(prof: prof));
+        for (final day in plan.days) {
+          lunches.add(day.meals
+              .where((m) => m.slot == MealSlot.lunch)
+              .fold<int>(0, (s, m) => s + m.kcal));
+          dinners.add(day.meals
+              .where((m) => m.slot == MealSlot.dinner)
+              .fold<int>(0, (s, m) => s + m.kcal));
+        }
+      }
+      final lunch2000 = lunches.sublist(0, 7);
+      final dinner2000 = dinners.sublist(0, 7);
+      final lunch2750 = lunches.sublist(7);
+      final dinner2750 = dinners.sublist(7);
+      int sum(List<int> v) => v.fold<int>(0, (a, b) => a + b);
+      // Цели слотов: обед 800/1100, ужин 600/825. Состав суммой курсов
+      // не дальше ±20% от цели — иначе калораж считался бы хуже,
+      // чем одиночное блюдо до v0.6.9.
+      expect(sum(lunch2000) / 7, inExclusiveRange(800 * 0.8, 800 * 1.2),
+          reason: 'обед 2000: ${sum(lunch2000) / 7}');
+      expect(sum(dinner2000) / 7, inExclusiveRange(600 * 0.8, 600 * 1.2),
+          reason: 'ужин 2000: ${sum(dinner2000) / 7}');
+      expect(sum(lunch2750) / 7, inExclusiveRange(1100 * 0.8, 1100 * 1.2),
+          reason: 'обед 2750: ${sum(lunch2750) / 7}');
+      expect(sum(dinner2750) / 7, inExclusiveRange(825 * 0.8, 825 * 1.2),
+          reason: 'ужин 2750: ${sum(dinner2750) / 7}');
+    });
+
+    test('малый калораж: слоты ниже порога остаются одиночными', () async {
+      final plan =
+          await planner.generate(request(prof: profile(calories: 1200)));
+      for (final day in plan.days) {
+        expect(day.meals.length, 3,
+            reason: 'обед 480 и ужин 360 ккал — ниже порога состава');
+        expect(day.meals.where((m) => m.slot == MealSlot.lunch).length, 1);
+        expect(day.meals.where((m) => m.slot == MealSlot.dinner).length, 1);
+      }
     });
   });
 
@@ -591,7 +709,9 @@ void main() {
           seed: 3));
       expect(plan.days.length, 7);
       for (final day in plan.days) {
-        expect(day.meals.length, 3);
+        // Пул стола 4Б узок: состав может не собраться — слоты уходят
+        // в одиночные блюда, но три приёма в дне остаются (v0.6.9).
+        expect(day.meals.length, greaterThanOrEqualTo(3));
       }
       // Свежие салаты (огурцы+помидоры) не должны попасть в план.
       for (final day in plan.days) {

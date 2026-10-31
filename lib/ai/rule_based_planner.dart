@@ -5,17 +5,22 @@
 ///     лечебные столы по Певзнеру (v0.5.9 — наравне с аллергиями:
 ///     это назначение врача, а не предпочтение), максимальное время
 ///     готовки.
-///  2. Категория рецепта должна подходить слоту (завтрак — завтраки,
-///     обед — супы/основные/салаты, ужин — основные/салаты, перекус —
-///     перекусы/десерты).
-///  3. Порции (v0.6.8): число порций подбирается под целевой калораж
-///     слота ([plannedServingsFor]) — низкокалорийная база больше не
-///     рождает дни втрое ниже цели; остаток после добора штрафуется.
+///  2. Состав приёма (v0.6.9): обед и ужин с достаточно большой целью
+///     собираются из НЕСКОЛЬКИХ блюд по шаблону курсов
+///     ([composedCourses]) — первое, второе, салат, к большим приёмам
+///     десерт; боковые курсы — по одной порции, «второе» забирает
+///     остаток цели и может добрать порциями. Категория каждого курса
+///     подходит своему курсу; при малой цели или бедном пуле слот
+///     остаётся одиночным блюдом (шаг 3).
+///  3. Одиночный слот: категория рецепта должна подходить слоту
+///     (завтрак — завтраки, обед — супы/основные/салаты, ужин —
+///     основные/салаты, перекус — перекусы/десерты); порции (v0.6.8)
+///     добирают целевой калораж ([plannedServingsFor]).
 ///  4. Скоринг (см. [_score]): покрытие холодильника, бонус за продукты
 ///     с истекающим сроком (порог синхронизирован с core/freshness),
-///     попадание в целевую калорийность слота (с учётом порций),
-///     анти-повторы (тот же рецепт и та же «семья» блюда штрафуются
-///     по нарастающей).
+///     попадание в целевую калорийность (слота или курса, с учётом
+///     порций), анти-повторы (тот же рецепт и та же «семья» блюда
+///     штрафуются по нарастающей, в том числе внутри одного приёма).
 ///  5. Выбор максимума; зерно [Random] делает план воспроизводимым:
 ///     тот же seed и данные — тот же план, новый seed — новая неделя.
 ///
@@ -80,6 +85,23 @@ abstract final class ScoreWeights {
 
   /// Диапазон случайного джиттера [0, jitter).
   static const int jitter = 7;
+}
+
+/// Режим выбора блюда (v0.6.9): единая механика [_pickDish] обслуживает
+/// и одиночные слоты, и курсы составного приёма.
+enum _PickMode {
+  /// Одиночное блюдо на весь слот (завтрак, перекус, малые цели, фолбэк):
+  /// порции добирают калораж (v0.6.8), суп/салат в основных слотах
+  /// получают смягчённый штраф калорийности (AI-3).
+  slot,
+
+  /// Боковой курс состава («первое», салат, десерт): строго одна порция,
+  /// цель курса — его доля слота, штраф калорийности без смягчения.
+  sideCourse,
+
+  /// Замыкающий курс («второе»): цель — весь остаток слота, порции
+  /// добирают недобор (v0.6.8).
+  closingCourse,
 }
 
 /// Результат жёсткой фильтрации с диагностикой (v0.5.0).
@@ -150,7 +172,11 @@ class RuleBasedPlanner implements MealPlanner {
       final meals = <PlannedMeal>[];
       for (final split in splits) {
         final target = slotTargetKcal(request.profile.dailyCalories, split);
-        final choice = _pickRecipe(
+        // v0.6.9: составной приём — несколько блюд (первое, второе,
+        // салат, десерт) вместо раздувания порций одного. Малая цель,
+        // слот без шаблона или бедный пул — прежняя схема «одно блюдо
+        // × порции» (v0.6.8).
+        var dishes = _composeMeal(
           pool: pool,
           slot: split.slot,
           targetKcal: target,
@@ -163,54 +189,81 @@ class RuleBasedPlanner implements MealPlanner {
           ownedEquipment: request.profile.equipment?.toSet(),
           seed: request.seed,
         );
-        if (choice == null) {
+        if (dishes == null) {
+          final single = _pickRecipe(
+            pool: pool,
+            slot: split.slot,
+            targetKcal: target,
+            fridge: fridge,
+            stock: stock,
+            usedRecipes: usedRecipes,
+            usedFamilies: usedFamilies,
+            usedSides: usedSides,
+            diets: request.profile.diets,
+            ownedEquipment: request.profile.equipment?.toSet(),
+            seed: request.seed,
+          );
+          dishes = single == null ? const [] : [single];
+        }
+        if (dishes.isEmpty) {
           skippedSlots.add('день ${d + 1}, ${split.slot.key}');
           continue;
         }
-        final recipe = choice.recipe;
-        final servings = choice.servings;
-        final match = _matcher.matchRecipe(recipe, fridge, remaining: stock);
-        coveredKeys.addAll(match.matchedKeys);
-        // Нелюбимое в малом количестве (приправа) — допустимо, но план
-        // честно помечает «содержит: лук» (v0.5.4).
-        final tolerated =
-            DislikeEngine.evaluate(recipe, request.profile.dislikes)
-                .toleratedMarks;
-        meals.add(PlannedMeal(
-          dayIndex: d,
-          slot: split.slot,
-          slotOrder: split.order,
-          recipe: recipe,
-          usesExpiring: match.expiringNames,
-          coverage: match.coverage,
-          minorDislikes: tolerated,
-          servings: servings,
-        ));
-        usedRecipes[recipe.id] = (usedRecipes[recipe.id] ?? 0) + 1;
-        if (recipe.family.isNotEmpty) {
-          usedFamilies[recipe.family] =
-              (usedFamilies[recipe.family] ?? 0) + 1;
-        }
-        if (recipe.secondFamily.isNotEmpty) {
-          usedSides[recipe.secondFamily] =
-              (usedSides[recipe.secondFamily] ?? 0) + 1;
-        }
-        // AI-5: списание подобранного блюда — потребность ингредиентов
-        // (с учётом запланированных порций, v0.6.8) уменьшает остаток;
-        // нехватка в момент подбора копится в дефицит (он попадёт в
-        // список покупок, без двойного вычета).
-        final scale = servings / recipe.servings;
-        for (final ing in recipe.ingredients) {
-          if (ing.pantry) continue;
-          final cur = stock[ing.key];
-          if (cur == null) continue; // счётная позиция
-          final need = ing.grams * scale;
-          if (cur >= need) {
-            stock[ing.key] = cur - need;
-          } else {
-            deficits[ing.key] =
-                (deficits[ing.key] ?? 0) + (need - cur);
-            stock[ing.key] = 0.0;
+        // Каждое блюдо приёма — самостоятельная запись плана: свои
+        // порции, пометки и списание. Учёт повторов (блюдо/семья/гарнир)
+        // обновляется ПОСЛЕ каждого блюда, поэтому следующий курс того же
+        // приёма штрафуется за пересечение семей с уже выбранными —
+        // «куриное второе + куриный салат» выигрывает только при лучшем
+        // покрытии холодильника.
+        for (final choice in dishes) {
+          final recipe = choice.recipe;
+          final servings = choice.servings;
+          final match =
+              _matcher.matchRecipe(recipe, fridge, remaining: stock);
+          coveredKeys.addAll(match.matchedKeys);
+          // Нелюбимое в малом количестве (приправа) — допустимо, но план
+          // честно помечает «содержит: лук» (v0.5.4).
+          final tolerated =
+              DislikeEngine.evaluate(recipe, request.profile.dislikes)
+                  .toleratedMarks;
+          meals.add(PlannedMeal(
+            dayIndex: d,
+            slot: split.slot,
+            slotOrder: split.order,
+            recipe: recipe,
+            usesExpiring: match.expiringNames,
+            coverage: match.coverage,
+            minorDislikes: tolerated,
+            servings: servings,
+          ));
+          usedRecipes[recipe.id] = (usedRecipes[recipe.id] ?? 0) + 1;
+          if (recipe.family.isNotEmpty) {
+            usedFamilies[recipe.family] =
+                (usedFamilies[recipe.family] ?? 0) + 1;
+          }
+          if (recipe.secondFamily.isNotEmpty) {
+            usedSides[recipe.secondFamily] =
+                (usedSides[recipe.secondFamily] ?? 0) + 1;
+          }
+          // AI-5: списание подобранного блюда — потребность ингредиентов
+          // (с учётом запланированных порций, v0.6.8) уменьшает остаток;
+          // нехватка в момент подбора копится в дефицит (он попадёт в
+          // список покупок, без двойного вычета). В составном приёме
+          // (v0.6.9) списание идёт блюдо за блюдом — следующий курс видит
+          // остаток после предыдущих.
+          final scale = servings / recipe.servings;
+          for (final ing in recipe.ingredients) {
+            if (ing.pantry) continue;
+            final cur = stock[ing.key];
+            if (cur == null) continue; // счётная позиция
+            final need = ing.grams * scale;
+            if (cur >= need) {
+              stock[ing.key] = cur - need;
+            } else {
+              deficits[ing.key] =
+                  (deficits[ing.key] ?? 0) + (need - cur);
+              stock[ing.key] = 0.0;
+            }
           }
         }
       }
@@ -440,9 +493,8 @@ class RuleBasedPlanner implements MealPlanner {
 
   // ------------------------------------------------------------ скоринг
 
-  /// Выбор рецепта слота: лучшая пара «блюдо × число порций».
-  /// Порции подбираются под цель ([plannedServingsFor]), штраф за
-  /// отклонение считается по ИТОГОВОМУ калоражу порций (v0.6.8).
+  /// Выбор рецепта слота (v0.6.9): обёртка [_pickDish] в режиме слота —
+  /// кандидаты из всех категорий слота с фолбэком на весь пул.
   ({Recipe recipe, int servings})? _pickRecipe({
     required List<Recipe> pool,
     required MealSlot slot,
@@ -455,12 +507,141 @@ class RuleBasedPlanner implements MealPlanner {
     required List<Diet> diets,
     required Set<KitchenEquipment>? ownedEquipment,
     required int seed,
+  }) =>
+      _pickDish(
+        pool: pool,
+        categories: slotCategories[slot]!,
+        targetKcal: targetKcal,
+        mode: _PickMode.slot,
+        allowPoolFallback: true,
+        slot: slot,
+        fridge: fridge,
+        stock: stock,
+        usedRecipes: usedRecipes,
+        usedFamilies: usedFamilies,
+        usedSides: usedSides,
+        diets: diets,
+        ownedEquipment: ownedEquipment,
+        seed: seed,
+      );
+
+  /// Составной приём (v0.6.9): несколько блюд вместо раздувания порций
+  /// одного (запрос пользователя: «первое, второе, десерт, салат»).
+  ///
+  /// Шаблон курсов — [composedCourses][слот], цель слота — не меньше
+  /// [kComposeMinSlotKcal]. Боковые курсы подбираются по своим долям
+  /// цели, каждое ровно в одну порцию; курс пропускается, если его цель
+  /// меньше [kMinCourseTargetKcal], пул курса пуст или приём мал для
+  /// курса ([MealCourse.minSlotKcal]). «Второе» — единственный
+  /// обязательный курс — получает весь остаток цели после ФАКТА боковых
+  /// блюд и добирает недобор порциями; резерв в полдоли «второго» не
+  /// даёт боковым курсам съесть его часть.
+  ///
+  /// Возвращает блюда в порядке подачи ([courseServingRank]) или null:
+  /// нет шаблона, цель мала или в составе меньше двух блюд — тогда слот
+  /// идёт по старой схеме «одно блюдо × порции».
+  List<({Recipe recipe, int servings})>? _composeMeal({
+    required List<Recipe> pool,
+    required MealSlot slot,
+    required int targetKcal,
+    required Map<String, FridgeKey> fridge,
+    required Map<String, double?> stock,
+    required Map<String, int> usedRecipes,
+    required Map<String, int> usedFamilies,
+    required Map<String, int> usedSides,
+    required List<Diet> diets,
+    required Set<KitchenEquipment>? ownedEquipment,
+    required int seed,
   }) {
-    final allowedCategories = slotCategories[slot]!;
-    var candidates = pool
-        .where((r) => allowedCategories.contains(r.category))
-        .toList();
+    final template = composedCourses[slot];
+    if (template == null || targetKcal < kComposeMinSlotKcal) return null;
+    final closing = template.firstWhere((c) => !c.optional);
+    final reserve = (targetKcal * closing.share * 0.5).round();
+    var remaining = targetKcal;
+    final dishes = <({Recipe recipe, int servings})>[];
+    for (final course in template) {
+      if (!course.optional) continue; // «второе» — последним, по остатку
+      if (targetKcal < course.minSlotKcal) continue;
+      final courseTarget = min(
+        (targetKcal * course.share).round(),
+        remaining - reserve,
+      );
+      if (courseTarget < kMinCourseTargetKcal) continue;
+      final pick = _pickDish(
+        pool: pool,
+        categories: course.categories,
+        targetKcal: courseTarget,
+        mode: _PickMode.sideCourse,
+        allowPoolFallback: false,
+        slot: slot,
+        fridge: fridge,
+        stock: stock,
+        usedRecipes: usedRecipes,
+        usedFamilies: usedFamilies,
+        usedSides: usedSides,
+        diets: diets,
+        ownedEquipment: ownedEquipment,
+        seed: seed,
+      );
+      if (pick == null) continue; // необязательный курс без пула
+      remaining -= pick.recipe.kcal * pick.servings;
+      dishes.add(pick);
+    }
+    // «Второе» замыкает приём: цель — весь остаток (минимум — нижняя
+    // граница цели слота из slotTargetKcal), порции добирают недобор.
+    final main = _pickDish(
+      pool: pool,
+      categories: closing.categories,
+      targetKcal: max(remaining, 120),
+      mode: _PickMode.closingCourse,
+      allowPoolFallback: false,
+      slot: slot,
+      fridge: fridge,
+      stock: stock,
+      usedRecipes: usedRecipes,
+      usedFamilies: usedFamilies,
+      usedSides: usedSides,
+      diets: diets,
+      ownedEquipment: ownedEquipment,
+      seed: seed,
+    );
+    if (main == null) return null;
+    dishes.add(main);
+    if (dishes.length < 2) return null; // состава нет — одиночное блюдо
+    // Порядок подачи: первое → второе → салат → десерт. Ранги курсов
+    // внутри состава различны (категории курсов не пересекаются),
+    // нестабильность sort не мешает.
+    dishes.sort((a, b) => courseServingRank(a.recipe.category)
+        .compareTo(courseServingRank(b.recipe.category)));
+    return dishes;
+  }
+
+  /// Выбор лучшей пары «блюдо × число порций» из кандидатов заданных
+  /// категорий (v0.6.9): единая механика для одиночных слотов и курсов
+  /// составного приёма. Порции: боковой курс — всегда одна (никаких
+  /// «×2 салата»); слот и «второе» — по цели ([plannedServingsFor]).
+  /// Пул без подходящих категорий: слот падает на весь пул
+  /// ([allowPoolFallback]), курс возвращает null (курс пропускается).
+  ({Recipe recipe, int servings})? _pickDish({
+    required List<Recipe> pool,
+    required List<String> categories,
+    required int targetKcal,
+    required _PickMode mode,
+    required bool allowPoolFallback,
+    required MealSlot slot,
+    required Map<String, FridgeKey> fridge,
+    required Map<String, double?> stock,
+    required Map<String, int> usedRecipes,
+    required Map<String, int> usedFamilies,
+    required Map<String, int> usedSides,
+    required List<Diet> diets,
+    required Set<KitchenEquipment>? ownedEquipment,
+    required int seed,
+  }) {
+    var candidates =
+        pool.where((r) => categories.contains(r.category)).toList();
     if (candidates.isEmpty) {
+      if (!allowPoolFallback) return null;
       // Фолбэк: слот без подходящих категорий (редкие профили) —
       // берём из всего отфильтрованного пула по калорийности.
       candidates = pool;
@@ -471,10 +652,13 @@ class RuleBasedPlanner implements MealPlanner {
     var bestServings = 1;
     var bestScore = double.negativeInfinity;
     for (final r in candidates) {
-      final servings = plannedServingsFor(
-        targetKcal: targetKcal,
-        kcalPerServing: r.kcal,
-      );
+      final servings = switch (mode) {
+        _PickMode.sideCourse => 1,
+        _ => plannedServingsFor(
+            targetKcal: targetKcal,
+            kcalPerServing: r.kcal,
+          ),
+      };
       final s = _score(
         recipe: r,
         servings: servings,
@@ -488,6 +672,10 @@ class RuleBasedPlanner implements MealPlanner {
         diets: diets,
         ownedEquipment: ownedEquipment,
         seed: seed,
+        // AI-3 смягчает штраф супов/салатов только в одиночном слоте:
+        // у курса цель уже соразмерна категории, смягчение заставило бы
+        // выбирать более калорийное блюдо курса.
+        dampenLightSides: mode == _PickMode.slot,
       );
       if (s > bestScore) {
         bestScore = s;
@@ -511,6 +699,7 @@ class RuleBasedPlanner implements MealPlanner {
     required List<Diet> diets,
     required Set<KitchenEquipment>? ownedEquipment,
     required int seed,
+    bool dampenLightSides = true,
   }) {
     final match = _matcher.matchRecipe(recipe, fridge, remaining: stock);
     var s = match.coverage * ScoreWeights.coverage;
@@ -541,7 +730,10 @@ class RuleBasedPlanner implements MealPlanner {
     // (236 ккал при цели 800) на ~200-е место из 399 — супы/салаты
     // системно меньше main-порции, поэтому для них в основных слотах
     // штраф умножается на 0.3. Иначе заявленный приоритет не работает.
-    if ((slot == MealSlot.lunch || slot == MealSlot.dinner) &&
+    // v0.6.9: в составном приёме курс подбирается под соразмерную ему
+    // цель — смягчение только раздувало бы блюдо курса (dampenLightSides).
+    if (dampenLightSides &&
+        (slot == MealSlot.lunch || slot == MealSlot.dinner) &&
         (recipe.category == 'soup' || recipe.category == 'salad')) {
       kcalPenalty *= 0.3;
     }
